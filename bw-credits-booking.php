@@ -8,6 +8,8 @@
 
 if (!defined('ABSPATH')) exit;
 
+require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
+
 class BW_Credits_Bookings_MVP {
     const CREDITS_TABLE      = 'bwallet_credits';
     const BOOKINGS_TABLE     = 'bwallet_bookings';
