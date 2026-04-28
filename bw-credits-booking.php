@@ -8,7 +8,10 @@
 
 if (!defined('ABSPATH')) exit;
 
+define('BW_CREDITS_BOOKING_FILE', __FILE__);
+
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
+require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
 class BW_Credits_Bookings_MVP {
     const CREDITS_TABLE      = 'bwallet_credits';
