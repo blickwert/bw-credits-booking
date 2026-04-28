@@ -1,0 +1,40 @@
+/* assets/bwallet-frontend.css */
+.bw-bwallet-btn {
+  cursor: pointer;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 0.75rem;
+  background: #fff;
+  line-height: 1.1;
+}
+
+.bw-bwallet-btn:hover {
+  border-color: rgba(0,0,0,.25);
+}
+
+.bw-bwallet-btn:active {
+  transform: translateY(1px);
+}
+
+.bw-bwallet-btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bw-bwallet-btn.is-loading {
+  opacity: 0.7;
+}
+
+.bw-bwallet-msg {
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.bw-bwallet-msg[data-state="error"] {
+  color: #b00020;
+}
+
+.bw-bwallet-msg[data-state="ok"] {
+  color: #116611;
+}
