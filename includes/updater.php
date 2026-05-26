@@ -26,6 +26,10 @@ class BW_GitHub_Updater {
         $this->slug   = plugin_basename($plugin_file);
         $this->folder = dirname($this->slug);
 
+        // Update-Hooks nur im Admin registrieren — verhindert Konflikte
+        // mit WooCommerce Helper der denselben Transient im Admin verarbeitet
+        if (!is_admin()) return;
+
         add_filter('pre_set_site_transient_update_plugins', [$this, 'inject_update']);
         add_filter('plugins_api',                           [$this, 'plugin_info'], 10, 3);
         add_filter('upgrader_post_install',                 [$this, 'fix_folder'],  10, 3);
@@ -64,10 +68,16 @@ class BW_GitHub_Updater {
 
     /* ---------------------------------------------------------
      * Update-Info in WP-Transient injizieren
+     *
+     * WooCommerce Helper iteriert über denselben Transient und erwartet
+     * vollständige Objekte mit allen Standard-WP-Feldern. Plugins müssen
+     * entweder in response[] ODER no_update[] stehen — nie in keinem.
      * --------------------------------------------------------- */
 
     public function inject_update($transient) {
-        if (empty($transient->checked[$this->slug])) return $transient;
+        if (!is_object($transient)) return $transient;
+        if (empty($transient->checked) || !is_array($transient->checked)) return $transient;
+        if (!array_key_exists($this->slug, $transient->checked)) return $transient;
 
         $release = $this->fetch_release();
         if (!$release) return $transient;
@@ -75,14 +85,30 @@ class BW_GitHub_Updater {
         $remote  = ltrim($release['tag_name'], 'v');
         $current = $transient->checked[$this->slug];
 
+        // Vollständiges Update-Objekt mit allen Standard-WP-Feldern
+        $obj = (object) [
+            'id'           => 'github.com/' . self::REPO,
+            'slug'         => $this->folder,
+            'plugin'       => $this->slug,
+            'new_version'  => $remote,
+            'url'          => 'https://github.com/' . self::REPO,
+            'package'      => $release['zipball_url'],
+            'icons'        => [],
+            'banners'      => [],
+            'banners_rtl'  => [],
+            'requires'     => '6.0',
+            'tested'       => '6.7',
+            'requires_php' => '7.4',
+        ];
+
         if (version_compare($remote, $current, '>')) {
-            $transient->response[$this->slug] = (object) [
-                'slug'        => $this->folder,
-                'plugin'      => $this->slug,
-                'new_version' => $remote,
-                'url'         => 'https://github.com/' . self::REPO,
-                'package'     => $release['zipball_url'],
-            ];
+            $transient->response[$this->slug] = $obj;
+            unset($transient->no_update[$this->slug]);
+        } else {
+            // Kein Update verfügbar — Plugin trotzdem in no_update eintragen
+            // damit WooCommerce Helper den Eintrag findet und nicht abbricht
+            $transient->no_update[$this->slug] = $obj;
+            unset($transient->response[$this->slug]);
         }
 
         return $transient;
@@ -107,6 +133,7 @@ class BW_GitHub_Updater {
             'homepage'      => 'https://github.com/' . self::REPO,
             'requires'      => '6.0',
             'tested'        => '6.7',
+            'requires_php'  => '7.4',
             'last_updated'  => $release['published_at'] ?? '',
             'sections'      => [
                 'description' => 'BW Credits + Bookings – WooCommerce Credit-Buchungssystem für Kurse.',
