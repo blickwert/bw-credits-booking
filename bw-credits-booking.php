@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.6.0
+ * Version: 0.7.0
  * Author: Blickwert
  */
 
@@ -11,6 +11,7 @@ if (!defined('ABSPATH')) exit;
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
 
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
+require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
 class BW_Credits_Bookings_MVP {
@@ -26,9 +27,13 @@ class BW_Credits_Bookings_MVP {
     // Product meta keys
     const PM_CREDIT_AMOUNT   = '_bw_credit_amount';
     const PM_VALID_DAYS      = '_bw_credit_valid_days';
+    const PM_CREDIT_SOURCE   = '_bw_credit_source';
+
+    const DB_VERSION         = 2;
 
     public static function init() {
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
+        add_action('plugins_loaded', [__CLASS__, 'maybe_migrate']);
 
         add_action('woocommerce_order_status_completed', [__CLASS__, 'handle_order_completed'], 10, 1);
         add_action('rest_api_init', [__CLASS__, 'register_rest_routes']);
@@ -65,6 +70,7 @@ class BW_Credits_Bookings_MVP {
             product_id BIGINT(20) UNSIGNED NULL,
             expires_at DATETIME NULL,
             status VARCHAR(16) NOT NULL DEFAULT 'available',
+            source VARCHAR(20) NOT NULL DEFAULT 'purchase',
             booking_id BIGINT(20) UNSIGNED NULL,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             PRIMARY KEY (id),
@@ -101,6 +107,15 @@ class BW_Credits_Bookings_MVP {
         if (get_option(self::OPT_CUTOFF_HOURS) === false) {
             add_option(self::OPT_CUTOFF_HOURS, 24);
         }
+
+        update_option('bw_db_version', self::DB_VERSION);
+    }
+
+    // Führt DB-Migration durch wenn Plugin aktualisiert wird (ohne Deaktivierung)
+    public static function maybe_migrate() {
+        if ((int) get_option('bw_db_version', 1) < self::DB_VERSION) {
+            self::activate();
+        }
     }
 
     /* -------------------------
@@ -131,8 +146,8 @@ class BW_Credits_Bookings_MVP {
         $js_src  = plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.js';
         $css_src = plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.css';
 
-        wp_enqueue_script($js_handle, $js_src, [], '0.6.0', true);
-        wp_enqueue_style($css_handle, $css_src, [], '0.6.0');
+        wp_enqueue_script($js_handle, $js_src, [], '0.7.0', true);
+        wp_enqueue_style($css_handle, $css_src, [], '0.7.0');
 
         wp_localize_script($js_handle, 'BW_BWALLET', [
             'restUrl' => esc_url_raw(rest_url('bw-credits/v1/')),
@@ -168,6 +183,7 @@ class BW_Credits_Bookings_MVP {
 
             $credit_amount = (int) get_post_meta($product_id, self::PM_CREDIT_AMOUNT, true);
             $valid_days    = (int) get_post_meta($product_id, self::PM_VALID_DAYS, true);
+            $credit_source = get_post_meta($product_id, self::PM_CREDIT_SOURCE, true) ?: 'purchase';
 
             if ($credit_amount <= 0) continue;
 
@@ -185,6 +201,7 @@ class BW_Credits_Bookings_MVP {
                 'product_id'    => $product_id,
                 'expires_at'    => $expires_at,
                 'amount'        => $credit_amount,
+                'source'        => $credit_source,
             ]);
         }
 
@@ -202,6 +219,9 @@ class BW_Credits_Bookings_MVP {
         $product_id    = isset($args['product_id']) ? (int) $args['product_id'] : null;
         $expires_at    = $args['expires_at'] ?? null;
         $amount        = (int) ($args['amount'] ?? 0);
+        $source        = in_array($args['source'] ?? '', ['purchase', 'membership'], true)
+                         ? $args['source']
+                         : 'purchase';
 
         if ($user_id <= 0 || $amount <= 0) return false;
 
@@ -213,8 +233,9 @@ class BW_Credits_Bookings_MVP {
                 'product_id'    => $product_id,
                 'expires_at'    => $expires_at,
                 'status'        => 'available',
+                'source'        => $source,
                 'booking_id'    => null,
-            ], ['%d','%d','%d','%d','%s','%s','%s']);
+            ], ['%d','%d','%d','%d','%s','%s','%s','%s']);
         }
         return true;
     }

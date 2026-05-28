@@ -37,6 +37,17 @@ add_action('woocommerce_product_options_general_product_data', function () {
         'desc_tip'          => true,
     ]);
 
+    woocommerce_wp_select([
+        'id'          => '_bw_credit_source',
+        'label'       => 'Credit Source',
+        'description' => 'purchase = Einmalkauf. membership = Membership-Credits (verfallen bei Kündigung).',
+        'desc_tip'    => true,
+        'options'     => [
+            'purchase'   => 'Purchase (Einmalkauf)',
+            'membership' => 'Membership (monatlich)',
+        ],
+    ]);
+
     echo '</div>';
 });
 
@@ -46,6 +57,12 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
     }
     if (isset($_POST['_bw_credit_valid_days'])) {
         $product->update_meta_data('_bw_credit_valid_days', intval($_POST['_bw_credit_valid_days']));
+    }
+    if (isset($_POST['_bw_credit_source'])) {
+        $source = in_array($_POST['_bw_credit_source'], ['purchase', 'membership'], true)
+                  ? $_POST['_bw_credit_source']
+                  : 'purchase';
+        $product->update_meta_data('_bw_credit_source', $source);
     }
 });
 
