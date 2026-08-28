@@ -105,8 +105,24 @@ class BW_Metaboxes {
         </p>
 
         <p class="description">
-            Der Versand der Zugangsdaten an die Teilnehmer wird mit dem E-Mail-System ergänzt.
+            Sobald hier zum ersten Mal ein Link gespeichert wird, gehen die Zugangsdaten
+            automatisch an alle Teilnehmer. Wer danach noch bucht, bekommt sie direkt
+            mit der Buchungsbestätigung.
         </p>
+
+        <?php if ($link) : ?>
+            <p>
+                <a class="button"
+                   href="<?php echo esc_url(wp_nonce_url(
+                       admin_url('admin-post.php?action=bw_resend_access&slot_id=' . $post->ID),
+                       'bw_resend_access_' . $post->ID
+                   )); ?>"
+                   onclick="return confirm('Zugangsdaten an alle Teilnehmer erneut senden?');">
+                    Zugangsdaten erneut senden
+                </a>
+                <span class="description">Nur nötig wenn sich der Link nachträglich geändert hat.</span>
+            </p>
+        <?php endif; ?>
         <?php
     }
 
@@ -232,12 +248,15 @@ class BW_Metaboxes {
             }
         }
 
+        $link_before = (string) get_post_meta($post_id, self::META_MEETING_LINK, true);
+        $link_after  = $link_before;
+
         if (isset($_POST['bw_meeting_link'])) {
-            $link = esc_url_raw(trim((string) wp_unslash($_POST['bw_meeting_link'])));
-            if ($link === '') {
+            $link_after = esc_url_raw(trim((string) wp_unslash($_POST['bw_meeting_link'])));
+            if ($link_after === '') {
                 delete_post_meta($post_id, self::META_MEETING_LINK);
             } else {
-                update_post_meta($post_id, self::META_MEETING_LINK, $link);
+                update_post_meta($post_id, self::META_MEETING_LINK, $link_after);
             }
         }
 
@@ -248,6 +267,12 @@ class BW_Metaboxes {
             } else {
                 update_post_meta($post_id, self::META_ACCESS_INFO, $info);
             }
+        }
+
+        // Erst jetzt feuern — die Zugangsdaten-Mail braucht auch das Hinweisfeld.
+        // Nur beim Übergang leer → gesetzt, sonst würde jedes Speichern erneut versenden.
+        if ($link_before === '' && $link_after !== '') {
+            do_action('bw_meeting_link_added', $post_id);
         }
     }
 

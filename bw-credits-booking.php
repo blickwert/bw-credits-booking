@@ -15,6 +15,7 @@ require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin-pages.php';
+require_once plugin_dir_path(__FILE__) . 'includes/emails.php';
 require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
@@ -40,6 +41,7 @@ class BW_Credits_Bookings_MVP {
 
     public static function init() {
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
+        register_deactivation_hook(__FILE__, [__CLASS__, 'deactivate']);
         add_action('plugins_loaded', [__CLASS__, 'maybe_migrate']);
 
         add_action('woocommerce_order_status_completed', [__CLASS__, 'handle_order_completed'], 10, 1);
@@ -119,6 +121,10 @@ class BW_Credits_Bookings_MVP {
         }
 
         update_option('bw_db_version', self::DB_VERSION);
+    }
+
+    public static function deactivate() {
+        BW_Emails::unschedule_cron();
     }
 
     // Führt DB-Migration durch wenn Plugin aktualisiert wird (ohne Deaktivierung)
@@ -673,6 +679,9 @@ class BW_Credits_Bookings_MVP {
 
         $wpdb->query('COMMIT');
 
+        // Nach dem Commit — Empfänger dürfen keine offene Transaktion sehen
+        do_action('bw_booking_created', $booking_id, $user_id, $slot_id);
+
         return [
             'booking_id' => $booking_id,
             'credit_id'  => (int)$credit_id,
@@ -755,6 +764,8 @@ class BW_Credits_Bookings_MVP {
         }
 
         $wpdb->query('COMMIT');
+
+        do_action('bw_booking_cancelled', $booking_id, $user_id, $slot_id);
 
         return [
             'ok' => true,
@@ -895,6 +906,9 @@ class BW_Credits_Bookings_MVP {
         }
 
         $wpdb->query('COMMIT');
+
+        do_action('bw_booking_cancelled', $booking_id, $user_id, $slot_id);
+
         return true;
     }
 
