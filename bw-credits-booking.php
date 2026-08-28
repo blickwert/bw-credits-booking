@@ -14,6 +14,7 @@ define('BW_CREDITS_BOOKING_VERSION', '0.8.0');
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
+require_once plugin_dir_path(__FILE__) . 'includes/admin-pages.php';
 require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
@@ -33,6 +34,9 @@ class BW_Credits_Bookings_MVP {
     const PM_CREDIT_SOURCE   = '_bw_credit_source';
 
     const DB_VERSION         = 3;
+
+    // 'manual' = Gutschrift durch den Admin (Barzahlung, Kulanz, Korrektur)
+    const CREDIT_SOURCES     = ['purchase', 'membership', 'manual'];
 
     public static function init() {
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
@@ -245,7 +249,7 @@ class BW_Credits_Bookings_MVP {
         $product_id    = isset($args['product_id']) ? (int) $args['product_id'] : null;
         $expires_at    = $args['expires_at'] ?? null;
         $amount        = (int) ($args['amount'] ?? 0);
-        $source        = in_array($args['source'] ?? '', ['purchase', 'membership'], true)
+        $source        = in_array($args['source'] ?? '', self::CREDIT_SOURCES, true)
                          ? $args['source']
                          : 'purchase';
 
@@ -282,6 +286,96 @@ class BW_Credits_Bookings_MVP {
                AND (expires_at IS NULL OR expires_at > %s)",
             $user_id, $now
         ));
+    }
+
+    /**
+     * Credits eines Nutzers inkl. Herkunft und Buchungsbezug.
+     */
+    public static function get_user_credits(int $user_id, int $limit = 200): array {
+        global $wpdb;
+        $table = $wpdb->prefix . self::CREDITS_TABLE;
+        $limit = max(1, min(500, $limit));
+
+        return (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT id, order_id, product_id, expires_at, status, source, booking_id, created_at
+             FROM {$table}
+             WHERE user_id = %d
+             ORDER BY created_at DESC, id DESC
+             LIMIT %d",
+            $user_id, $limit
+        ), ARRAY_A);
+    }
+
+    /**
+     * Zählt Credits nach Status. 'available' berücksichtigt das Ablaufdatum,
+     * abgelaufene aber noch nicht umgeschriebene Zeilen laufen unter 'expired'.
+     */
+    public static function get_credit_summary(int $user_id): array {
+        global $wpdb;
+        $table = $wpdb->prefix . self::CREDITS_TABLE;
+        $now   = (new DateTime('now', wp_timezone()))->format('Y-m-d H:i:s');
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT
+                SUM(status = 'available' AND (expires_at IS NULL OR expires_at > %s)) AS available,
+                SUM(status = 'available' AND expires_at IS NOT NULL AND expires_at <= %s) AS lapsed,
+                SUM(status = 'used')     AS used,
+                SUM(status = 'expired')  AS expired,
+                COUNT(*)                 AS total
+             FROM {$table}
+             WHERE user_id = %d",
+            $now, $now, $user_id
+        ), ARRAY_A);
+
+        return [
+            'available' => (int) ($row['available'] ?? 0),
+            'used'      => (int) ($row['used'] ?? 0),
+            'expired'   => (int) ($row['expired'] ?? 0) + (int) ($row['lapsed'] ?? 0),
+            'total'     => (int) ($row['total'] ?? 0),
+        ];
+    }
+
+    /**
+     * Manuelle Gutschrift durch den Admin.
+     */
+    public static function grant_credits(int $user_id, int $amount, ?string $expires_at = null, string $source = 'manual') {
+        if (!get_userdata($user_id)) {
+            return new WP_Error('bw_user_invalid', 'Benutzer nicht gefunden.');
+        }
+        if ($amount < 1 || $amount > 500) {
+            return new WP_Error('bw_amount_invalid', 'Anzahl muss zwischen 1 und 500 liegen.');
+        }
+
+        $ok = self::add_credit_units([
+            'user_id'    => $user_id,
+            'amount'     => $amount,
+            'expires_at' => $expires_at ?: null,
+            'source'     => $source,
+        ]);
+
+        return $ok ? true : new WP_Error('bw_grant_failed', 'Gutschrift fehlgeschlagen.');
+    }
+
+    /**
+     * Einzelnen verfügbaren Credit entwerten. Verbrauchte Credits bleiben
+     * unangetastet — die hängen an einer Buchung.
+     */
+    public static function revoke_credit(int $credit_id, int $user_id) {
+        global $wpdb;
+        $table = $wpdb->prefix . self::CREDITS_TABLE;
+
+        $updated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$table}
+             SET status = 'expired'
+             WHERE id = %d AND user_id = %d AND status = 'available'",
+            $credit_id, $user_id
+        ));
+
+        if ($updated !== 1) {
+            return new WP_Error('bw_revoke_failed', 'Credit nicht gefunden oder bereits verbraucht.');
+        }
+
+        return true;
     }
 
     /**
@@ -464,6 +558,21 @@ class BW_Credits_Bookings_MVP {
      * ------------------------- */
 
     public static function book_slot(int $user_id, int $slot_id) {
+        return self::create_booking($user_id, $slot_id, true, true);
+    }
+
+    /**
+     * Buchung durch den Admin (Walk-in). Darf auch für bereits begonnene
+     * Termine eintragen und wahlweise ohne Credit-Abzug als Freiplatz.
+     */
+    public static function admin_book_slot(int $user_id, int $slot_id, bool $consume_credit = true) {
+        if (!get_userdata($user_id)) {
+            return new WP_Error('bw_user_invalid', 'Benutzer nicht gefunden.');
+        }
+        return self::create_booking($user_id, $slot_id, $consume_credit, false);
+    }
+
+    private static function create_booking(int $user_id, int $slot_id, bool $consume_credit, bool $enforce_future) {
         global $wpdb;
 
         if ($user_id <= 0 || $slot_id <= 0) {
@@ -480,9 +589,11 @@ class BW_Credits_Bookings_MVP {
             return new WP_Error('bw_capacity_missing', 'Slot capacity missing or zero.');
         }
 
-        $start = self::get_slot_start_datetime($slot_id);
-        if ($start && $start <= new DateTime('now', wp_timezone())) {
-            return new WP_Error('bw_slot_past', 'Dieser Termin liegt in der Vergangenheit.');
+        if ($enforce_future) {
+            $start = self::get_slot_start_datetime($slot_id);
+            if ($start && $start <= new DateTime('now', wp_timezone())) {
+                return new WP_Error('bw_slot_past', 'Dieser Termin liegt in der Vergangenheit.');
+            }
         }
 
         $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
@@ -527,25 +638,33 @@ class BW_Credits_Bookings_MVP {
 
         $booking_id = (int) $wpdb->insert_id;
 
-        // consume credit + link to booking
-        $credit_id = self::consume_one_credit($user_id, $booking_id);
-        if (is_wp_error($credit_id)) {
-            self::decrement_booked_count($slot_id);
-            $wpdb->query($wpdb->prepare("DELETE FROM {$bookings_table} WHERE id=%d", $booking_id));
-            $wpdb->query('ROLLBACK');
-            return $credit_id;
+        // consume credit + link to booking — Freiplätze bleiben ohne credit_id
+        $credit_id = 0;
+        if ($consume_credit) {
+            $credit_id = self::consume_one_credit($user_id, $booking_id);
+            if (is_wp_error($credit_id)) {
+                self::decrement_booked_count($slot_id);
+                $wpdb->query($wpdb->prepare("DELETE FROM {$bookings_table} WHERE id=%d", $booking_id));
+                $wpdb->query('ROLLBACK');
+                return $credit_id;
+            }
         }
 
         // finalize booking
-        $updated = $wpdb->query($wpdb->prepare(
-            "UPDATE {$bookings_table}
-             SET status=%s, credit_id=%d
-             WHERE id=%d",
-            'booked', (int)$credit_id, $booking_id
-        ));
+        $updated = $credit_id > 0
+            ? $wpdb->query($wpdb->prepare(
+                "UPDATE {$bookings_table} SET status=%s, credit_id=%d WHERE id=%d",
+                'booked', (int) $credit_id, $booking_id
+              ))
+            : $wpdb->query($wpdb->prepare(
+                "UPDATE {$bookings_table} SET status=%s, credit_id=NULL WHERE id=%d",
+                'booked', $booking_id
+              ));
 
         if ($updated !== 1) {
-            self::refund_credit_by_booking($user_id, $booking_id);
+            if ($credit_id > 0) {
+                self::refund_credit_by_booking($user_id, $booking_id);
+            }
             self::decrement_booked_count($slot_id);
             $wpdb->query($wpdb->prepare("DELETE FROM {$bookings_table} WHERE id=%d", $booking_id));
             $wpdb->query('ROLLBACK');
@@ -661,6 +780,58 @@ class BW_Credits_Bookings_MVP {
              ORDER BY b.created_at ASC",
             $slot_id
         ), ARRAY_A);
+    }
+
+    /**
+     * Gefilterte Buchungsliste für die Admin-Übersicht.
+     * Gibt die Zeilen und die Gesamtzahl für die Blätterfunktion zurück.
+     */
+    public static function query_bookings(array $args = []): array {
+        global $wpdb;
+        $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
+
+        $where  = [];
+        $params = [];
+
+        if (!empty($args['slot_id'])) {
+            $where[]  = 'b.slot_id = %d';
+            $params[] = (int) $args['slot_id'];
+        }
+        if (!empty($args['user_id'])) {
+            $where[]  = 'b.user_id = %d';
+            $params[] = (int) $args['user_id'];
+        }
+        if (!empty($args['status'])) {
+            $where[]  = 'b.status = %s';
+            $params[] = (string) $args['status'];
+        }
+        if (!empty($args['search'])) {
+            $like     = '%' . $wpdb->esc_like((string) $args['search']) . '%';
+            $where[]  = '(u.display_name LIKE %s OR u.user_email LIKE %s OR u.user_login LIKE %s)';
+            $params[] = $like;
+            $params[] = $like;
+            $params[] = $like;
+        }
+
+        $where_sql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
+        $join      = "FROM {$bookings_table} b LEFT JOIN {$wpdb->users} u ON u.ID = b.user_id";
+
+        $count_sql = "SELECT COUNT(*) {$join} {$where_sql}";
+        $total     = (int) $wpdb->get_var($params ? $wpdb->prepare($count_sql, $params) : $count_sql);
+
+        $per_page = max(1, min(200, (int) ($args['per_page'] ?? 30)));
+        $page     = max(1, (int) ($args['page'] ?? 1));
+
+        $rows_sql    = "SELECT b.*, u.display_name, u.user_email {$join} {$where_sql}
+                        ORDER BY b.created_at DESC LIMIT %d OFFSET %d";
+        $rows_params = array_merge($params, [$per_page, ($page - 1) * $per_page]);
+
+        return [
+            'rows'     => (array) $wpdb->get_results($wpdb->prepare($rows_sql, $rows_params), ARRAY_A),
+            'total'    => $total,
+            'page'     => $page,
+            'per_page' => $per_page,
+        ];
     }
 
     /**
