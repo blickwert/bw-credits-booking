@@ -82,6 +82,34 @@
     }
   }
 
+  // Freie Plätze ohne Neuladen mitführen. Beide Varianten stehen im Markup,
+  // umgeschaltet wird über data-bw-state.
+  function adjustAvailability(slotId, delta) {
+    qsa('[data-bw-availability="' + slotId + '"]').forEach(function (el) {
+      const numEl = qs("[data-bw-free]", el);
+      if (!numEl) return;
+
+      const next = Math.max(0, (parseInt(numEl.textContent, 10) || 0) + delta);
+      numEl.textContent = next;
+      el.dataset.bwState = next > 0 ? "free" : "full";
+    });
+  }
+
+  function isToggle(btn) {
+    return btn.dataset.bwToggle === "1";
+  }
+
+  /** Umschaltbaren Button in den jeweils anderen Zustand versetzen. */
+  function flipButton(btn, toAction) {
+    btn.dataset.bwAction = toAction; // setzt zugleich data-bw-action für die Delegation
+    btn.textContent = toAction === "cancel"
+      ? (btn.dataset.labelCancel || "Stornieren")
+      : (btn.dataset.labelBook || "Buchen");
+
+    btn.classList.toggle("is-booked", toAction === "cancel");
+    btn.disabled = false;
+  }
+
   async function onBookClick(e) {
     const btn = e.target.closest('[data-bw-action="book"]');
     if (!btn) return;
@@ -97,17 +125,17 @@
     btn.disabled = true;
     btn.classList.add("is-loading");
 
+    let json;
     try {
-      const json = await post("book", { slot_id: slotId });
-      setMsg(msg, "✅ Gebucht (Booking #" + json.booking_id + ")", false);
-
-      // Store booking id on button (optional)
+      json = await post("book", { slot_id: slotId });
+      setMsg(msg, "✅ Gebucht", false);
       btn.dataset.bookingId = json.booking_id;
 
-      // If a cancel button exists for same slot, update its booking id
+      // Eigenständiger Storno-Button für denselben Termin bekommt die ID
       const cancelBtn = qs('[data-bw-action="cancel"][data-slot-id="' + slotId + '"]');
       if (cancelBtn) cancelBtn.dataset.bookingId = json.booking_id;
 
+      adjustAvailability(slotId, -1);
       await refreshBalance();
     } catch (err) {
       setMsg(msg, "❌ " + err.message, true);
@@ -118,9 +146,14 @@
     }
 
     btn.classList.remove("is-loading");
-    btn.textContent = original;
-    btn.disabled = true;
-    btn.classList.add("is-booked");
+
+    if (isToggle(btn)) {
+      flipButton(btn, "cancel");
+    } else {
+      btn.textContent = original;
+      btn.disabled = true;
+      btn.classList.add("is-booked");
+    }
   }
 
   async function onCancelClick(e) {
@@ -135,6 +168,7 @@
       return;
     }
 
+    const slotId = parseInt(btn.dataset.slotId || "0", 10);
     const wrap = btn.closest("[data-bw-wrap]") || btn.parentElement;
     const msg = qs("[data-bw-msg]", wrap);
     setMsg(msg, "", false);
@@ -146,6 +180,8 @@
     try {
       await post("cancel", { booking_id: bookingId });
       setMsg(msg, "✅ Storniert", false);
+
+      if (slotId) adjustAvailability(slotId, 1);
       await refreshBalance();
     } catch (err) {
       setMsg(msg, "❌ " + err.message, true);
@@ -156,9 +192,15 @@
     }
 
     btn.classList.remove("is-loading");
-    btn.textContent = original;
-    btn.disabled = true;
-    btn.classList.add("is-cancelled");
+
+    if (isToggle(btn)) {
+      btn.dataset.bookingId = "";
+      flipButton(btn, "book");
+    } else {
+      btn.textContent = original;
+      btn.disabled = true;
+      btn.classList.add("is-cancelled");
+    }
   }
 
   document.addEventListener("click", function (e) {

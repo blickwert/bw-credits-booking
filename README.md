@@ -83,20 +83,35 @@ Taxonomien: `course_type`, `course_level`, `course_lang`
 
 ## Shortcodes
 
-### `[bw_book_button slot_id="123"]`
-Buchen-Button für einen Kursplatz. Zeigt den aktuellen Status (gebucht / ausgebucht / voll). Nur für eingeloggte Nutzer sichtbar.
+Auf der Termin-Einzelseite kann `slot_id` entfallen — dann greift automatisch der aktuelle Beitrag. Das macht die Shortcodes direkt in einem Elementor-Template verwendbar.
 
-### `[bw_cancel_button slot_id="123"]`
-Stornieren-Button. Nur aktiv wenn eine aktive Buchung existiert und das Stornofenster noch offen ist.
+### `[bw_slot_action]`
+**Empfohlen.** Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neuladen umschaltet. Zeigt stattdessen einen Hinweis wenn: nicht eingeloggt, Termin vorbei, ausgebucht, keine Credits vorhanden, oder Stornofrist abgelaufen.
+
+```
+[bw_slot_action]
+[bw_slot_action slot_id="123" label_book="Jetzt buchen" label_cancel="Absagen"]
+```
+
+### `[bw_availability]`
+Freie Plätze — **auch ohne Login sichtbar**, damit Besucher sich vor der Registrierung informieren können. Aktualisiert sich nach Buchung und Storno ohne Neuladen.
+
+```
+[bw_availability]
+[bw_availability format="Noch {frei} Plätze frei" full="Leider ausgebucht"]
+```
+
+### `[bw_my_bookings]`
+Liste aller Buchungen des eingeloggten Nutzers mit Status, Kurstyp/Level/Sprache und Stornieren-Button. Wird zusätzlich automatisch im WooCommerce-Konto-Dashboard angezeigt.
 
 ### `[bw_balance_inline]`
 Gibt die aktuelle Credit-Anzahl als Zahl aus (für Inline-Verwendung im Text).
 
 ### `[bw_credits_balance]`
-Zeigt das Credit-Guthaben als Block (Legacy).
+Zeigt das Credit-Guthaben als Block.
 
-### `[bw_my_bookings]`
-Liste aller Buchungen des eingeloggten Nutzers (Status-Badges, Stornieren-Button).
+### `[bw_book_button slot_id="123"]` / `[bw_cancel_button booking_id="456"]`
+Einzelne Buttons. Durch `[bw_slot_action]` weitgehend abgelöst, bleiben aber funktionsfähig.
 
 ## Buchungslogik
 
@@ -131,9 +146,49 @@ Wenn Paid Memberships Pro aktiv ist:
 
 ## Admin
 
-- **course_slot Listenansicht**: Spalten Start, Level, Type, Language — alle sortierbar
-- **Auto-Titel**: Beim Speichern eines `course_slot` wird der Titel automatisch generiert: `"23.2.26 17:00 – Hatha Yoga – German"`
-- **booked_count**: Im Admin readonly — wird ausschließlich durch das Plugin verwaltet
+Menü **BW Credits** (Berechtigung `manage_options`):
+
+| Seite | Inhalt |
+|---|---|
+| Einstellungen | Inhaltstyp der Termine, Standard-Kapazität, Storno-Frist, Erinnerungs-Vorlauf |
+| Termine | Alle Termine mit Belegung und Auslastung, Filter kommend/vergangen |
+| Buchungen | Gefilterte Liste, Storno, Formular für Walk-in-Buchungen |
+| Credits | Benutzersuche, Guthaben einsehen, manuell gutschreiben und entwerten |
+| E-Mails | Betreff und Text aller Benachrichtigungen |
+
+**Am Kurstermin** (Metaboxen):
+- **Kapazität** — leer lassen nutzt den Standardwert; Belegung readonly daneben, Warnung bei Überbuchung
+- **Online-Zugang** — Meeting-Link und Zugangsdaten, mit Knopf zum erneuten Senden
+- **Teilnehmer** — Liste mit Stornieren, „Nicht erschienen" und CSV-Export der Anwesenheitsliste
+
+**Listenansicht**: Spalten Start, Level, Type, Language — alle sortierbar. Der Titel wird beim Speichern automatisch erzeugt: `"23.2.26 17:00 – Hatha Yoga – German"`.
+
+## E-Mails
+
+Fünf Typen, jeweils mit eigenem Schalter, Betreff und Text unter *BW Credits → E-Mails*:
+
+| Typ | Auslöser |
+|---|---|
+| Buchungsbestätigung | nach erfolgreicher Buchung |
+| Stornobestätigung | nach Storno |
+| Erinnerung | X Stunden vor Kursbeginn (stündlicher Cron) |
+| Zugangsdaten | siehe unten |
+| Admin-Kopie | jede neue Buchung (standardmäßig aus) |
+
+Platzhalter: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}`
+
+### Zugangsdaten für Online-Kurse
+
+Der Versand ist ereignisgesteuert:
+
+1. Kursleiter trägt den Meeting-Link am Termin ein und speichert → alle bestehenden Teilnehmer erhalten die Zugangsdaten
+2. Wer **danach** noch bucht, bekommt sie sofort mit der Buchungsbestätigung
+3. `access_sent_at` pro Buchung verhindert Doppelversand
+4. Knopf **Zugangsdaten erneut senden**, falls sich der Link nachträglich ändert
+
+### WPML
+
+Betreff und Text werden bei aktivem WPML String Translation im Kontext *BW Credits* registriert. Die Sprache des Termins bestimmt die Sprache der Mail.
 
 ## Auto-Update Workflow
 

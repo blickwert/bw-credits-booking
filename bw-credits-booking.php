@@ -45,6 +45,13 @@ class BW_Credits_Bookings_MVP {
         add_action('plugins_loaded', [__CLASS__, 'maybe_migrate']);
 
         add_action('woocommerce_order_status_completed', [__CLASS__, 'handle_order_completed'], 10, 1);
+
+        // Rückerstattung/Storno der Bestellung entwertet noch nicht genutzte Credits
+        add_action('woocommerce_order_status_refunded',  [__CLASS__, 'handle_order_reversed'], 10, 1);
+        add_action('woocommerce_order_status_cancelled', [__CLASS__, 'handle_order_reversed'], 10, 1);
+
+        // Buchungen im WooCommerce-Konto-Dashboard
+        add_action('woocommerce_account_dashboard', [__CLASS__, 'render_account_dashboard'], 20);
         add_action('rest_api_init', [__CLASS__, 'register_rest_routes']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'register_frontend_assets']);
         add_action('wp_ajax_bw_refresh_nonce', [__CLASS__, 'ajax_refresh_nonce']);
@@ -56,6 +63,8 @@ class BW_Credits_Bookings_MVP {
         add_shortcode('bw_credits_balance', [__CLASS__, 'sc_balance']); // legacy display
 
         add_shortcode('bw_my_bookings', [__CLASS__, 'sc_my_bookings']);
+        add_shortcode('bw_slot_action', [__CLASS__, 'sc_slot_action']);
+        add_shortcode('bw_availability', [__CLASS__, 'sc_availability']);
 
         // Quick demo/testing shortcodes (optional)
         add_shortcode('bw_demo_book_slot', [__CLASS__, 'sc_demo_book_slot']);
@@ -243,6 +252,27 @@ class BW_Credits_Bookings_MVP {
 
         $order->update_meta_data('_bw_credits_processed', 'yes');
         $order->save();
+    }
+
+    /**
+     * Bestellung erstattet oder storniert — noch verfügbare Credits daraus
+     * entwerten. Bereits verbrauchte bleiben unangetastet, die hängen an
+     * einer Buchung; die wird bei Bedarf separat storniert.
+     */
+    public static function handle_order_reversed($order_id) {
+        self::revoke_order_credits((int) $order_id);
+    }
+
+    public static function revoke_order_credits(int $order_id): int {
+        global $wpdb;
+        $table = $wpdb->prefix . self::CREDITS_TABLE;
+
+        return (int) $wpdb->query($wpdb->prepare(
+            "UPDATE {$table}
+             SET status = 'expired'
+             WHERE order_id = %d AND status = 'available'",
+            $order_id
+        ));
     }
 
     private static function add_credit_units(array $args) {
@@ -1102,6 +1132,179 @@ class BW_Credits_Bookings_MVP {
         return '<div data-bw-wrap="1">' . $btn . '<div class="bw-bwallet-msg" data-bw-msg></div></div>';
     }
 
+    /**
+     * Slot-ID aus dem Shortcode oder — wenn leer — aus dem aktuellen Beitrag.
+     * So funktionieren die Shortcodes auf der Termin-Einzelseite ohne dass
+     * jemand die ID eintippen muss.
+     */
+    private static function resolve_slot_id(int $slot_id): int {
+        if ($slot_id > 0) return $slot_id;
+
+        $post = get_post();
+        if ($post && $post->post_type === BW_Settings::get_slot_post_type()) {
+            return (int) $post->ID;
+        }
+
+        return 0;
+    }
+
+    public static function get_free_spots(int $slot_id): int {
+        $capacity = self::get_slot_capacity($slot_id);
+        if ($capacity <= 0) return 0;
+
+        $booked = (int) get_post_meta($slot_id, self::META_BOOKED_CNT, true);
+        return max(0, $capacity - $booked);
+    }
+
+    public static function get_active_booking(int $user_id, int $slot_id): ?array {
+        global $wpdb;
+        $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
+
+        $row = $wpdb->get_row($wpdb->prepare(
+            "SELECT id, status FROM {$bookings_table}
+             WHERE user_id = %d AND slot_id = %d AND is_active = 1
+             LIMIT 1",
+            $user_id, $slot_id
+        ), ARRAY_A);
+
+        return $row ?: null;
+    }
+
+    private static function can_cancel_now(?DateTime $start): bool {
+        if (!$start) return false;
+
+        $cutoff = (clone $start)->modify('-' . BW_Settings::get_cancel_cutoff_hours() . ' hours');
+        return new DateTime('now', wp_timezone()) < $cutoff;
+    }
+
+    private static function note(string $text, string $modifier = ''): string {
+        return '<p class="bw-slot-note' . ($modifier ? ' ' . esc_attr($modifier) : '') . '">'
+             . esc_html($text) . '</p>';
+    }
+
+    /**
+     * [bw_slot_action] — ein Button der je nach Zustand bucht oder storniert.
+     * Ohne slot_id greift der aktuelle Beitrag.
+     */
+    public static function sc_slot_action($atts) {
+        $atts = shortcode_atts([
+            'slot_id'      => 0,
+            'label_book'   => 'Kurs buchen (1 Credit)',
+            'label_cancel' => 'Buchung stornieren',
+            'class'        => 'bw-bwallet-btn',
+        ], $atts);
+
+        $slot_id = self::resolve_slot_id((int) $atts['slot_id']);
+        if ($slot_id <= 0) return '';
+
+        self::ensure_assets();
+
+        $start = self::get_slot_start_datetime($slot_id);
+        $past  = $start && $start <= new DateTime('now', wp_timezone());
+
+        if (!is_user_logged_in()) {
+            if ($past) return self::note('Dieser Termin ist vorbei.', 'bw-is-past');
+
+            return '<p class="bw-slot-note"><a href="' . esc_url(wp_login_url(get_permalink() ?: '')) . '">'
+                 . 'Bitte einloggen um zu buchen.</a></p>';
+        }
+
+        $user_id = get_current_user_id();
+        $booking = self::get_active_booking($user_id, $slot_id);
+
+        // Bereits gebucht → stornieren, solange die Frist läuft
+        if ($booking) {
+            if ($booking['status'] !== 'booked' || !self::can_cancel_now($start)) {
+                return self::note('Du bist für diesen Termin angemeldet.', 'bw-is-booked');
+            }
+
+            return self::action_button([
+                'action'     => 'cancel',
+                'booking_id' => (int) $booking['id'],
+                'slot_id'    => $slot_id,
+                'label'      => $atts['label_cancel'],
+                'class'      => $atts['class'],
+                'labels'     => $atts,
+            ]);
+        }
+
+        if ($past)                              return self::note('Dieser Termin ist vorbei.', 'bw-is-past');
+        if (self::get_free_spots($slot_id) < 1) return self::note('Dieser Termin ist ausgebucht.', 'bw-is-full');
+
+        if (self::get_available_credits($user_id) < 1) {
+            return self::note('Du hast keine Credits mehr. Bitte lade dein Guthaben auf.', 'bw-no-credits');
+        }
+
+        return self::action_button([
+            'action'  => 'book',
+            'slot_id' => $slot_id,
+            'label'   => $atts['label_book'],
+            'class'   => $atts['class'],
+            'labels'  => $atts,
+        ]);
+    }
+
+    /** Umschaltbarer Button — das JS tauscht Aktion und Beschriftung nach dem Klick. */
+    private static function action_button(array $args): string {
+        $btn = sprintf(
+            '<button type="button" class="%s" data-bw-action="%s" data-bw-toggle="1"'
+            . ' data-slot-id="%d"%s data-label-book="%s" data-label-cancel="%s">%s</button>',
+            esc_attr($args['class']),
+            esc_attr($args['action']),
+            (int) $args['slot_id'],
+            !empty($args['booking_id']) ? ' data-booking-id="' . (int) $args['booking_id'] . '"' : '',
+            esc_attr($args['labels']['label_book']),
+            esc_attr($args['labels']['label_cancel']),
+            esc_html($args['label'])
+        );
+
+        return '<div data-bw-wrap="1">' . $btn . '<div class="bw-bwallet-msg" data-bw-msg></div></div>';
+    }
+
+    /**
+     * [bw_availability] — freie Plätze, auch ohne Login sichtbar.
+     * Platzhalter {frei} statt printf-Format, damit eine fehlerhafte Angabe
+     * im Shortcode keinen Fehler auslöst.
+     */
+    public static function sc_availability($atts) {
+        $atts = shortcode_atts([
+            'slot_id' => 0,
+            'format'  => '{frei} freie Plätze',
+            'full'    => 'Ausgebucht',
+        ], $atts);
+
+        $slot_id = self::resolve_slot_id((int) $atts['slot_id']);
+        if ($slot_id <= 0) return '';
+
+        self::ensure_assets();
+
+        $free  = self::get_free_spots($slot_id);
+        $parts = explode('{frei}', $atts['format'], 2);
+
+        // Beide Varianten ausgeben und per Status umschalten — so kann das JS
+        // nach Buchung oder Storno in beide Richtungen aktualisieren
+        return sprintf(
+            '<span class="bw-availability" data-bw-availability="%d" data-bw-state="%s">'
+            . '<span data-bw-free-wrap>%s<span data-bw-free>%d</span>%s</span>'
+            . '<span data-bw-full-wrap>%s</span>'
+            . '</span>',
+            $slot_id,
+            $free > 0 ? 'free' : 'full',
+            esc_html($parts[0]),
+            $free,
+            esc_html($parts[1] ?? ''),
+            esc_html($atts['full'])
+        );
+    }
+
+    /** Buchungen im WooCommerce-Konto-Dashboard. */
+    public static function render_account_dashboard() {
+        if (!is_user_logged_in()) return;
+
+        echo '<h2>Meine Kurse</h2>';
+        echo do_shortcode('[bw_my_bookings limit="10"]');
+    }
+
     // [bw_my_bookings limit="20"]
     public static function sc_my_bookings($atts) {
         if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
@@ -1143,8 +1346,24 @@ class BW_Credits_Bookings_MVP {
 
             $status_label = $status_labels[$status] ?? ucfirst($status);
 
+            $permalink = get_permalink($slot_id);
+            $meta_bits = array_filter([
+                bw_cs_first_term($slot_id, 'course_type'),
+                bw_cs_first_term($slot_id, 'course_level'),
+                bw_cs_first_term($slot_id, 'course_lang'),
+            ]);
+
             echo '<div class="bw-booking-item bw-status-' . esc_attr($status) . '">';
-            echo '<div class="bw-booking-slot">' . esc_html($slot_title) . '</div>';
+
+            echo '<div class="bw-booking-slot">';
+            echo $permalink
+                ? '<a href="' . esc_url($permalink) . '">' . esc_html($slot_title) . '</a>'
+                : esc_html($slot_title);
+            if ($meta_bits) {
+                echo '<span class="bw-booking-meta">' . esc_html(implode(' · ', $meta_bits)) . '</span>';
+            }
+            echo '</div>';
+
             echo '<div class="bw-booking-time">' . esc_html($start_str) . '</div>';
             echo '<div class="bw-booking-status">' . esc_html($status_label) . '</div>';
 
