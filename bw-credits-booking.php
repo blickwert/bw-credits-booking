@@ -13,6 +13,7 @@ define('BW_CREDITS_BOOKING_VERSION', '0.8.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
+require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
@@ -643,6 +644,115 @@ class BW_Credits_Bookings_MVP {
         ];
     }
 
+    /**
+     * Alle Buchungen eines Termins inkl. Nutzerdaten — für die Teilnehmerliste.
+     */
+    public static function get_slot_bookings(int $slot_id): array {
+        global $wpdb;
+        $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
+
+        return (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT b.id, b.user_id, b.status, b.is_active, b.credit_id,
+                    b.created_at, b.cancelled_at,
+                    u.display_name, u.user_email
+             FROM {$bookings_table} b
+             LEFT JOIN {$wpdb->users} u ON u.ID = b.user_id
+             WHERE b.slot_id = %d
+             ORDER BY b.created_at ASC",
+            $slot_id
+        ), ARRAY_A);
+    }
+
+    /**
+     * Storno durch den Admin — ignoriert die Storno-Frist, gibt den Credit
+     * zurück sofern einer verbraucht wurde.
+     */
+    public static function admin_cancel_booking(int $booking_id) {
+        global $wpdb;
+        $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
+
+        if ($booking_id <= 0) {
+            return new WP_Error('bw_invalid', 'Ungültige Buchung.');
+        }
+
+        $wpdb->query('START TRANSACTION');
+
+        $booking = $wpdb->get_row($wpdb->prepare(
+            "SELECT * FROM {$bookings_table} WHERE id=%d LIMIT 1 FOR UPDATE",
+            $booking_id
+        ), ARRAY_A);
+
+        if (!$booking) {
+            $wpdb->query('ROLLBACK');
+            return new WP_Error('bw_booking_not_found', 'Buchung nicht gefunden.');
+        }
+
+        if ((int) $booking['is_active'] !== 1) {
+            $wpdb->query('ROLLBACK');
+            return new WP_Error('bw_not_active', 'Buchung ist bereits storniert.');
+        }
+
+        $user_id = (int) $booking['user_id'];
+        $slot_id = (int) $booking['slot_id'];
+
+        $updated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$bookings_table}
+             SET status=%s, is_active=NULL, cancelled_at=%s
+             WHERE id=%d",
+            'cancelled',
+            (new DateTime('now', wp_timezone()))->format('Y-m-d H:i:s'),
+            $booking_id
+        ));
+
+        if ($updated !== 1) {
+            $wpdb->query('ROLLBACK');
+            return new WP_Error('bw_cancel_failed', 'Storno fehlgeschlagen.');
+        }
+
+        // Freiplätze (Admin-Buchung ohne Credit) haben nichts zurückzugeben
+        if (!empty($booking['credit_id'])) {
+            $ref = self::refund_credit_by_booking($user_id, $booking_id);
+            if (is_wp_error($ref)) {
+                $wpdb->query('ROLLBACK');
+                return $ref;
+            }
+        }
+
+        if (!self::decrement_booked_count($slot_id)) {
+            $wpdb->query('ROLLBACK');
+            return new WP_Error('bw_bookedcount_failed', 'booked_count konnte nicht aktualisiert werden.');
+        }
+
+        $wpdb->query('COMMIT');
+        return true;
+    }
+
+    /**
+     * "Nicht erschienen" markieren bzw. zurücknehmen.
+     * Der Platz bleibt belegt und der Credit verbraucht — deshalb bleibt
+     * is_active=1 und booked_count unverändert.
+     */
+    public static function set_no_show(int $booking_id, bool $no_show) {
+        global $wpdb;
+        $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
+
+        $to   = $no_show ? 'no_show' : 'booked';
+        $from = $no_show ? 'booked'  : 'no_show';
+
+        $updated = $wpdb->query($wpdb->prepare(
+            "UPDATE {$bookings_table}
+             SET status=%s
+             WHERE id=%d AND status=%s AND is_active=1",
+            $to, $booking_id, $from
+        ));
+
+        if ($updated !== 1) {
+            return new WP_Error('bw_no_show_failed', 'Status konnte nicht geändert werden.');
+        }
+
+        return true;
+    }
+
     public static function get_my_bookings(int $user_id, int $limit = 50): array {
         global $wpdb;
         $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
@@ -721,6 +831,15 @@ class BW_Credits_Bookings_MVP {
     /* -------------------------
      * Shortcodes
      * ------------------------- */
+
+    public static function status_labels(): array {
+        return [
+            'booked'    => 'Gebucht',
+            'cancelled' => 'Storniert',
+            'pending'   => 'Ausstehend',
+            'no_show'   => 'Nicht erschienen',
+        ];
+    }
 
     // Display balance (block)
     public static function sc_balance() {
@@ -815,11 +934,7 @@ class BW_Credits_Bookings_MVP {
         $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();
         $now          = new DateTime('now', wp_timezone());
 
-        $status_labels = [
-            'booked'    => 'Gebucht',
-            'cancelled' => 'Storniert',
-            'pending'   => 'Ausstehend',
-        ];
+        $status_labels = self::status_labels();
 
         ob_start();
         echo '<div class="bw-my-bookings">';
