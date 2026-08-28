@@ -4,19 +4,49 @@
   function qsa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
 
   function getCfg() {
-    return (typeof BW_BWALLET !== "undefined" && BW_BWALLET) ? BW_BWALLET : { restUrl: "", nonce: "" };
+    return (typeof BW_BWALLET !== "undefined" && BW_BWALLET) ? BW_BWALLET : { restUrl: "", ajaxUrl: "", nonce: "" };
+  }
+
+  // Ein in gecachtem HTML ausgelieferter Nonce kann abgelaufen sein.
+  // admin-ajax wird nie gecacht und liefert einen frischen.
+  async function refreshNonce() {
+    const cfg = getCfg();
+    if (!cfg.ajaxUrl) return false;
+
+    const res = await fetch(cfg.ajaxUrl + "?action=bw_refresh_nonce", { credentials: "same-origin" });
+    const json = await res.json().catch(() => ({}));
+
+    if (res.ok && json && json.success && json.data && json.data.nonce) {
+      cfg.nonce = json.data.nonce;
+      return true;
+    }
+    return false;
+  }
+
+  function request(endpoint, payload) {
+    const cfg = getCfg();
+    const init = {
+      credentials: "same-origin",
+      headers: { "X-WP-Nonce": cfg.nonce }
+    };
+
+    if (payload) {
+      init.method = "POST";
+      init.headers["Content-Type"] = "application/json";
+      init.body = JSON.stringify(payload);
+    }
+
+    return fetch(cfg.restUrl + endpoint.replace(/^\//, ""), init);
   }
 
   async function post(endpoint, payload) {
-    const cfg = getCfg();
-    const res = await fetch(cfg.restUrl + endpoint.replace(/^\//, ""), {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "X-WP-Nonce": cfg.nonce
-      },
-      body: JSON.stringify(payload || {})
-    });
+    let res = await request(endpoint, payload || {});
+
+    if (res.status === 401 || res.status === 403) {
+      if (await refreshNonce()) {
+        res = await request(endpoint, payload || {});
+      }
+    }
 
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
@@ -38,10 +68,13 @@
     const els = qsa("[data-bw-balance]");
     if (!els.length) return;
 
-    const cfg = getCfg();
-    const res = await fetch(cfg.restUrl + "balance", {
-      headers: { "X-WP-Nonce": cfg.nonce }
-    });
+    let res = await request("balance", null);
+
+    if (res.status === 401 || res.status === 403) {
+      if (await refreshNonce()) {
+        res = await request("balance", null);
+      }
+    }
 
     const json = await res.json().catch(() => ({}));
     if (res.ok && typeof json.available !== "undefined") {

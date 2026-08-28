@@ -1,6 +1,9 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
+// Inhaltstyp der Kurstermine — konfigurierbar unter BW Credits → Einstellungen
+$bw_slot_pt = BW_Settings::get_slot_post_type();
+
 /* =========================================================
  * ACF: booked_count – readonly + disabled im Admin
  * ========================================================= */
@@ -67,18 +70,18 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
 });
 
 /* =========================================================
- * course_slot: Auto-Titel beim Speichern
+ * Kurstermin: Auto-Titel beim Speichern
  * post_title = "23.2.26 17:00 – Hatha Yoga – German"
  * ========================================================= */
 
-add_action('acf/save_post', function ($post_id) {
-    if (get_post_type($post_id) !== 'course_slot') return;
+add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
+    if (get_post_type($post_id) !== $bw_slot_pt) return;
 
     static $running = [];
     if (!empty($running[$post_id])) return;
     $running[$post_id] = true;
 
-    $start_datetime = get_field('start_datetime', $post_id);
+    $start_datetime = get_post_meta($post_id, 'start_datetime', true);
     if (!$start_datetime) { $running[$post_id] = false; return; }
 
     $timestamp = strtotime($start_datetime);
@@ -92,17 +95,17 @@ add_action('acf/save_post', function ($post_id) {
     wp_update_post([
         'ID'         => $post_id,
         'post_title' => sprintf('%s – %s – %s', date('j.n.y H:i', $timestamp), $course_type, $course_lang),
-        'post_name'  => 'course-slot-' . $post_id,
+        'post_name'  => $bw_slot_pt . '-' . $post_id,
     ]);
 
     $running[$post_id] = false;
 }, 20);
 
 /* =========================================================
- * course_slot: Admin-Columns definieren
+ * Kurstermin: Admin-Columns definieren
  * ========================================================= */
 
-add_filter('manage_edit-course_slot_columns', function ($columns) {
+add_filter("manage_edit-{$bw_slot_pt}_columns", function ($columns) {
     $new = [
         'cb'                => $columns['cb'] ?? '',
         'title'             => __('Title'),
@@ -119,9 +122,9 @@ add_filter('manage_edit-course_slot_columns', function ($columns) {
     return $new;
 }, 20);
 
-add_action('manage_course_slot_posts_custom_column', function ($column, $post_id) {
+add_action("manage_{$bw_slot_pt}_posts_custom_column", function ($column, $post_id) {
     if ($column === 'bw_start_datetime') {
-        $v  = get_field('start_datetime', $post_id);
+        $v  = get_post_meta($post_id, 'start_datetime', true);
         $ts = $v ? strtotime($v) : 0;
         echo $ts ? esc_html(date('Y-m-d H:i', $ts)) : '—';
         return;
@@ -137,10 +140,10 @@ add_action('manage_course_slot_posts_custom_column', function ($column, $post_id
 }, 10, 2);
 
 /* =========================================================
- * course_slot: Columns sortierbar machen
+ * Kurstermin: Columns sortierbar machen
  * ========================================================= */
 
-add_filter('manage_edit-course_slot_sortable_columns', function ($sortable) {
+add_filter("manage_edit-{$bw_slot_pt}_sortable_columns", function ($sortable) {
     $sortable['title']             = 'title';
     $sortable['bw_start_datetime'] = 'bw_start_datetime';
     $sortable['bw_course_level']   = 'bw_course_level';
@@ -149,10 +152,10 @@ add_filter('manage_edit-course_slot_sortable_columns', function ($sortable) {
     return $sortable;
 });
 
-// ACF meta sort für start_datetime
-add_action('pre_get_posts', function ($query) {
+// Meta sort für start_datetime
+add_action('pre_get_posts', function ($query) use ($bw_slot_pt) {
     if (!is_admin() || !$query->is_main_query()) return;
-    if ($query->get('post_type') !== 'course_slot') return;
+    if ($query->get('post_type') !== $bw_slot_pt) return;
     if ($query->get('orderby') === 'bw_start_datetime') {
         $query->set('meta_key', 'start_datetime');
         $query->set('orderby', 'meta_value');
@@ -160,9 +163,9 @@ add_action('pre_get_posts', function ($query) {
 });
 
 // Taxonomy-Sort via SQL JOIN (term name)
-add_filter('posts_clauses', function ($clauses, $query) {
+add_filter('posts_clauses', function ($clauses, $query) use ($bw_slot_pt) {
     if (!is_admin() || !$query->is_main_query()) return $clauses;
-    if ($query->get('post_type') !== 'course_slot') return $clauses;
+    if ($query->get('post_type') !== $bw_slot_pt) return $clauses;
 
     $tax_map = [
         'bw_course_level' => 'course_level',

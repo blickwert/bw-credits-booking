@@ -2,14 +2,16 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.7.0
+ * Version: 0.8.0
  * Author: Blickwert
  */
 
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
+define('BW_CREDITS_BOOKING_VERSION', '0.8.0');
 
+require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
@@ -29,7 +31,7 @@ class BW_Credits_Bookings_MVP {
     const PM_VALID_DAYS      = '_bw_credit_valid_days';
     const PM_CREDIT_SOURCE   = '_bw_credit_source';
 
-    const DB_VERSION         = 2;
+    const DB_VERSION         = 3;
 
     public static function init() {
         register_activation_hook(__FILE__, [__CLASS__, 'activate']);
@@ -37,7 +39,8 @@ class BW_Credits_Bookings_MVP {
 
         add_action('woocommerce_order_status_completed', [__CLASS__, 'handle_order_completed'], 10, 1);
         add_action('rest_api_init', [__CLASS__, 'register_rest_routes']);
-        add_action('wp_enqueue_scripts', [__CLASS__, 'enqueue_frontend_assets']);
+        add_action('wp_enqueue_scripts', [__CLASS__, 'register_frontend_assets']);
+        add_action('wp_ajax_bw_refresh_nonce', [__CLASS__, 'ajax_refresh_nonce']);
 
         // Frontend shortcodes
         add_shortcode('bw_book_button', [__CLASS__, 'sc_book_button']);
@@ -90,9 +93,11 @@ class BW_Credits_Bookings_MVP {
             order_item_id BIGINT(20) UNSIGNED NULL,
             credit_id BIGINT(20) UNSIGNED NULL,
             status VARCHAR(16) NOT NULL DEFAULT 'pending',
-            is_active TINYINT(1) NOT NULL DEFAULT 1,
+            is_active TINYINT(1) NULL DEFAULT 1,
             created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
             cancelled_at DATETIME NULL,
+            reminded_at DATETIME NULL,
+            access_sent_at DATETIME NULL,
             PRIMARY KEY (id),
             UNIQUE KEY uniq_active_user_slot (user_id, slot_id, is_active),
             KEY slot_active (slot_id, is_active),
@@ -113,8 +118,17 @@ class BW_Credits_Bookings_MVP {
 
     // Führt DB-Migration durch wenn Plugin aktualisiert wird (ohne Deaktivierung)
     public static function maybe_migrate() {
-        if ((int) get_option('bw_db_version', 1) < self::DB_VERSION) {
-            self::activate();
+        $installed = (int) get_option('bw_db_version', 1);
+        if ($installed >= self::DB_VERSION) return;
+
+        self::activate();
+
+        if ($installed < 3) {
+            global $wpdb;
+            $bookings = $wpdb->prefix . self::BOOKINGS_TABLE;
+            // is_active=0 kollidiert im Unique-Index sobald derselbe Slot ein
+            // zweites Mal storniert wird — NULL erlaubt beliebig viele Zeilen
+            $wpdb->query("UPDATE {$bookings} SET is_active = NULL WHERE is_active = 0");
         }
     }
 
@@ -122,37 +136,48 @@ class BW_Credits_Bookings_MVP {
      * Frontend assets
      * ------------------------- */
 
-    public static function enqueue_frontend_assets() {
-        if (!is_user_logged_in()) return;
+    /**
+     * Assets nur registrieren — das Enqueue passiert im Shortcode selbst.
+     * Page-Builder (Elementor, Oxygen, …) legen ihren Inhalt außerhalb von
+     * post_content ab, deshalb ist Shortcode-Erkennung per Inhaltsprüfung
+     * unzuverlässig.
+     */
+    public static function register_frontend_assets() {
+        $handle = 'bw-bwallet-frontend';
 
-        // Optional: only load if page contains our shortcodes
-        if (is_singular()) {
-            $post = get_post();
-            if ($post) {
-                $c = (string) $post->post_content;
-                $needs = (
-                    strpos($c, '[bw_book_button') !== false ||
-                    strpos($c, '[bw_cancel_button') !== false ||
-                    strpos($c, '[bw_balance_inline') !== false ||
-                    strpos($c, '[bw_my_bookings') !== false
-                );
-                if (!$needs) return;
-            }
-        }
+        wp_register_script(
+            $handle,
+            plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.js',
+            [], BW_CREDITS_BOOKING_VERSION, true
+        );
 
-        $js_handle  = 'bw-bwallet-frontend';
-        $css_handle = 'bw-bwallet-frontend';
+        wp_register_style(
+            $handle,
+            plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.css',
+            [], BW_CREDITS_BOOKING_VERSION
+        );
 
-        $js_src  = plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.js';
-        $css_src = plugin_dir_url(__FILE__) . 'assets/bwallet-frontend.css';
-
-        wp_enqueue_script($js_handle, $js_src, [], '0.7.0', true);
-        wp_enqueue_style($css_handle, $css_src, [], '0.7.0');
-
-        wp_localize_script($js_handle, 'BW_BWALLET', [
+        wp_localize_script($handle, 'BW_BWALLET', [
             'restUrl' => esc_url_raw(rest_url('bw-credits/v1/')),
+            'ajaxUrl' => esc_url_raw(admin_url('admin-ajax.php')),
             'nonce'   => wp_create_nonce('wp_rest'),
         ]);
+    }
+
+    private static function ensure_assets() {
+        wp_enqueue_script('bw-bwallet-frontend');
+        wp_enqueue_style('bw-bwallet-frontend');
+    }
+
+    /**
+     * Frischen REST-Nonce liefern. Nötig weil ein in gecachtem HTML
+     * eingebetteter Nonce abläuft — admin-ajax wird nie gecacht.
+     */
+    public static function ajax_refresh_nonce() {
+        if (!is_user_logged_in()) {
+            wp_send_json_error(['message' => 'not logged in'], 401);
+        }
+        wp_send_json_success(['nonce' => wp_create_nonce('wp_rest')]);
     }
 
     /* -------------------------
@@ -320,8 +345,11 @@ class BW_Credits_Bookings_MVP {
      * ------------------------- */
 
     private static function get_slot_capacity(int $slot_id): int {
-        $cap = (int) get_post_meta($slot_id, self::META_CAPACITY, true);
-        return max(0, $cap);
+        $raw = get_post_meta($slot_id, self::META_CAPACITY, true);
+        if ($raw === '' || $raw === null) {
+            return BW_Settings::get_default_capacity();
+        }
+        return max(0, (int) $raw);
     }
 
     private static function get_slot_start_datetime(int $slot_id): ?DateTime {
@@ -386,6 +414,10 @@ class BW_Credits_Bookings_MVP {
             (string)$new, (int)$row['meta_id']
         ));
 
+        if ($updated === 1) {
+            wp_cache_delete($slot_id, 'post_meta');
+        }
+
         return $updated === 1;
     }
 
@@ -418,6 +450,10 @@ class BW_Credits_Bookings_MVP {
              WHERE meta_id=%d",
             (string)$new, (int)$row['meta_id']
         ));
+
+        if ($updated === 1) {
+            wp_cache_delete($slot_id, 'post_meta');
+        }
 
         return $updated === 1;
     }
@@ -534,7 +570,7 @@ class BW_Credits_Bookings_MVP {
             return new WP_Error('bw_invalid', 'Invalid user or booking.');
         }
 
-        $cutoff_hours = (int) get_option(self::OPT_CUTOFF_HOURS, 24);
+        $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();
         $now = new DateTime('now', wp_timezone());
 
         $wpdb->query('START TRANSACTION');
@@ -576,7 +612,7 @@ class BW_Credits_Bookings_MVP {
         $cancelled_at = $now->format('Y-m-d H:i:s');
         $updated = $wpdb->query($wpdb->prepare(
             "UPDATE {$bookings_table}
-             SET status=%s, is_active=0, cancelled_at=%s
+             SET status=%s, is_active=NULL, cancelled_at=%s
              WHERE id=%d",
             'cancelled', $cancelled_at, $booking_id
         ));
@@ -696,6 +732,7 @@ class BW_Credits_Bookings_MVP {
     // Inline balance span (auto-updated by JS)
     public static function sc_balance_inline() {
         if (!is_user_logged_in()) return '';
+        self::ensure_assets();
         $uid = get_current_user_id();
         $available = self::get_available_credits($uid);
         return '<span data-bw-balance>' . esc_html($available) . '</span>';
@@ -714,6 +751,8 @@ class BW_Credits_Bookings_MVP {
 
         $slot_id = (int) $atts['slot_id'];
         if ($slot_id <= 0) return '';
+
+        self::ensure_assets();
 
         $btn = sprintf(
             '<button type="button" class="%s" data-bw-action="book" data-slot-id="%d">%s</button>',
@@ -742,6 +781,8 @@ class BW_Credits_Bookings_MVP {
         $booking_id = (int) $atts['booking_id'];
         if ($booking_id <= 0) return '';
 
+        self::ensure_assets();
+
         $slot_id = (int) $atts['slot_id'];
 
         $btn = sprintf(
@@ -761,6 +802,8 @@ class BW_Credits_Bookings_MVP {
     public static function sc_my_bookings($atts) {
         if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
 
+        self::ensure_assets();
+
         $atts       = shortcode_atts(['limit' => 20], $atts);
         $uid        = get_current_user_id();
         $bookings   = self::get_my_bookings($uid, (int) $atts['limit']);
@@ -769,7 +812,7 @@ class BW_Credits_Bookings_MVP {
             return '<p class="bw-no-bookings">Noch keine Buchungen vorhanden.</p>';
         }
 
-        $cutoff_hours = (int) get_option(self::OPT_CUTOFF_HOURS, 24);
+        $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();
         $now          = new DateTime('now', wp_timezone());
 
         $status_labels = [
