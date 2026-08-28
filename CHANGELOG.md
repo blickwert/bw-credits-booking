@@ -4,6 +4,43 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.8.0] – 2026-08-28
+
+### Neu — Adminbereich
+- **Menü BW Credits** mit Einstellungen, Termine, Buchungen, Credits, E-Mails (Berechtigung `manage_options`)
+- **Inhaltstyp der Termine frei wählbar** — das Plugin ist nicht mehr an einen von ACF registrierten `course_slot` gebunden
+- **Metaboxen am Termin**: Kapazität (mit Fallback auf Standardwert und Überbuchungs-Warnung), Online-Zugang, Teilnehmerliste
+- **Teilnehmerliste** mit Stornieren, „Nicht erschienen" und CSV-Export der Anwesenheitsliste
+- **Credits-Verwaltung**: Guthaben einsehen, manuell gutschreiben (`source = manual`) und einzeln entwerten
+- **Walk-in-Buchungen** durch den Admin, optional als Freiplatz ohne Credit-Abzug
+
+### Neu — E-Mails
+- Fünf Typen mit Schalter, Betreff und Text: Buchung, Storno, Erinnerung, Zugangsdaten, Admin-Kopie
+- **Erinnerungs-Cron** stündlich, `reminded_at` verhindert Doppelversand
+- **Zugangsdaten-Versand** ereignisgesteuert: beim ersten Eintragen des Meeting-Links an alle bestehenden Buchungen, bei späteren Buchungen sofort; `access_sent_at` verhindert Doppelversand
+- WPML String Translation, Sprache des Termins bestimmt die Sprache der Mail
+
+### Neu — Frontend
+- **`[bw_slot_action]`** — ein Button der je nach Zustand bucht oder storniert und ohne Neuladen umschaltet
+- **`[bw_availability]`** — freie Plätze, auch ohne Login sichtbar, aktualisiert sich nach Buchung und Storno
+- Beide erkennen die Slot-ID automatisch aus dem aktuellen Beitrag
+- `[bw_my_bookings]` zeigt zusätzlich Kurstyp, Level und Sprache und erscheint automatisch im WooCommerce-Konto-Dashboard
+
+### Neu — WooCommerce
+- Bestellung erstattet oder storniert → noch verfügbare Credits daraus werden entwertet, verbrauchte bleiben unangetastet
+
+### Behoben
+- **Zweites Storno pro Benutzer und Termin schlug fehl** — der Unique-Index `(user_id, slot_id, is_active)` kollidierte, weil beim Stornieren `is_active = 0` gesetzt wurde. Jetzt `NULL`, wovon MySQL beliebig viele zulässt.
+- **Assets luden auf Page-Builder-Seiten nicht** — die Shortcode-Erkennung prüfte `post_content`, Elementor und Oxygen legen ihren Inhalt aber in Postmeta ab. Assets werden jetzt vom Shortcode selbst eingebunden.
+- **`booked_count` wurde veraltet gecacht** — Raw-SQL-Schreibzugriffe invalidieren jetzt den Meta-Cache
+- **Abgelaufener Nonce bei Full-Page-Caching** — das JS holt bei 401/403 einen frischen Nonce und wiederholt den Request einmal
+
+### Datenbank
+- Migration v3: `reminded_at` und `access_sent_at` in `bwallet_bookings`, `is_active` NULL-fähig
+- `CREDIT_SOURCES` kennt zusätzlich `manual`
+
+---
+
 ## [0.7.0] – 2026-05-28
 
 ### Neu

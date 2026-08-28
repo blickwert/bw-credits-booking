@@ -91,3 +91,36 @@
 .bw-no-bookings {
   color: #777;
 }
+
+.bw-booking-meta {
+  display: block;
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 400;
+  margin-top: 0.15rem;
+}
+
+/* Verfügbarkeit — beide Varianten im Markup, umgeschaltet über data-bw-state */
+.bw-availability[data-bw-state="free"] [data-bw-full-wrap],
+.bw-availability[data-bw-state="full"] [data-bw-free-wrap] {
+  display: none;
+}
+
+.bw-availability[data-bw-state="full"] {
+  color: #b00020;
+}
+
+/* Hinweise statt Button (ausgebucht, vorbei, keine Credits, …) */
+.bw-slot-note {
+  margin: 0.45rem 0;
+  color: #555;
+}
+
+.bw-slot-note.bw-is-full,
+.bw-slot-note.bw-no-credits {
+  color: #b00020;
+}
+
+.bw-slot-note.bw-is-booked {
+  color: #116611;
+}
