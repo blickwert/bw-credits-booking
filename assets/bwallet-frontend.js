@@ -79,7 +79,17 @@
     const json = await res.json().catch(() => ({}));
     if (res.ok && typeof json.available !== "undefined") {
       els.forEach(el => el.textContent = json.available);
+      setBalanceState(parseInt(json.available, 10) || 0);
     }
+  }
+
+  // Container mit beiden Zuständen umschalten, damit der Hinweis auf leeres
+  // Guthaben schon beim Verbrauch des letzten Credits erscheint statt erst
+  // nach einem Reload.
+  function setBalanceState(available) {
+    qsa("[data-bw-balance-wrap]").forEach(function (el) {
+      el.dataset.bwState = available > 0 ? "has" : "empty";
+    });
   }
 
   // Freie Plätze ohne Neuladen mitführen. Beide Varianten stehen im Markup,

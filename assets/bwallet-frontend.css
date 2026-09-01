@@ -338,3 +338,18 @@
 .bw-balance {
   margin: 0.45rem 0;
 }
+
+/* Guthaben mit zwei Zuständen — beide im Markup, umgeschaltet über
+   data-bw-state, damit das JS ohne Reload wechseln kann */
+.bw-balance-state[data-bw-state="has"] [data-bw-empty-wrap],
+.bw-balance-state[data-bw-state="empty"] [data-bw-has-wrap] {
+  display: none;
+}
+
+.bw-balance-empty {
+  color: #b00020;
+}
+
+.bw-balance-empty a {
+  font-weight: 600;
+}
