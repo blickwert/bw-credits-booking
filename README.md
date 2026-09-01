@@ -83,15 +83,19 @@ Taxonomien: `course_type`, `course_level`, `course_lang`
 
 ## Shortcodes
 
-Auf der Termin-Einzelseite kann `slot_id` entfallen — dann greift automatisch der aktuelle Beitrag. Das macht die Shortcodes direkt in einem Elementor-Template verwendbar.
+Schema: `bw_credits_{gruppe}_{name}` — **course** spricht über einen Termin, **user** über den eingeloggten Kunden, **view** ist eine zusammengesetzte Ansicht.
 
-### `[bw_course_slots]`
-Terminliste — nur kommende Termine, nach Datum sortiert und nach Tagen gruppiert. Freie Plätze und Buchen-Button sind eingebaut.
+Auf einer Termin-Einzelseite kann `course_id` entfallen — dann greift der aktuelle Beitrag. Damit lassen sich die Shortcodes einmal in ein Elementor-Template legen.
+
+### Kurs
+
+#### `[bw_credits_course_list]`
+Terminliste, nach Tagen gruppiert, mit freien Plätzen und Buchen-Button.
 
 ```
-[bw_course_slots]
-[bw_course_slots days="14" show_filter="true"]
-[bw_course_slots type="hatha-yoga" limit="5" availability="false"]
+[bw_credits_course_list]
+[bw_credits_course_list days="14" show_filter="true"]
+[bw_credits_course_list type="hatha-yoga" limit="5" availability="false"]
 ```
 
 | Attribut | Standard | Bedeutung |
@@ -99,41 +103,73 @@ Terminliste — nur kommende Termine, nach Datum sortiert und nach Tagen gruppie
 | `limit` | 20 | maximale Anzahl Termine |
 | `days` | 0 | nur die nächsten N Tage (0 = ohne Begrenzung) |
 | `type` / `level` / `lang` | – | Term-Slug zum Vorfiltern |
-| `show_filter` | false | Auswahlfelder für Kursart, Level und Sprache anzeigen |
+| `show_filter` | false | Auswahlfelder für Kursart, Level und Sprache |
 | `show_action` | true | Buchen-Button je Termin |
 | `availability` | true | freie Plätze je Termin |
 | `group_by_day` | true | Überschrift je Tag |
 | `empty` | *(Text)* | Meldung wenn keine Termine vorhanden sind |
 
-Bei `show_filter="true"` schreibt das Formular `bw_type`, `bw_level` und `bw_lang` in die URL; gesetzte Shortcode-Attribute werden davon überschrieben.
+Bei `show_filter="true"` schreibt das Formular `bw_type`, `bw_level` und `bw_lang` in die URL; gesetzte Attribute werden davon überschrieben.
 
-### `[bw_slot_action]`
-**Empfohlen.** Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neuladen umschaltet. Zeigt stattdessen einen Hinweis wenn: nicht eingeloggt, Termin vorbei, ausgebucht, keine Credits vorhanden, oder Stornofrist abgelaufen.
+#### `[bw_credits_course_booking]`
+Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neuladen umschaltet. Zeigt stattdessen einen Hinweis bei: nicht eingeloggt, Termin vorbei, ausgebucht, keine Credits, Stornofrist abgelaufen.
 
-```
-[bw_slot_action]
-[bw_slot_action slot_id="123" label_book="Jetzt buchen" label_cancel="Absagen"]
-```
+`course_id`, `label_book`, `label_cancel`, `class`
 
-### `[bw_availability]`
-Freie Plätze — **auch ohne Login sichtbar**, damit Besucher sich vor der Registrierung informieren können. Aktualisiert sich nach Buchung und Storno ohne Neuladen.
+#### `[bw_credits_course_availability]`
+Freie Plätze — **auch ohne Login sichtbar**. Aktualisiert sich nach Buchung und Storno.
 
 ```
-[bw_availability]
-[bw_availability format="Noch {frei} Plätze frei" full="Leider ausgebucht"]
+[bw_credits_course_availability format="Noch {frei} Plätze frei" full="Leider ausgebucht"]
 ```
 
-### `[bw_my_bookings]`
-Liste aller Buchungen des eingeloggten Nutzers mit Status, Kurstyp/Level/Sprache und Stornieren-Button. Wird zusätzlich automatisch im WooCommerce-Konto-Dashboard angezeigt.
+`course_id`, `format`, `full`
 
-### `[bw_balance_inline]`
-Gibt die aktuelle Credit-Anzahl als Zahl aus (für Inline-Verwendung im Text).
+#### `[bw_credits_course_access]`
+Meeting-Link und Zugangsdaten. **Sichtbar ausschließlich für eingeloggte Nutzer mit aktiver Buchung für diesen Termin** — ohne Buchung wird nichts ausgegeben, auch kein Hinweis auf die Existenz des Links.
 
-### `[bw_credits_balance]`
-Zeigt das Credit-Guthaben als Block.
+`course_id`, `title`
 
-### `[bw_book_button slot_id="123"]` / `[bw_cancel_button booking_id="456"]`
-Einzelne Buttons. Durch `[bw_slot_action]` weitgehend abgelöst, bleiben aber funktionsfähig.
+### Kunde
+
+#### `[bw_credits_user_balance]`
+Verfügbares Guthaben. `format="inline"` (Standard) gibt nur die Zahl aus, `format="block"` einen beschrifteten Absatz. Wird per JavaScript aktualisiert.
+
+`format`, `label`, `logged_out`
+
+#### `[bw_credits_user_credits]`
+Guthaben im Detail: Anzahl, Herkunft (Kauf / Mitgliedschaft / Gutschrift) und Ablaufdatum, gebündelt statt einzeln. Was in den nächsten 30 Tagen verfällt, wird hervorgehoben.
+
+`show_expired`, `empty`
+
+#### `[bw_credits_user_bookings]`
+Buchungen des Kunden mit Status, Kurstyp/Level/Sprache, Stornieren-Button und — sofern vorhanden — den Zugangsdaten.
+
+`limit`, `show_access`
+
+### Ansicht
+
+#### `[bw_credits_view_overview]`
+Guthaben, nächster gebuchter Termin (mit Zugangsdaten) und Einstiegslinks. Steht automatisch im WooCommerce-Konto-Dashboard.
+
+`show_balance`, `show_next`, `show_links`, `list_url`
+
+### Alte Namen
+
+Diese funktionieren weiterhin und leiten auf die neuen um. Unter *BW Credits → Shortcodes* siehst du, welche Seiten noch umzustellen sind.
+
+| Alt | Neu |
+|---|---|
+| `bw_course_slots` | `bw_credits_course_list` |
+| `bw_slot_action` | `bw_credits_course_booking` |
+| `bw_availability` | `bw_credits_course_availability` |
+| `bw_my_bookings` | `bw_credits_user_bookings` |
+| `bw_balance_inline` | `bw_credits_user_balance` |
+| `bw_credits_balance` | `bw_credits_user_balance` (`format="block"`) |
+| `bw_book_button` | `bw_credits_course_booking` |
+| `bw_cancel_button` | `bw_credits_course_booking` |
+
+Der frühere Parameter `slot_id` wird automatisch auf `course_id` übersetzt.
 
 ## Buchungslogik
 

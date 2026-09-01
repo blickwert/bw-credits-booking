@@ -4,6 +4,50 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.10.0] – 2026-09-01
+
+Vereinheitlicht die Shortcode-Namen und schließt drei Lücken, die beim
+Durchspielen des Kundenprozesses aufgefallen sind.
+
+### Namensschema
+
+Alle Frontend-Shortcodes folgen jetzt `bw_credits_{gruppe}_{name}` mit drei
+Gruppen: **course** (spricht über einen Termin), **user** (über den
+eingeloggten Kunden), **view** (zusammengesetzte Ansicht).
+
+| Alt | Neu |
+|---|---|
+| `bw_course_slots` | `bw_credits_course_list` |
+| `bw_slot_action` | `bw_credits_course_booking` |
+| `bw_availability` | `bw_credits_course_availability` |
+| `bw_my_bookings` | `bw_credits_user_bookings` |
+| `bw_balance_inline` | `bw_credits_user_balance` |
+| `bw_credits_balance` | `bw_credits_user_balance` mit `format="block"` |
+| `bw_book_button` / `bw_cancel_button` | `bw_credits_course_booking` |
+
+Die alten Namen funktionieren weiterhin. Der frühere Parameter `slot_id` wird
+automatisch auf `course_id` übersetzt.
+
+### Neu
+- **`[bw_credits_course_access]`** — Meeting-Link und Zugangsdaten im Frontend, sichtbar ausschließlich für eingeloggte Nutzer mit aktiver Buchung für diesen Termin. Bisher erreichten die Zugangsdaten den Kunden nur per E-Mail.
+- **`[bw_credits_user_credits]`** — Guthaben im Detail: Herkunft und Ablaufdatum, gebündelt statt einzeln. Was in den nächsten 30 Tagen verfällt, wird hervorgehoben. Bisher sah der Kunde nur eine Zahl.
+- **`[bw_credits_view_overview]`** — Guthaben, nächster Termin samt Zugangsdaten und Einstiegslinks. Steht automatisch im WooCommerce-Konto-Dashboard.
+- **Seite BW Credits → Shortcodes** — vollständige Referenz aller Shortcodes und eine Liste der Seiten, die noch alte Namen verwenden, mit Bearbeiten-Link.
+
+### Geändert
+- `bw_balance_inline` und `bw_credits_balance` sind zu `bw_credits_user_balance` mit `format="inline|block"` zusammengefasst — beide taten dasselbe in unterschiedlichem Markup.
+- `[bw_credits_user_bookings]` zeigt bei gebuchten Terminen die Zugangsdaten mit an (`show_access="false"` schaltet das ab).
+- Das Konto-Dashboard zeigt die Übersicht über der Buchungsliste.
+- Die Shortcode-Registrierung liegt jetzt zentral in `includes/shortcodes.php`.
+
+### Hinweis
+`[bw_demo_book_slot]` und `[bw_demo_cancel_booking]` sind unverändert. Sie
+führen die Buchung beim **Seitenaufruf** aus, nicht auf Klick — ein
+eingeloggter Besucher verbraucht damit ungewollt einen Credit. Sie gehören
+nicht auf öffentliche Seiten.
+
+---
+
 ## [0.9.0] – 2026-08-28
 
 Übernimmt Funktionen, die bisher als externe Snippets liefen.

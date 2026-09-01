@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.9.0
+ * Version: 0.10.0
  * Author: Blickwert
  */
 
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.9.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.10.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
@@ -17,6 +17,10 @@ require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin-pages.php';
 require_once plugin_dir_path(__FILE__) . 'includes/emails.php';
 require_once plugin_dir_path(__FILE__) . 'includes/course-list.php';
+require_once plugin_dir_path(__FILE__) . 'includes/views/access.php';
+require_once plugin_dir_path(__FILE__) . 'includes/views/credits.php';
+require_once plugin_dir_path(__FILE__) . 'includes/views/overview.php';
+require_once plugin_dir_path(__FILE__) . 'includes/shortcodes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/membership.php';
 require_once plugin_dir_path(__FILE__) . 'includes/updater.php';
 
@@ -57,17 +61,9 @@ class BW_Credits_Bookings_MVP {
         add_action('wp_enqueue_scripts', [__CLASS__, 'register_frontend_assets']);
         add_action('wp_ajax_bw_refresh_nonce', [__CLASS__, 'ajax_refresh_nonce']);
 
-        // Frontend shortcodes
-        add_shortcode('bw_book_button', [__CLASS__, 'sc_book_button']);
-        add_shortcode('bw_cancel_button', [__CLASS__, 'sc_cancel_button']);
-        add_shortcode('bw_balance_inline', [__CLASS__, 'sc_balance_inline']);
-        add_shortcode('bw_credits_balance', [__CLASS__, 'sc_balance']); // legacy display
+        // Frontend-Shortcodes werden zentral in includes/shortcodes.php registriert
 
-        add_shortcode('bw_my_bookings', [__CLASS__, 'sc_my_bookings']);
-        add_shortcode('bw_slot_action', [__CLASS__, 'sc_slot_action']);
-        add_shortcode('bw_availability', [__CLASS__, 'sc_availability']);
-
-        // Quick demo/testing shortcodes (optional)
+        // Demo-/Testhilfen
         add_shortcode('bw_demo_book_slot', [__CLASS__, 'sc_demo_book_slot']);
         add_shortcode('bw_demo_cancel_booking', [__CLASS__, 'sc_demo_cancel_booking']);
     }
@@ -185,7 +181,7 @@ class BW_Credits_Bookings_MVP {
         ]);
     }
 
-    private static function ensure_assets() {
+    public static function ensure_assets() {
         wp_enqueue_script('bw-bwallet-frontend');
         wp_enqueue_style('bw-bwallet-frontend');
     }
@@ -484,7 +480,7 @@ class BW_Credits_Bookings_MVP {
         return max(0, (int) $raw);
     }
 
-    private static function get_slot_start_datetime(int $slot_id): ?DateTime {
+    public static function get_slot_start_datetime(int $slot_id): ?DateTime {
         $raw = get_post_meta($slot_id, self::META_START_DT, true);
         if (!$raw) return null;
 
@@ -1058,19 +1054,32 @@ class BW_Credits_Bookings_MVP {
     }
 
     // Display balance (block)
-    public static function sc_balance() {
-        if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
-        $uid = get_current_user_id();
-        return '<p>Verfügbare Credits: <strong>' . esc_html(self::get_available_credits($uid)) . '</strong></p>';
-    }
+    /**
+     * [bw_credits_user_balance] — Guthaben als Zahl oder als Absatz.
+     * Vereint die früheren bw_balance_inline und bw_credits_balance.
+     */
+    public static function sc_balance($atts = []) {
+        $atts = shortcode_atts([
+            'format'     => 'inline',
+            'label'      => 'Verfügbare Credits:',
+            'logged_out' => '',
+        ], $atts, 'bw_credits_user_balance');
 
-    // Inline balance span (auto-updated by JS)
-    public static function sc_balance_inline() {
-        if (!is_user_logged_in()) return '';
+        if (!is_user_logged_in()) {
+            return $atts['logged_out'] !== '' ? esc_html($atts['logged_out']) : '';
+        }
+
         self::ensure_assets();
-        $uid = get_current_user_id();
-        $available = self::get_available_credits($uid);
-        return '<span data-bw-balance>' . esc_html($available) . '</span>';
+
+        $available = self::get_available_credits(get_current_user_id());
+        // data-bw-balance wird vom JS nach Buchung und Storno aktualisiert
+        $number    = '<span data-bw-balance>' . esc_html($available) . '</span>';
+
+        if ($atts['format'] === 'block') {
+            return '<p class="bw-balance">' . esc_html($atts['label']) . ' <strong>' . $number . '</strong></p>';
+        }
+
+        return $number;
     }
 
     // [bw_book_button slot_id="123" label="Kurs buchen (1 Credit)"]
@@ -1138,7 +1147,7 @@ class BW_Credits_Bookings_MVP {
      * So funktionieren die Shortcodes auf der Termin-Einzelseite ohne dass
      * jemand die ID eintippen muss.
      */
-    private static function resolve_slot_id(int $slot_id): int {
+    public static function resolve_course_id(int $slot_id): int {
         if ($slot_id > 0) return $slot_id;
 
         $post = get_post();
@@ -1189,13 +1198,14 @@ class BW_Credits_Bookings_MVP {
      */
     public static function sc_slot_action($atts) {
         $atts = shortcode_atts([
-            'slot_id'      => 0,
+            'course_id'    => 0,
+            'slot_id'      => 0,   // alter Name, bleibt gültig
             'label_book'   => 'Kurs buchen (1 Credit)',
             'label_cancel' => 'Buchung stornieren',
             'class'        => 'bw-bwallet-btn',
-        ], $atts);
+        ], $atts, 'bw_credits_course_booking');
 
-        $slot_id = self::resolve_slot_id((int) $atts['slot_id']);
+        $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
 
         self::ensure_assets();
@@ -1269,12 +1279,13 @@ class BW_Credits_Bookings_MVP {
      */
     public static function sc_availability($atts) {
         $atts = shortcode_atts([
-            'slot_id' => 0,
-            'format'  => '{frei} freie Plätze',
-            'full'    => 'Ausgebucht',
-        ], $atts);
+            'course_id' => 0,
+            'slot_id'   => 0,   // alter Name, bleibt gültig
+            'format'    => '{frei} freie Plätze',
+            'full'      => 'Ausgebucht',
+        ], $atts, 'bw_credits_course_availability');
 
-        $slot_id = self::resolve_slot_id((int) $atts['slot_id']);
+        $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
 
         self::ensure_assets();
@@ -1298,12 +1309,14 @@ class BW_Credits_Bookings_MVP {
         );
     }
 
-    /** Buchungen im WooCommerce-Konto-Dashboard. */
+    /** Übersicht und Buchungen im WooCommerce-Konto-Dashboard. */
     public static function render_account_dashboard() {
         if (!is_user_logged_in()) return;
 
+        echo BW_View_Overview::render([]);
+
         echo '<h2>Meine Kurse</h2>';
-        echo do_shortcode('[bw_my_bookings limit="10"]');
+        echo self::sc_my_bookings(['limit' => 10]);
     }
 
     // [bw_my_bookings limit="20"]
@@ -1312,7 +1325,10 @@ class BW_Credits_Bookings_MVP {
 
         self::ensure_assets();
 
-        $atts       = shortcode_atts(['limit' => 20], $atts);
+        $atts = shortcode_atts([
+            'limit'       => 20,
+            'show_access' => 'true',
+        ], $atts, 'bw_credits_user_bookings');
         $uid        = get_current_user_id();
         $bookings   = self::get_my_bookings($uid, (int) $atts['limit']);
 
@@ -1324,6 +1340,7 @@ class BW_Credits_Bookings_MVP {
         $now          = new DateTime('now', wp_timezone());
 
         $status_labels = self::status_labels();
+        $show_access   = filter_var($atts['show_access'], FILTER_VALIDATE_BOOLEAN);
 
         ob_start();
         echo '<div class="bw-my-bookings">';
@@ -1369,7 +1386,11 @@ class BW_Credits_Bookings_MVP {
             echo '<div class="bw-booking-status">' . esc_html($status_label) . '</div>';
 
             if ($can_cancel) {
-                echo do_shortcode('[bw_cancel_button booking_id="' . $booking_id . '" slot_id="' . $slot_id . '"]');
+                echo self::sc_cancel_button(['booking_id' => $booking_id, 'slot_id' => $slot_id]);
+            }
+
+            if ($show_access && $is_active && $status === 'booked') {
+                echo BW_View_Access::render(['course_id' => $slot_id, 'title' => '']);
             }
 
             echo '</div>';
