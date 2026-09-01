@@ -110,6 +110,87 @@
   color: #b00020;
 }
 
+/* Terminliste [bw_course_slots] */
+.bw-course-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.bw-course-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.bw-course-filter__reset {
+  font-size: 0.9rem;
+}
+
+.bw-course-slot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.bw-course-slot-day {
+  font-weight: 600;
+  margin: 1.25rem 0 0.5rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid rgba(0,0,0,.12);
+}
+
+.bw-course-slot-day:first-child {
+  margin-top: 0;
+}
+
+.bw-course-slot-item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0.7rem 0;
+  border-bottom: 1px solid rgba(0,0,0,.07);
+}
+
+.bw-course-slot-main {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  min-width: 0;
+}
+
+.bw-course-slot-time {
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.bw-course-slot-meta {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.bw-course-slot-side {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.bw-course-slot-side .bw-slot-note {
+  margin: 0;
+}
+
+.bw-course-slots-empty {
+  color: #777;
+}
+
 /* Hinweise statt Button (ausgebucht, vorbei, keine Credits, …) */
 .bw-slot-note {
   margin: 0.45rem 0;

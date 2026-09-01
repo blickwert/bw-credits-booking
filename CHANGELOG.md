@@ -4,6 +4,32 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.9.0] – 2026-08-28
+
+Übernimmt Funktionen, die bisher als externe Snippets liefen.
+
+### Neu
+- **`[bw_course_slots]`** — Terminliste mit kommenden Terminen, gruppiert nach Tagen, mit freien Plätzen und Buchen-Button. Optionale Auswahlfelder für Kursart, Level und Sprache (`show_filter="true"`), Vorfilterung über Attribute, Begrenzung auf die nächsten N Tage.
+- **Classic Editor** für Kurstermine — die Metaboxen stehen damit an der gewohnten Stelle statt in der unteren Leiste des Block-Editors
+
+### Geändert
+- **Auto-Titel** jetzt `"Montag, 2. Juni 10:00 – Hatha Yoga"` statt `"2.6.26 10:00 – Hatha Yoga – German"`. Wochentag und Monat kommen über `wp_date()` aus der WordPress-Locale; das Format ist über den Filter `bw_slot_title_format` anpassbar. Die Sprache steht weiterhin als eigene Spalte in der Listenansicht.
+- Die Zeitberechnung im Auto-Titel nutzt die WordPress-Zeitzone statt der Serverzeit
+
+### Hinweis zu externen Snippets
+
+Mit dieser Version können folgende Snippets entfallen — sie sind im Plugin enthalten und kollidieren sonst:
+
+| Snippet | Grund |
+|---|---|
+| `booked_count` readonly + Woo-Produktfelder | doppelt — die Produktfelder erscheinen sonst zweimal |
+| Auto-Titel für `course_slot` | doppelt — beide schreiben `post_title`, das Ergebnis hängt von der Ladereihenfolge ab |
+| `[bw_course_slot_output]` | war Platzhalter mit Beispieldaten, ersetzt durch `[bw_course_slots]` |
+| `[bw_course_slots]` (Snippet-Fassung) | ersetzt durch die Plugin-Fassung |
+| Gutenberg-Abschaltung | im Plugin, nutzt den eingestellten Inhaltstyp |
+
+---
+
 ## [0.8.0] – 2026-08-28
 
 ### Neu — Adminbereich
