@@ -71,7 +71,9 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
 
 /* =========================================================
  * Kurstermin: Auto-Titel beim Speichern
- * post_title = "23.2.26 17:00 – Hatha Yoga – German"
+ * post_title = "Montag, 2. Juni 10:00 – Hatha Yoga"
+ *
+ * Format über den Filter bw_slot_title_format anpassbar.
  * ========================================================= */
 
 add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
@@ -84,22 +86,38 @@ add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
     $start_datetime = get_post_meta($post_id, 'start_datetime', true);
     if (!$start_datetime) { $running[$post_id] = false; return; }
 
-    $timestamp = strtotime($start_datetime);
-    if (!$timestamp) { $running[$post_id] = false; return; }
+    try {
+        $timestamp = (new DateTime($start_datetime, wp_timezone()))->getTimestamp();
+    } catch (Exception $e) {
+        $running[$post_id] = false;
+        return;
+    }
 
-    $type_terms  = get_the_terms($post_id, 'course_type');
-    $lang_terms  = get_the_terms($post_id, 'course_lang');
-    $course_type = (!empty($type_terms) && !is_wp_error($type_terms)) ? $type_terms[0]->name : '';
-    $course_lang = (!empty($lang_terms) && !is_wp_error($lang_terms)) ? $lang_terms[0]->name : '';
+    // wp_date() übersetzt Wochentag und Monat über die WordPress-Locale
+    $format = apply_filters('bw_slot_title_format', 'l, j. F H:i', $post_id);
+    $when   = wp_date($format, $timestamp);
+
+    $course_type = bw_cs_first_term($post_id, 'course_type');
+    $title       = $course_type ? sprintf('%s – %s', $when, $course_type) : $when;
 
     wp_update_post([
         'ID'         => $post_id,
-        'post_title' => sprintf('%s – %s – %s', date('j.n.y H:i', $timestamp), $course_type, $course_lang),
+        'post_title' => $title,
         'post_name'  => $bw_slot_pt . '-' . $post_id,
     ]);
 
     $running[$post_id] = false;
 }, 20);
+
+/* =========================================================
+ * Kurstermine im Classic Editor bearbeiten
+ * Die Metaboxen (Kapazität, Teilnehmer, Online-Zugang) sind darauf
+ * ausgelegt; im Block-Editor landen sie in der unteren Leiste.
+ * ========================================================= */
+
+add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_type) use ($bw_slot_pt) {
+    return $post_type === $bw_slot_pt ? false : $use_block_editor;
+}, 10, 2);
 
 /* =========================================================
  * Kurstermin: Admin-Columns definieren

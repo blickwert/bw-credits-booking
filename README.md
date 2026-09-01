@@ -85,6 +85,28 @@ Taxonomien: `course_type`, `course_level`, `course_lang`
 
 Auf der Termin-Einzelseite kann `slot_id` entfallen — dann greift automatisch der aktuelle Beitrag. Das macht die Shortcodes direkt in einem Elementor-Template verwendbar.
 
+### `[bw_course_slots]`
+Terminliste — nur kommende Termine, nach Datum sortiert und nach Tagen gruppiert. Freie Plätze und Buchen-Button sind eingebaut.
+
+```
+[bw_course_slots]
+[bw_course_slots days="14" show_filter="true"]
+[bw_course_slots type="hatha-yoga" limit="5" availability="false"]
+```
+
+| Attribut | Standard | Bedeutung |
+|---|---|---|
+| `limit` | 20 | maximale Anzahl Termine |
+| `days` | 0 | nur die nächsten N Tage (0 = ohne Begrenzung) |
+| `type` / `level` / `lang` | – | Term-Slug zum Vorfiltern |
+| `show_filter` | false | Auswahlfelder für Kursart, Level und Sprache anzeigen |
+| `show_action` | true | Buchen-Button je Termin |
+| `availability` | true | freie Plätze je Termin |
+| `group_by_day` | true | Überschrift je Tag |
+| `empty` | *(Text)* | Meldung wenn keine Termine vorhanden sind |
+
+Bei `show_filter="true"` schreibt das Formular `bw_type`, `bw_level` und `bw_lang` in die URL; gesetzte Shortcode-Attribute werden davon überschrieben.
+
 ### `[bw_slot_action]`
 **Empfohlen.** Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neuladen umschaltet. Zeigt stattdessen einen Hinweis wenn: nicht eingeloggt, Termin vorbei, ausgebucht, keine Credits vorhanden, oder Stornofrist abgelaufen.
 
@@ -161,7 +183,15 @@ Menü **BW Credits** (Berechtigung `manage_options`):
 - **Online-Zugang** — Meeting-Link und Zugangsdaten, mit Knopf zum erneuten Senden
 - **Teilnehmer** — Liste mit Stornieren, „Nicht erschienen" und CSV-Export der Anwesenheitsliste
 
-**Listenansicht**: Spalten Start, Level, Type, Language — alle sortierbar. Der Titel wird beim Speichern automatisch erzeugt: `"23.2.26 17:00 – Hatha Yoga – German"`.
+**Listenansicht**: Spalten Start, Level, Type, Language — alle sortierbar.
+
+**Auto-Titel**: Beim Speichern wird der Titel erzeugt als `"Montag, 2. Juni 10:00 – Hatha Yoga"`. Wochentag und Monat kommen aus der WordPress-Locale. Das Format lässt sich über den Filter `bw_slot_title_format` ändern:
+
+```php
+add_filter('bw_slot_title_format', fn() => 'D, j.n. H:i');
+```
+
+**Editor**: Kurstermine werden im Classic Editor bearbeitet, damit die Metaboxen an der gewohnten Stelle stehen.
 
 ## E-Mails
 
