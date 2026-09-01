@@ -205,3 +205,136 @@
 .bw-slot-note.bw-is-booked {
   color: #116611;
 }
+/* Zugangsdaten [bw_credits_course_access] */
+.bw-access {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 0.75rem;
+  background: #f6faf7;
+}
+
+.bw-access__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.bw-access__link {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+
+.bw-access__info {
+  font-size: 0.92rem;
+  color: #444;
+}
+
+/* Guthaben-Details [bw_credits_user_credits] */
+.bw-credits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bw-credits-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.bw-credits-item--gone {
+  opacity: 0.55;
+}
+
+.bw-credits-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.5em;
+}
+
+.bw-credits-source {
+  flex: 1;
+}
+
+.bw-credits-expiry {
+  font-size: 0.9rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.bw-credits-expiry--soon {
+  color: #b00020;
+  font-weight: 600;
+}
+
+.bw-credits-empty {
+  color: #777;
+}
+
+/* Konto-Übersicht [bw_credits_view_overview] */
+.bw-overview {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.bw-overview__balance {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.bw-overview__count {
+  font-size: 2rem;
+  font-weight: 700;
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.bw-overview__next {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+}
+
+.bw-overview__next-label {
+  font-size: 0.85rem;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.bw-overview__next-title {
+  font-weight: 600;
+}
+
+.bw-overview__next--none {
+  color: #777;
+  margin: 0;
+}
+
+.bw-overview__links {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  font-size: 0.92rem;
+}
+
+.bw-balance {
+  margin: 0.45rem 0;
+}

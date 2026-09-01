@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_course_slots] — Terminliste mit optionalen Filtern.
+ * [bw_credits_course_list] — Terminliste mit optionalen Filtern.
  *
  * Ersetzt das frühere Snippet: nutzt den eingestellten Inhaltstyp statt
  * eines fest verdrahteten course_slot, rechnet in der WordPress-Zeitzone
@@ -18,10 +18,6 @@ class BW_Course_List {
         'course_lang'  => 'Sprache',
     ];
 
-    public static function init() {
-        add_shortcode('bw_course_slots', [__CLASS__, 'render']);
-    }
-
     public static function render($atts) {
         $atts = shortcode_atts([
             'limit'        => 20,
@@ -34,7 +30,7 @@ class BW_Course_List {
             'availability' => 'true',
             'group_by_day' => 'true',
             'empty'        => 'Aktuell sind keine Termine geplant.',
-        ], $atts, 'bw_course_slots');
+        ], $atts, 'bw_credits_course_list');
 
         $show_filter = filter_var($atts['show_filter'], FILTER_VALIDATE_BOOLEAN);
         $selected    = self::selected_terms($atts, $show_filter);
@@ -278,5 +274,3 @@ class BW_Course_List {
         }
     }
 }
-
-BW_Course_List::init();

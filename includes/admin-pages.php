@@ -10,6 +10,7 @@ class BW_Admin_Pages {
     const PAGE_SLOTS    = 'bw-credits-slots';
     const PAGE_BOOKINGS = 'bw-credits-bookings';
     const PAGE_CREDITS  = 'bw-credits-credits';
+    const PAGE_SHORTCODES = 'bw-credits-shortcodes';
 
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'register_menu'], 20);
@@ -18,6 +19,7 @@ class BW_Admin_Pages {
         add_action('admin_post_bw_cancel_booking', [__CLASS__, 'handle_cancel_booking']);
         add_action('admin_post_bw_grant_credits',  [__CLASS__, 'handle_grant_credits']);
         add_action('admin_post_bw_revoke_credit',  [__CLASS__, 'handle_revoke_credit']);
+        add_action('admin_post_bw_clear_legacy',   [__CLASS__, 'handle_clear_legacy']);
     }
 
     private static function cap(): string {
@@ -35,6 +37,7 @@ class BW_Admin_Pages {
         add_submenu_page($parent, 'Termine',   'Termine',   $cap, self::PAGE_SLOTS,    [__CLASS__, 'render_slots']);
         add_submenu_page($parent, 'Buchungen', 'Buchungen', $cap, self::PAGE_BOOKINGS, [__CLASS__, 'render_bookings']);
         add_submenu_page($parent, 'Credits',   'Credits',   $cap, self::PAGE_CREDITS,  [__CLASS__, 'render_credits']);
+        add_submenu_page($parent, 'Shortcodes', 'Shortcodes', $cap, self::PAGE_SHORTCODES, [__CLASS__, 'render_shortcodes']);
     }
 
     /* =========================================================
@@ -586,6 +589,144 @@ class BW_Admin_Pages {
                 ? 'err:' . $res->get_error_message()
                 : 'ok:' . $amount . ' Credit(s) gutgeschrieben.'
         );
+    }
+
+    /* =========================================================
+     * Seite: Shortcodes
+     * ========================================================= */
+
+    /** Referenz: Name => [Gruppe, Beschreibung, Parameter] */
+    private static function shortcode_reference(): array {
+        return [
+            'bw_credits_course_list' => [
+                'Kurs',
+                'Terminliste, nach Tagen gruppiert, mit Verfügbarkeit und Buchen-Button.',
+                'limit, days, type, level, lang, show_filter, show_action, availability, group_by_day, empty',
+            ],
+            'bw_credits_course_booking' => [
+                'Kurs',
+                'Ein Button der je nach Zustand bucht oder storniert.',
+                'course_id, label_book, label_cancel, class',
+            ],
+            'bw_credits_course_availability' => [
+                'Kurs',
+                'Freie Plätze. Auch ohne Login sichtbar.',
+                'course_id, format, full',
+            ],
+            'bw_credits_course_access' => [
+                'Kurs',
+                'Zugangsdaten zum Online-Kurs. Nur für Teilnehmer mit aktiver Buchung.',
+                'course_id, title',
+            ],
+            'bw_credits_user_balance' => [
+                'Kunde',
+                'Verfügbares Guthaben als Zahl oder als Absatz.',
+                'format (inline|block), label, logged_out',
+            ],
+            'bw_credits_user_credits' => [
+                'Kunde',
+                'Guthaben im Detail: Herkunft und Ablaufdatum.',
+                'show_expired, empty',
+            ],
+            'bw_credits_user_bookings' => [
+                'Kunde',
+                'Buchungen des Kunden mit Storno-Möglichkeit.',
+                'limit, show_access',
+            ],
+            'bw_credits_view_overview' => [
+                'Ansicht',
+                'Guthaben, nächster Termin und Links. Steht automatisch im Konto-Dashboard.',
+                'show_balance, show_next, show_links, list_url',
+            ],
+        ];
+    }
+
+    public static function render_shortcodes() {
+        self::guard();
+
+        echo '<div class="wrap"><h1>Shortcodes</h1>';
+        self::notice();
+
+        echo '<p>Auf einer Termin-Einzelseite kann <code>course_id</code> entfallen — '
+           . 'dann greift der aktuelle Beitrag.</p>';
+
+        echo '<table class="wp-list-table widefat striped"><thead><tr>'
+           . '<th style="width:6em">Gruppe</th><th style="width:22em">Shortcode</th>'
+           . '<th>Beschreibung</th><th>Parameter</th></tr></thead><tbody>';
+
+        foreach (self::shortcode_reference() as $tag => [$group, $description, $params]) {
+            printf(
+                '<tr><td>%s</td><td><code>[%s]</code></td><td>%s</td><td><small>%s</small></td></tr>',
+                esc_html($group),
+                esc_html($tag),
+                esc_html($description),
+                esc_html($params)
+            );
+        }
+
+        echo '</tbody></table>';
+
+        self::render_legacy_usage();
+        echo '</div>';
+    }
+
+    private static function render_legacy_usage() {
+        $usage = BW_Shortcodes::get_legacy_usage();
+
+        echo '<h2 style="margin-top:2em">Alte Shortcode-Namen</h2>';
+
+        if (empty($usage)) {
+            echo '<p>Es wurden keine Fundstellen mit alten Namen registriert.</p>';
+            echo '<p class="description">Die Erfassung greift, sobald eine Seite mit einem '
+               . 'alten Namen im Frontend aufgerufen wird.</p>';
+            return;
+        }
+
+        echo '<p>Diese Seiten verwenden noch alte Namen. Sie funktionieren weiterhin, '
+           . 'sollten aber umgestellt werden.</p>';
+
+        echo '<table class="wp-list-table widefat striped"><thead><tr>'
+           . '<th>Alter Name</th><th>Neuer Name</th><th>Seite</th><th>Zuletzt gesehen</th>'
+           . '</tr></thead><tbody>';
+
+        foreach ($usage as $entry) {
+            $tag     = (string) ($entry['tag'] ?? '');
+            $post_id = (int) ($entry['post_id'] ?? 0);
+            $target  = BW_Shortcodes::ALIASES[$tag] ?? '—';
+            $edit    = get_edit_post_link($post_id);
+
+            printf(
+                '<tr><td><code>[%s]</code></td><td><code>[%s]</code></td><td>%s</td><td>%s</td></tr>',
+                esc_html($tag),
+                esc_html($target),
+                $edit
+                    ? sprintf('<a href="%s">%s</a>', esc_url($edit), esc_html(get_the_title($post_id) ?: '#' . $post_id))
+                    : esc_html(get_the_title($post_id) ?: '#' . $post_id),
+                esc_html(mysql2date('d.m.Y H:i', $entry['seen_at'] ?? ''))
+            );
+        }
+
+        echo '</tbody></table>';
+
+        $url = wp_nonce_url(
+            admin_url('admin-post.php?action=bw_clear_legacy'),
+            'bw_clear_legacy'
+        );
+
+        printf(
+            '<p style="margin-top:1em"><a class="button" href="%s">Liste zurücksetzen</a> '
+            . '<span class="description">Nach dem Umstellen — die Einträge erscheinen erneut '
+            . 'falls noch eine Fundstelle übrig ist.</span></p>',
+            esc_url($url)
+        );
+    }
+
+    public static function handle_clear_legacy() {
+        self::guard();
+        check_admin_referer('bw_clear_legacy');
+
+        BW_Shortcodes::clear_legacy_usage();
+        self::redirect(self::PAGE_SHORTCODES, [], 'ok:Liste zurückgesetzt.');
     }
 
     public static function handle_revoke_credit() {
