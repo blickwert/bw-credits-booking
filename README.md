@@ -135,7 +135,28 @@ Meeting-Link und Zugangsdaten. **Sichtbar ausschließlich für eingeloggte Nutze
 #### `[bw_credits_user_balance]`
 Verfügbares Guthaben. `format="inline"` (Standard) gibt nur die Zahl aus, `format="block"` einen beschrifteten Absatz. Wird per JavaScript aktualisiert.
 
-`format`, `label`, `logged_out`
+Mit **`mode="empty_only"`** wird daraus eine Aufforderung zum Nachkaufen: sichtbar nur, wenn der Kunde eingeloggt ist, **schon einmal Guthaben hatte** und jetzt keines mehr hat. Wer nie Credits hatte, sieht nichts — der soll über den Shop einsteigen.
+
+„Schon einmal Guthaben gehabt" zählt jede Herkunft mit, auch manuelle Gutschriften aus Willkommensaktionen (Newsletter-Anmeldung, Aktionszeitraum).
+
+```
+[bw_credits_user_balance mode="empty_only"]
+[bw_credits_user_balance mode="empty_only" empty_text="Keine Credits übrig." empty_link="Block kaufen"]
+```
+
+Der Hinweis erscheint sofort, sobald der Kunde seinen letzten Credit verbucht — ohne Neuladen.
+
+| Attribut | Standard | Bedeutung |
+|---|---|---|
+| `mode` | always | `always` oder `empty_only` |
+| `format` | inline | `inline` oder `block` (nur bei `mode="always"`) |
+| `label` | Verfügbare Credits: | Beschriftung vor der Zahl |
+| `empty_text` | Dein Guthaben ist aufgebraucht. | Text bei leerem Guthaben |
+| `empty_link` | Jetzt aufladen | Beschriftung des Shop-Links |
+| `shop_url` | – | überschreibt die Einstellung *Shop-Seite* |
+| `logged_out` | – | Text für nicht eingeloggte Besucher |
+
+Das Ziel des Links kommt aus *BW Credits → Einstellungen → Shop-Seite*; ist dort nichts hinterlegt, wird die WooCommerce-Shopseite verwendet. Findet sich keine, erscheint der Hinweis ohne Link.
 
 #### `[bw_credits_user_credits]`
 Guthaben im Detail: Anzahl, Herkunft (Kauf / Mitgliedschaft / Gutschrift) und Ablaufdatum, gebündelt statt einzeln. Was in den nächsten 30 Tagen verfällt, wird hervorgehoben.
@@ -208,7 +229,7 @@ Menü **BW Credits** (Berechtigung `manage_options`):
 
 | Seite | Inhalt |
 |---|---|
-| Einstellungen | Inhaltstyp der Termine, Standard-Kapazität, Storno-Frist, Erinnerungs-Vorlauf |
+| Einstellungen | Inhaltstyp der Termine, Standard-Kapazität, Storno-Frist, Erinnerungs-Vorlauf, Shop-Seite |
 | Termine | Alle Termine mit Belegung und Auslastung, Filter kommend/vergangen |
 | Buchungen | Gefilterte Liste, Storno, Formular für Walk-in-Buchungen |
 | Credits | Benutzersuche, Guthaben einsehen, manuell gutschreiben und entwerten |

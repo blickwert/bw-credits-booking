@@ -2,14 +2,14 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.10.0
+ * Version: 0.11.0
  * Author: Blickwert
  */
 
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.10.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.11.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
@@ -1060,8 +1060,12 @@ class BW_Credits_Bookings_MVP {
      */
     public static function sc_balance($atts = []) {
         $atts = shortcode_atts([
-            'format'     => 'inline',
+            'mode'       => 'always',      // always | empty_only
+            'format'     => 'inline',      // inline | block
             'label'      => 'Verfügbare Credits:',
+            'empty_text' => 'Dein Guthaben ist aufgebraucht.',
+            'empty_link' => 'Jetzt aufladen',
+            'shop_url'   => '',
             'logged_out' => '',
         ], $atts, 'bw_credits_user_balance');
 
@@ -1069,17 +1073,64 @@ class BW_Credits_Bookings_MVP {
             return $atts['logged_out'] !== '' ? esc_html($atts['logged_out']) : '';
         }
 
-        self::ensure_assets();
+        $user_id   = get_current_user_id();
+        $available = self::get_available_credits($user_id);
 
-        $available = self::get_available_credits(get_current_user_id());
-        // data-bw-balance wird vom JS nach Buchung und Storno aktualisiert
-        $number    = '<span data-bw-balance>' . esc_html($available) . '</span>';
-
-        if ($atts['format'] === 'block') {
-            return '<p class="bw-balance">' . esc_html($atts['label']) . ' <strong>' . $number . '</strong></p>';
+        if ($atts['mode'] === 'empty_only') {
+            // Wer nie Guthaben hatte, soll über den Shop einsteigen statt über
+            // einen Hinweis auf leeres Guthaben. total zählt alle je vergebenen
+            // Credits — auch manuelle Gutschriften aus Willkommensaktionen.
+            $summary = self::get_credit_summary($user_id);
+            if ($summary['total'] < 1) return '';
         }
 
-        return $number;
+        self::ensure_assets();
+
+        // data-bw-balance wird vom JS nach Buchung und Storno aktualisiert
+        $number = '<span data-bw-balance>' . esc_html($available) . '</span>';
+
+        if ($atts['mode'] !== 'empty_only') {
+            if ($atts['format'] === 'block') {
+                return '<p class="bw-balance">' . esc_html($atts['label']) . ' <strong>' . $number . '</strong></p>';
+            }
+            return $number;
+        }
+
+        return self::render_balance_states($atts, $number, $available);
+    }
+
+    /**
+     * Beide Zustände ins Markup — das JS schaltet über data-bw-state um.
+     * Stünde nur der jeweils zutreffende Zweig da, erschiene der Hinweis erst
+     * nach einem Reload, also gerade nicht in dem Moment in dem der Kunde
+     * seinen letzten Credit verbraucht.
+     */
+    private static function render_balance_states(array $atts, string $number, int $available): string {
+        $url  = $atts['shop_url'] !== '' ? $atts['shop_url'] : BW_Settings::get_shop_url();
+        $hint = esc_html($atts['empty_text']);
+
+        if ($url !== '' && $atts['empty_link'] !== '') {
+            $hint .= ' <a href="' . esc_url($url) . '">' . esc_html($atts['empty_link']) . '</a>';
+        }
+
+        return sprintf(
+            '<span class="bw-balance-state" data-bw-balance-wrap data-bw-state="%s">'
+            . '<span data-bw-has-wrap>%s <strong>%s</strong></span>'
+            . '<span data-bw-empty-wrap class="bw-balance-empty">%s</span>'
+            . '</span>',
+            $available > 0 ? 'has' : 'empty',
+            esc_html($atts['label']),
+            $number,
+            $hint
+        );
+    }
+
+    /** Shop-Ziel für Hinweise auf leeres Guthaben. */
+    private static function shop_link(string $label): string {
+        $url = BW_Settings::get_shop_url();
+        if ($url === '') return '';
+
+        return ' <a href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
     }
 
     // [bw_book_button slot_id="123" label="Kurs buchen (1 Credit)"]
@@ -1187,9 +1238,10 @@ class BW_Credits_Bookings_MVP {
         return new DateTime('now', wp_timezone()) < $cutoff;
     }
 
-    private static function note(string $text, string $modifier = ''): string {
+    /** $suffix_html muss bereits escaped sein — gedacht für einen Link. */
+    private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
         return '<p class="bw-slot-note' . ($modifier ? ' ' . esc_attr($modifier) : '') . '">'
-             . esc_html($text) . '</p>';
+             . esc_html($text) . $suffix_html . '</p>';
     }
 
     /**
@@ -1243,7 +1295,11 @@ class BW_Credits_Bookings_MVP {
         if (self::get_free_spots($slot_id) < 1) return self::note('Dieser Termin ist ausgebucht.', 'bw-is-full');
 
         if (self::get_available_credits($user_id) < 1) {
-            return self::note('Du hast keine Credits mehr. Bitte lade dein Guthaben auf.', 'bw-no-credits');
+            return self::note(
+                'Du hast keine Credits mehr.',
+                'bw-no-credits',
+                self::shop_link('Jetzt aufladen')
+            );
         }
 
         return self::action_button([

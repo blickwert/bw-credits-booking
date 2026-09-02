@@ -620,8 +620,8 @@ class BW_Admin_Pages {
             ],
             'bw_credits_user_balance' => [
                 'Kunde',
-                'Verfügbares Guthaben als Zahl oder als Absatz.',
-                'format (inline|block), label, logged_out',
+                'Verfügbares Guthaben. Mit mode="empty_only" nur sichtbar wenn der Kunde schon einmal Guthaben hatte und jetzt keines mehr hat.',
+                'mode (always|empty_only), format (inline|block), label, empty_text, empty_link, shop_url, logged_out',
             ],
             'bw_credits_user_credits' => [
                 'Kunde',

@@ -4,6 +4,24 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.11.0] – 2026-09-01
+
+### Neu
+- **`[bw_credits_user_balance mode="empty_only"]`** — die Guthaben-Anzeige wird zur Aufforderung zum Nachkaufen: sichtbar nur wenn der Kunde eingeloggt ist, schon einmal Guthaben hatte und jetzt keines mehr hat. Wer nie Credits hatte, sieht nichts.
+
+  „Schon einmal Guthaben gehabt" zählt jede Herkunft mit — auch manuelle Gutschriften aus Willkommensaktionen wie Newsletter-Anmeldung oder Aktionszeitraum. Geprüft wird über `total` aus `get_credit_summary()`, ohne neue Datenhaltung.
+
+  Der Hinweis erscheint **sofort** wenn der letzte Credit verbucht wird. Beide Zustände stehen im Markup und werden über `data-bw-state` umgeschaltet — dasselbe Muster wie bei der Verfügbarkeitsanzeige. Ohne das erschiene der Hinweis erst nach einem Neuladen, also gerade nicht in dem Moment in dem er zählt.
+
+  Neue Attribute: `mode`, `empty_text`, `empty_link`, `shop_url`.
+
+- **Einstellung Shop-Seite** (`bw_shop_url`) — wohin Kunden zum Aufladen geschickt werden. Leer lassen nutzt die WooCommerce-Shopseite.
+
+### Geändert
+- Der Hinweis „Du hast keine Credits mehr" bei `[bw_credits_course_booking]` verlinkt jetzt auf die Shop-Seite. Bisher stand dort eine Aufforderung ohne Ziel.
+
+---
+
 ## [0.10.0] – 2026-09-01
 
 Vereinheitlicht die Shortcode-Namen und schließt drei Lücken, die beim
