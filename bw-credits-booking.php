@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.16.0
+ * Version: 0.16.1
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.16.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.16.1');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -43,7 +43,7 @@ class BW_Credits_Bookings_MVP {
     const PM_VALID_DAYS      = '_bw_credit_valid_days';
     const PM_CREDIT_SOURCE   = '_bw_credit_source';
 
-    const DB_VERSION         = 3;
+    const DB_VERSION         = 4;
 
     // 'manual' = Gutschrift durch den Admin (Barzahlung, Kulanz, Korrektur)
     const CREDIT_SOURCES     = ['purchase', 'membership', 'manual'];
@@ -155,6 +155,19 @@ class BW_Credits_Bookings_MVP {
             $bookings = $wpdb->prefix . self::BOOKINGS_TABLE;
             // is_active=0 kollidiert im Unique-Index sobald derselbe Slot ein
             // zweites Mal storniert wird — NULL erlaubt beliebig viele Zeilen
+            $wpdb->query("UPDATE {$bookings} SET is_active = NULL WHERE is_active = 0");
+        }
+
+        if ($installed < 4) {
+            global $wpdb;
+            $bookings = $wpdb->prefix . self::BOOKINGS_TABLE;
+            // dbDelta() stellt bestehende Spalten zuverlässig auf ADD COLUMN/ADD
+            // INDEX um, aber nicht auf NOT NULL -> NULL — auf Sites, die vor der
+            // Umstellung in Version 3 installiert wurden, blieb is_active daher
+            // NOT NULL und ein geschriebenes NULL wurde von MySQL im nicht-strict
+            // Modus still zu 0 konvertiert, was denselben Unique-Index-Konflikt
+            // erneut auslöst. Deshalb hier explizit statt über dbDelta().
+            $wpdb->query("ALTER TABLE {$bookings} MODIFY is_active TINYINT(1) NULL DEFAULT 1");
             $wpdb->query("UPDATE {$bookings} SET is_active = NULL WHERE is_active = 0");
         }
     }
@@ -1079,7 +1092,7 @@ class BW_Credits_Bookings_MVP {
                 $slot_id = (int) $req->get_param('slot_id');
                 $res = self::book_slot($uid, $slot_id);
                 if (is_wp_error($res)) {
-                    return new WP_REST_Response(['error' => $res->get_message()], 400);
+                    return new WP_REST_Response(['error' => $res->get_error_message()], 400);
                 }
                 return $res;
             }
@@ -1093,7 +1106,7 @@ class BW_Credits_Bookings_MVP {
                 $booking_id = (int) $req->get_param('booking_id');
                 $res = self::cancel_booking($uid, $booking_id);
                 if (is_wp_error($res)) {
-                    return new WP_REST_Response(['error' => $res->get_message()], 400);
+                    return new WP_REST_Response(['error' => $res->get_error_message()], 400);
                 }
                 return $res;
             }
@@ -1559,7 +1572,7 @@ class BW_Credits_Bookings_MVP {
         $uid = get_current_user_id();
         $res = self::book_slot($uid, $slot_id);
         if (is_wp_error($res)) {
-            return '<p>❌ ' . esc_html($res->get_message()) . '</p>';
+            return '<p>❌ ' . esc_html($res->get_error_message()) . '</p>';
         }
         return '<p>✅ Gebucht. booking_id=' . esc_html($res['booking_id']) . ', credit_id=' . esc_html($res['credit_id']) . '</p>';
     }
@@ -1574,7 +1587,7 @@ class BW_Credits_Bookings_MVP {
         $uid = get_current_user_id();
         $res = self::cancel_booking($uid, $booking_id);
         if (is_wp_error($res)) {
-            return '<p>❌ ' . esc_html($res->get_message()) . '</p>';
+            return '<p>❌ ' . esc_html($res->get_error_message()) . '</p>';
         }
         return '<p>✅ Storniert. booking_id=' . esc_html($booking_id) . '</p>';
     }
