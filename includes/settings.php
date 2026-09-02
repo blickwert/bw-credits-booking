@@ -16,7 +16,7 @@ class BW_Settings {
     const OPT_DEFAULT_CAPACITY = 'bw_default_capacity';
     const OPT_CUTOFF_HOURS     = 'bw_booking_cancel_cutoff_hours';
     const OPT_REMINDER_HOURS   = 'bw_reminder_hours';
-    const OPT_SHOP_URL         = 'bw_shop_url';
+    const OPT_AVAILABILITY_CAP = 'bw_availability_cap';
 
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'register_menu']);
@@ -45,19 +45,11 @@ class BW_Settings {
     }
 
     /**
-     * Wohin Kunden zum Aufladen geschickt werden.
-     * Fällt auf die WooCommerce-Shopseite zurück wenn nichts gesetzt ist.
+     * Ab wie vielen freien Plätzen "mehr als N Plätze frei" statt der
+     * exakten Zahl angezeigt wird.
      */
-    public static function get_shop_url(): string {
-        $url = trim((string) get_option(self::OPT_SHOP_URL, ''));
-        if ($url !== '') return $url;
-
-        if (function_exists('wc_get_page_permalink')) {
-            $shop = wc_get_page_permalink('shop');
-            if (is_string($shop) && $shop !== '') return $shop;
-        }
-
-        return '';
+    public static function get_availability_cap(): int {
+        return max(0, (int) get_option(self::OPT_AVAILABILITY_CAP, 5));
     }
 
     /* ---------------------------------------------------------
@@ -98,18 +90,12 @@ class BW_Settings {
             'default'           => 'course_slot',
         ]);
 
-        foreach ([self::OPT_DEFAULT_CAPACITY, self::OPT_CUTOFF_HOURS, self::OPT_REMINDER_HOURS] as $key) {
+        foreach ([self::OPT_DEFAULT_CAPACITY, self::OPT_CUTOFF_HOURS, self::OPT_REMINDER_HOURS, self::OPT_AVAILABILITY_CAP] as $key) {
             register_setting($group, $key, [
                 'type'              => 'integer',
                 'sanitize_callback' => [__CLASS__, 'sanitize_positive_int'],
             ]);
         }
-
-        register_setting($group, self::OPT_SHOP_URL, [
-            'type'              => 'string',
-            'sanitize_callback' => 'esc_url_raw',
-            'default'           => '',
-        ]);
 
         add_settings_section('bw_general', 'Allgemein', function () {
             echo '<p>Grundeinstellungen für Kurstermine und Buchungen.</p>';
@@ -119,7 +105,7 @@ class BW_Settings {
         add_settings_field(self::OPT_DEFAULT_CAPACITY, 'Standard-Kapazität', [__CLASS__, 'field_default_capacity'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_CUTOFF_HOURS, 'Storno-Frist (Stunden)', [__CLASS__, 'field_cutoff_hours'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_REMINDER_HOURS, 'Erinnerung (Stunden vorher)', [__CLASS__, 'field_reminder_hours'], self::MENU_SLUG, 'bw_general');
-        add_settings_field(self::OPT_SHOP_URL, 'Shop-Seite', [__CLASS__, 'field_shop_url'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_AVAILABILITY_CAP, 'Verfügbarkeits-Schwelle', [__CLASS__, 'field_availability_cap'], self::MENU_SLUG, 'bw_general');
     }
 
     public static function sanitize_post_type($value): string {
@@ -185,23 +171,13 @@ class BW_Settings {
         echo '<p class="description">Wann die Erinnerungs-E-Mail verschickt wird. 0 = keine Erinnerung.</p>';
     }
 
-    public static function field_shop_url() {
-        $saved = (string) get_option(self::OPT_SHOP_URL, '');
-
+    public static function field_availability_cap() {
         printf(
-            '<input type="url" name="%s" value="%s" class="regular-text" placeholder="https://…">',
-            esc_attr(self::OPT_SHOP_URL),
-            esc_attr($saved)
+            '<input type="number" min="0" step="1" name="%s" value="%d" class="small-text">',
+            esc_attr(self::OPT_AVAILABILITY_CAP),
+            self::get_availability_cap()
         );
-
-        echo '<p class="description">Wohin Kunden zum Aufladen ihres Guthabens geschickt werden.</p>';
-
-        if ($saved === '') {
-            $fallback = self::get_shop_url();
-            echo $fallback !== ''
-                ? '<p class="description">Leer — es wird die WooCommerce-Shopseite verwendet: <code>' . esc_html($fallback) . '</code></p>'
-                : '<p class="description" style="color:#b32d2e">Leer und keine WooCommerce-Shopseite gefunden — Hinweise auf leeres Guthaben erscheinen dann ohne Link.</p>';
-        }
+        echo '<p class="description">Ab wie vielen freien Plätzen nur noch „mehr als N Plätze frei" statt der genauen Zahl angezeigt wird. 0 = immer die genaue Zahl.</p>';
     }
 
     /* ---------------------------------------------------------

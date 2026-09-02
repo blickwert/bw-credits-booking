@@ -35,25 +35,12 @@ class BW_View_Access {
         BW_Credits_Bookings_MVP::ensure_assets();
 
         ob_start();
-        ?>
-        <div class="bw-access">
-            <?php if ($title !== '') : ?>
-                <h3 class="bw-access__title"><?php echo esc_html($title); ?></h3>
-            <?php endif; ?>
-
-            <?php if ($link !== '') : ?>
-                <p class="bw-access__link">
-                    <a href="<?php echo esc_url($link); ?>" target="_blank" rel="noopener">
-                        <?php echo esc_html(bw_text('access.link')); ?>
-                    </a>
-                </p>
-            <?php endif; ?>
-
-            <?php if ($info !== '') : ?>
-                <div class="bw-access__info"><?php echo nl2br(esc_html($info)); ?></div>
-            <?php endif; ?>
-        </div>
-        <?php
+        bw_get_template('access/box.php', [
+            'title'      => $title,
+            'link'       => $link,
+            'info'       => $info,
+            'link_label' => bw_text('access.link'),
+        ]);
         return ob_get_clean();
     }
 }

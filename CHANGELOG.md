@@ -4,6 +4,30 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.14.0] – 2026-09-02
+
+Acht Änderungen aus einer Sammel-Rückmeldung, größter Posten ist die
+Ausweitung des Template-Systems auf alle übrigen Shortcode-Ausgaben —
+bisher hatte nur die Terminliste eigene Templates.
+
+### Neu
+- **16 weitere Templates** für Buchen/Stornieren-Button, Hinweise, Verfügbarkeit, Guthaben (beide Modi), Buchungsliste, Guthaben-Details, Zugangsdaten und Konto-Übersicht — die Registry wächst von 4 auf 20 Einträge, alle unter *BW Credits → Templates* sichtbar.
+- Zwei neue Hooks für Eingriffe ohne Theme-Kopie: `bw_before_bookings_item`/`bw_after_bookings_item` und `bw_before_credits_item`/`bw_after_credits_item`.
+- **CSS-Root-Variablen für Textfarben** (`--bw-color-primary/secondary/text/accent/success/warning/error/info`), mit Fallback auf WordPress' Global-Styles-Presets (`--wp--preset--color--*`) und dahinter einen statischen Wert. Die vier zuvor uneinheitlichen Grauwerte (`#444`/`#555`/`#666`/`#777`) sind zu einem Sekundär-Ton zusammengeführt.
+- **Verfügbarkeits-Schwelle** (Einstellung, Standard 5): ab dieser Zahl freier Plätze erscheint „mehr als N Plätze frei" statt der exakten Zahl. Der dritte Zustand (`data-bw-state="many"`) aktualisiert sich wie die anderen beiden live ohne Neuladen.
+
+### Geändert
+- **Auto-Titel enthält nur noch den Namen der Kursart** (z. B. „Hatha Yoga") statt zusätzlich Datum und Uhrzeit — die Startzeit wird in Terminliste und Buchungsliste bereits separat angezeigt. Ohne zugeordnete Kursart bleibt ein vorhandener Titel unverändert. `bw_slot_title_format` entfällt, ersetzt durch den Filter `bw_slot_title`.
+- Katalogtext `booking.note.no_credits`: „Du hast keine Credits mehr." → „Du hast keine Credits." — passt jetzt auch für Kunden ohne bisherige Buchung.
+- **My-Account-Übersicht**: CSS-Klassen von `bw-overview*` auf `bw-credits-overview*` umbenannt; neuer Link „Guthaben aufladen" neben „Meine Bestellungen".
+- **README**: ACF-Abschnitt korrigiert — nur `start_datetime` ist noch ein ACF-Feld, `capacity`/`booked_count` sind seit v0.8.0 plugin-eigene Metaboxen, das nirgends gelesene `duration`-Feld ist raus.
+
+### Entfernt
+- **Shop-URL-Einstellung** vollständig entfernt, inklusive des Shortcode-Attributs `shop_url`. Alle Aufladen-Links nutzen jetzt ausschließlich `wc_get_page_permalink('shop')`.
+- **Alte Shortcode-Namen** (`bw_course_slots`, `bw_slot_action`, `bw_availability`, `bw_my_bookings`, `bw_balance_inline`, `bw_credits_balance`, `bw_book_button`, `bw_cancel_button`) sind nicht mehr registriert — kein Alias-Mechanismus, keine Nutzungserfassung, kein Admin-Hinweis mehr. Seiten die noch alte Namen verwenden, zeigen ab dieser Version nichts mehr an.
+
+---
+
 ## [0.13.0] – 2026-09-02
 
 Trennt die letzte der drei Ebenen: **Struktur** (Markup) ist jetzt vom Code

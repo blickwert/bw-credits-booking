@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.13.0
+ * Version: 0.14.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.13.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.14.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -179,9 +179,10 @@ class BW_Credits_Bookings_MVP {
         );
 
         wp_localize_script($handle, 'BW_BWALLET', [
-            'restUrl' => esc_url_raw(rest_url('bw-credits/v1/')),
-            'ajaxUrl' => esc_url_raw(admin_url('admin-ajax.php')),
-            'nonce'   => wp_create_nonce('wp_rest'),
+            'restUrl'        => esc_url_raw(rest_url('bw-credits/v1/')),
+            'ajaxUrl'        => esc_url_raw(admin_url('admin-ajax.php')),
+            'nonce'          => wp_create_nonce('wp_rest'),
+            'availabilityCap' => BW_Settings::get_availability_cap(),
         ]);
     }
 
@@ -1069,7 +1070,6 @@ class BW_Credits_Bookings_MVP {
             'label'      => '',   // leer = Text aus dem Katalog
             'empty_text' => '',
             'empty_link' => '',
-            'shop_url'   => '',
             'logged_out' => '',
         ], $atts, 'bw_credits_user_balance');
 
@@ -1098,10 +1098,13 @@ class BW_Credits_Bookings_MVP {
         $number = '<span data-bw-balance>' . esc_html($available) . '</span>';
 
         if ($atts['mode'] !== 'empty_only') {
-            if ($atts['format'] === 'block') {
-                return '<p class="bw-balance">' . esc_html($atts['label']) . ' <strong>' . $number . '</strong></p>';
-            }
-            return $number;
+            ob_start();
+            bw_get_template('balance/simple.php', [
+                'format' => $atts['format'],
+                'label'  => $atts['label'],
+                'number' => $number,
+            ]);
+            return ob_get_clean();
         }
 
         return self::render_balance_states($atts, $number, $available);
@@ -1114,95 +1117,31 @@ class BW_Credits_Bookings_MVP {
      * seinen letzten Credit verbraucht.
      */
     private static function render_balance_states(array $atts, string $number, int $available): string {
-        $url  = $atts['shop_url'] !== '' ? $atts['shop_url'] : BW_Settings::get_shop_url();
-        $hint = esc_html($atts['empty_text']);
-
-        if ($url !== '' && $atts['empty_link'] !== '') {
-            $hint .= ' <a href="' . esc_url($url) . '">' . esc_html($atts['empty_link']) . '</a>';
-        }
-
-        return sprintf(
-            '<span class="bw-balance-state" data-bw-balance-wrap data-bw-state="%s">'
-            . '<span data-bw-has-wrap>%s <strong>%s</strong></span>'
-            . '<span data-bw-empty-wrap class="bw-balance-empty">%s</span>'
-            . '</span>',
-            $available > 0 ? 'has' : 'empty',
-            esc_html($atts['label']),
-            $number,
-            $hint
-        );
+        ob_start();
+        bw_get_template('balance/states.php', [
+            'state'           => $available > 0 ? 'has' : 'empty',
+            'label'           => $atts['label'],
+            'number'          => $number,
+            'empty_text'      => $atts['empty_text'],
+            'empty_link_html' => $atts['empty_link'] !== '' ? self::shop_link($atts['empty_link']) : '',
+        ]);
+        return ob_get_clean();
     }
 
-    /** Shop-Ziel für Hinweise auf leeres Guthaben. */
+    /** WooCommerce-Shopseite, ausschließliche Quelle für Aufladen-Links. */
+    public static function shop_url(): string {
+        if (!function_exists('wc_get_page_permalink')) return '';
+
+        $url = wc_get_page_permalink('shop');
+        return is_string($url) ? $url : '';
+    }
+
+    /** Verlinkter Hinweis-Zusatz, leer wenn keine Shopseite gefunden wird. */
     private static function shop_link(string $label): string {
-        $url = BW_Settings::get_shop_url();
+        $url = self::shop_url();
         if ($url === '') return '';
 
         return ' <a href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
-    }
-
-    // [bw_book_button slot_id="123" label="Kurs buchen (1 Credit)"]
-    public static function sc_book_button($atts) {
-        if (!is_user_logged_in()) return '';
-
-        $atts = shortcode_atts([
-            'slot_id' => 0,
-            'label'   => '',   // leer = Text aus dem Katalog
-            'wrap'    => '1',
-            'class'   => 'bw-bwallet-btn',
-        ], $atts);
-
-        $slot_id = (int) $atts['slot_id'];
-        if ($slot_id <= 0) return '';
-
-        self::ensure_assets();
-
-        $atts['label'] = $atts['label'] !== '' ? $atts['label'] : bw_text('booking.button.book');
-
-        $btn = sprintf(
-            '<button type="button" class="%s" data-bw-action="book" data-slot-id="%d">%s</button>',
-            esc_attr($atts['class']),
-            $slot_id,
-            esc_html($atts['label'])
-        );
-
-        if ($atts['wrap'] === '0') return $btn;
-
-        return '<div data-bw-wrap="1">' . $btn . '<div class="bw-bwallet-msg" data-bw-msg></div></div>';
-    }
-
-    // [bw_cancel_button booking_id="456" label="Stornieren"]
-    public static function sc_cancel_button($atts) {
-        if (!is_user_logged_in()) return '';
-
-        $atts = shortcode_atts([
-            'booking_id' => 0,
-            'slot_id'    => 0,
-            'label'      => '',   // leer = Text aus dem Katalog
-            'wrap'       => '1',
-            'class'      => 'bw-bwallet-btn',
-        ], $atts);
-
-        $booking_id = (int) $atts['booking_id'];
-        if ($booking_id <= 0) return '';
-
-        self::ensure_assets();
-
-        $atts['label'] = $atts['label'] !== '' ? $atts['label'] : bw_text('booking.button.cancel_short');
-
-        $slot_id = (int) $atts['slot_id'];
-
-        $btn = sprintf(
-            '<button type="button" class="%s" data-bw-action="cancel" data-booking-id="%d"%s>%s</button>',
-            esc_attr($atts['class']),
-            $booking_id,
-            $slot_id ? ' data-slot-id="'.(int)$slot_id.'"' : '',
-            esc_html($atts['label'])
-        );
-
-        if ($atts['wrap'] === '0') return $btn;
-
-        return '<div data-bw-wrap="1">' . $btn . '<div class="bw-bwallet-msg" data-bw-msg></div></div>';
     }
 
     /**
@@ -1252,8 +1191,13 @@ class BW_Credits_Bookings_MVP {
 
     /** $suffix_html muss bereits escaped sein — gedacht für einen Link. */
     private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
-        return '<p class="bw-slot-note' . ($modifier ? ' ' . esc_attr($modifier) : '') . '">'
-             . esc_html($text) . $suffix_html . '</p>';
+        ob_start();
+        bw_get_template('booking/note.php', [
+            'text'        => $text,
+            'modifier'    => $modifier,
+            'suffix_html' => $suffix_html,
+        ]);
+        return ob_get_clean();
     }
 
     /**
@@ -1329,19 +1273,17 @@ class BW_Credits_Bookings_MVP {
 
     /** Umschaltbarer Button — das JS tauscht Aktion und Beschriftung nach dem Klick. */
     private static function action_button(array $args): string {
-        $btn = sprintf(
-            '<button type="button" class="%s" data-bw-action="%s" data-bw-toggle="1"'
-            . ' data-slot-id="%d"%s data-label-book="%s" data-label-cancel="%s">%s</button>',
-            esc_attr($args['class']),
-            esc_attr($args['action']),
-            (int) $args['slot_id'],
-            !empty($args['booking_id']) ? ' data-booking-id="' . (int) $args['booking_id'] . '"' : '',
-            esc_attr($args['labels']['label_book']),
-            esc_attr($args['labels']['label_cancel']),
-            esc_html($args['label'])
-        );
-
-        return '<div data-bw-wrap="1">' . $btn . '<div class="bw-bwallet-msg" data-bw-msg></div></div>';
+        ob_start();
+        bw_get_template('booking/action.php', [
+            'action'       => $args['action'],
+            'slot_id'      => (int) $args['slot_id'],
+            'booking_id'   => !empty($args['booking_id']) ? (int) $args['booking_id'] : null,
+            'label'        => $args['label'],
+            'label_book'   => $args['labels']['label_book'],
+            'label_cancel' => $args['labels']['label_cancel'],
+            'class'        => $args['class'],
+        ]);
+        return ob_get_clean();
     }
 
     /**
@@ -1365,23 +1307,24 @@ class BW_Credits_Bookings_MVP {
 
         self::ensure_assets();
 
-        $free  = self::get_free_spots($slot_id);
+        $free = self::get_free_spots($slot_id);
+        $cap  = BW_Settings::get_availability_cap();
         $parts = explode('{frei}', $atts['format'], 2);
 
-        // Beide Varianten ausgeben und per Status umschalten — so kann das JS
-        // nach Buchung oder Storno in beide Richtungen aktualisieren
-        return sprintf(
-            '<span class="bw-availability" data-bw-availability="%d" data-bw-state="%s">'
-            . '<span data-bw-free-wrap>%s<span data-bw-free>%d</span>%s</span>'
-            . '<span data-bw-full-wrap>%s</span>'
-            . '</span>',
-            $slot_id,
-            $free > 0 ? 'free' : 'full',
-            esc_html($parts[0]),
-            $free,
-            esc_html($parts[1] ?? ''),
-            esc_html($atts['full'])
-        );
+        $state = $free <= 0 ? 'full' : (($cap > 0 && $free > $cap) ? 'many' : 'free');
+
+        ob_start();
+        bw_get_template('availability.php', [
+            'slot_id'     => $slot_id,
+            'free'        => $free,
+            'cap'         => $cap,
+            'state'       => $state,
+            'free_before' => $parts[0],
+            'free_after'  => $parts[1] ?? '',
+            'more_text'   => bw_text('availability.more_than', ['n' => $cap]),
+            'full_text'   => $atts['full'],
+        ]);
+        return ob_get_clean();
     }
 
     /** Übersicht und Buchungen im WooCommerce-Konto-Dashboard. */
@@ -1410,7 +1353,9 @@ class BW_Credits_Bookings_MVP {
         $bookings   = self::get_my_bookings($uid, (int) $atts['limit']);
 
         if (empty($bookings)) {
-            return '<p class="bw-no-bookings">' . esc_html(bw_text('bookings.empty')) . '</p>';
+            ob_start();
+            bw_get_template('bookings/empty.php', ['message' => bw_text('bookings.empty')]);
+            return ob_get_clean();
         }
 
         $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();
@@ -1419,18 +1364,16 @@ class BW_Credits_Bookings_MVP {
         $status_labels = self::status_labels();
         $show_access   = filter_var($atts['show_access'], FILTER_VALIDATE_BOOLEAN);
 
-        ob_start();
-        echo '<div class="bw-my-bookings">';
-
+        $items = [];
         foreach ($bookings as $b) {
             $slot_id    = (int) $b['slot_id'];
             $booking_id = (int) $b['id'];
             $status     = $b['status'];
-            $is_active  = (int) $b['is_active'];
+            $is_active  = (int) $b['is_active'] === 1;
 
-            $slot_title   = get_the_title($slot_id) ?: 'Slot #' . $slot_id;
-            $start_dt     = self::get_slot_start_datetime($slot_id);
-            $start_str    = $start_dt ? $start_dt->format('d.m.Y H:i') : '—';
+            $slot_title = get_the_title($slot_id) ?: 'Slot #' . $slot_id;
+            $start_dt   = self::get_slot_start_datetime($slot_id);
+            $start_str  = $start_dt ? $start_dt->format('d.m.Y H:i') : '—';
 
             $can_cancel = false;
             if ($is_active && $status === 'booked' && $start_dt) {
@@ -1439,41 +1382,29 @@ class BW_Credits_Bookings_MVP {
                 $can_cancel = $now < $cutoff;
             }
 
-            $status_label = $status_labels[$status] ?? ucfirst($status);
-
             $permalink = get_permalink($slot_id);
-            $meta_bits = array_filter([
-                bw_cs_first_term($slot_id, 'course_type'),
-                bw_cs_first_term($slot_id, 'course_level'),
-                bw_cs_first_term($slot_id, 'course_lang'),
-            ]);
 
-            echo '<div class="bw-booking-item bw-status-' . esc_attr($status) . '">';
-
-            echo '<div class="bw-booking-slot">';
-            echo $permalink
-                ? '<a href="' . esc_url($permalink) . '">' . esc_html($slot_title) . '</a>'
-                : esc_html($slot_title);
-            if ($meta_bits) {
-                echo '<span class="bw-booking-meta">' . esc_html(implode(' · ', $meta_bits)) . '</span>';
-            }
-            echo '</div>';
-
-            echo '<div class="bw-booking-time">' . esc_html($start_str) . '</div>';
-            echo '<div class="bw-booking-status">' . esc_html($status_label) . '</div>';
-
-            if ($can_cancel) {
-                echo self::sc_cancel_button(['booking_id' => $booking_id, 'slot_id' => $slot_id]);
-            }
-
-            if ($show_access && $is_active && $status === 'booked') {
-                echo BW_View_Access::render(['course_id' => $slot_id, 'title' => '']);
-            }
-
-            echo '</div>';
+            $items[] = [
+                'slot_id'      => $slot_id,
+                'booking_id'   => $booking_id,
+                'status'       => $status,
+                'is_active'    => $is_active,
+                'slot_title'   => $slot_title,
+                'permalink'    => $permalink ?: '',
+                'start_str'    => $start_str,
+                'status_label' => $status_labels[$status] ?? ucfirst($status),
+                'meta_bits'    => array_filter([
+                    bw_cs_first_term($slot_id, 'course_type'),
+                    bw_cs_first_term($slot_id, 'course_level'),
+                    bw_cs_first_term($slot_id, 'course_lang'),
+                ]),
+                'can_cancel'   => $can_cancel,
+                'show_access'  => $show_access,
+            ];
         }
 
-        echo '</div>';
+        ob_start();
+        bw_get_template('bookings/list.php', ['items' => $items]);
         return ob_get_clean();
     }
 
