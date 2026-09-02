@@ -316,7 +316,15 @@ Fünf Typen, jeweils mit eigenem Schalter, Betreff und Text unter *BW Credits �
 | Zugangsdaten | siehe unten |
 | Admin-Kopie | jede neue Buchung (standardmäßig aus) |
 
-Platzhalter: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}`
+Platzhalter: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}` `{kurs_link}` `{konto_link}`
+
+`{kurs_link}` und `{konto_link}` verlinken den Termin bzw. die WooCommerce-My-Account-Seite, wo Kunden ihre Buchungen selbst einsehen und stornieren. Beide stehen automatisch in Buchungsbestätigung, Stornierung und Erinnerung; ein URL-förmiger Platzhalterwert wird in der Mail immer automatisch klickbar, unabhängig davon welcher es ist.
+
+Wer einen dieser drei Texte bereits unter *BW Credits → E-Mails* individuell angepasst hat, sieht die neuen Platzhalter nicht automatisch im eigenen Text — nur der Standardtext wurde erweitert. Zum Ergänzen einfach `{kurs_link}`/`{konto_link}` in den eigenen Text einfügen.
+
+### Guthaben-Hinweis in der WooCommerce-Bestell-Mail
+
+Nach einem Credit-Kauf bekommt der Kunde **keine zusätzliche Mail**, sondern einen Abschnitt direkt in der WooCommerce-eigenen „Bestellung abgeschlossen"-Mail — wie viele Credits neu hinzugekommen sind, das aktuelle Gesamtguthaben, und ein Link zu My Account. Läuft über den Hook `woocommerce_email_order_details`, kein Eingriff in Woo-Mail-Templates. Wortlaut unter *BW Credits → Texte*, Gruppe „E-Mail nach Bestellung".
 
 ### Zugangsdaten für Online-Kurse
 
