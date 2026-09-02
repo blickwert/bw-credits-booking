@@ -21,6 +21,22 @@ class BW_Templates {
             'course-list/item.php'   => 'Terminliste — einzelne Terminzeile',
             'course-list/filter.php' => 'Terminliste — Filterformular',
             'course-list/empty.php'  => 'Terminliste — Meldung ohne Treffer',
+            'availability.php'       => 'Freie Plätze eines Termins',
+            'booking/action.php'     => 'Buchen/Stornieren-Button',
+            'booking/note.php'       => 'Hinweis statt Buchen/Stornieren-Button',
+            'balance/simple.php'     => 'Guthaben — einfache Anzeige',
+            'balance/states.php'     => 'Guthaben — Aufforderung zum Nachkaufen',
+            'bookings/list.php'      => 'Buchungsliste — Rahmen',
+            'bookings/item.php'      => 'Buchungsliste — eine Buchungszeile',
+            'bookings/empty.php'     => 'Buchungsliste — Meldung ohne Treffer',
+            'credits/list.php'       => 'Guthaben-Details — Rahmen',
+            'credits/item.php'       => 'Guthaben-Details — eine Credit-Gruppe',
+            'credits/empty.php'      => 'Guthaben-Details — Meldung ohne Guthaben',
+            'access/box.php'         => 'Zugangsdaten-Box',
+            'overview/wrapper.php'    => 'Konto-Übersicht — Rahmen',
+            'overview/balance.php'    => 'Konto-Übersicht — Guthaben-Block',
+            'overview/next.php'       => 'Konto-Übersicht — nächster Termin',
+            'overview/links.php'      => 'Konto-Übersicht — Einstiegslinks',
         ];
     }
 

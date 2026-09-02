@@ -71,9 +71,10 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
 
 /* =========================================================
  * Kurstermin: Auto-Titel beim Speichern
- * post_title = "Montag, 2. Juni 10:00 – Hatha Yoga"
+ * post_title = Name der Kursart, z. B. "Hatha Yoga"
  *
- * Format über den Filter bw_slot_title_format anpassbar.
+ * Kein Datum im Titel — die Startzeit wird in Terminliste und
+ * Buchungsliste bereits separat angezeigt, im Titel war sie redundant.
  * ========================================================= */
 
 add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
@@ -83,22 +84,10 @@ add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
     if (!empty($running[$post_id])) return;
     $running[$post_id] = true;
 
-    $start_datetime = get_post_meta($post_id, 'start_datetime', true);
-    if (!$start_datetime) { $running[$post_id] = false; return; }
-
-    try {
-        $timestamp = (new DateTime($start_datetime, wp_timezone()))->getTimestamp();
-    } catch (Exception $e) {
-        $running[$post_id] = false;
-        return;
-    }
-
-    // wp_date() übersetzt Wochentag und Monat über die WordPress-Locale
-    $format = apply_filters('bw_slot_title_format', 'l, j. F H:i', $post_id);
-    $when   = wp_date($format, $timestamp);
-
     $course_type = bw_cs_first_term($post_id, 'course_type');
-    $title       = $course_type ? sprintf('%s – %s', $when, $course_type) : $when;
+    if ($course_type === '') { $running[$post_id] = false; return; }
+
+    $title = apply_filters('bw_slot_title', $course_type, $post_id);
 
     wp_update_post([
         'ID'         => $post_id,

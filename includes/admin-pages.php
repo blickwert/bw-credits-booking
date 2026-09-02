@@ -21,7 +21,6 @@ class BW_Admin_Pages {
         add_action('admin_post_bw_cancel_booking', [__CLASS__, 'handle_cancel_booking']);
         add_action('admin_post_bw_grant_credits',  [__CLASS__, 'handle_grant_credits']);
         add_action('admin_post_bw_revoke_credit',  [__CLASS__, 'handle_revoke_credit']);
-        add_action('admin_post_bw_clear_legacy',   [__CLASS__, 'handle_clear_legacy']);
         add_action('admin_init',                   [__CLASS__, 'register_text_settings']);
     }
 
@@ -780,7 +779,7 @@ class BW_Admin_Pages {
             'bw_credits_user_balance' => [
                 'Kunde',
                 'Verfügbares Guthaben. Mit mode="empty_only" nur sichtbar wenn der Kunde schon einmal Guthaben hatte und jetzt keines mehr hat.',
-                'mode (always|empty_only), format (inline|block), label, empty_text, empty_link, shop_url, logged_out',
+                'mode (always|empty_only), format (inline|block), label, empty_text, empty_link, logged_out',
             ],
             'bw_credits_user_credits' => [
                 'Kunde',
@@ -824,68 +823,7 @@ class BW_Admin_Pages {
         }
 
         echo '</tbody></table>';
-
-        self::render_legacy_usage();
         echo '</div>';
-    }
-
-    private static function render_legacy_usage() {
-        $usage = BW_Shortcodes::get_legacy_usage();
-
-        echo '<h2 style="margin-top:2em">Alte Shortcode-Namen</h2>';
-
-        if (empty($usage)) {
-            echo '<p>Es wurden keine Fundstellen mit alten Namen registriert.</p>';
-            echo '<p class="description">Die Erfassung greift, sobald eine Seite mit einem '
-               . 'alten Namen im Frontend aufgerufen wird.</p>';
-            return;
-        }
-
-        echo '<p>Diese Seiten verwenden noch alte Namen. Sie funktionieren weiterhin, '
-           . 'sollten aber umgestellt werden.</p>';
-
-        echo '<table class="wp-list-table widefat striped"><thead><tr>'
-           . '<th>Alter Name</th><th>Neuer Name</th><th>Seite</th><th>Zuletzt gesehen</th>'
-           . '</tr></thead><tbody>';
-
-        foreach ($usage as $entry) {
-            $tag     = (string) ($entry['tag'] ?? '');
-            $post_id = (int) ($entry['post_id'] ?? 0);
-            $target  = BW_Shortcodes::ALIASES[$tag] ?? '—';
-            $edit    = get_edit_post_link($post_id);
-
-            printf(
-                '<tr><td><code>[%s]</code></td><td><code>[%s]</code></td><td>%s</td><td>%s</td></tr>',
-                esc_html($tag),
-                esc_html($target),
-                $edit
-                    ? sprintf('<a href="%s">%s</a>', esc_url($edit), esc_html(get_the_title($post_id) ?: '#' . $post_id))
-                    : esc_html(get_the_title($post_id) ?: '#' . $post_id),
-                esc_html(mysql2date('d.m.Y H:i', $entry['seen_at'] ?? ''))
-            );
-        }
-
-        echo '</tbody></table>';
-
-        $url = wp_nonce_url(
-            admin_url('admin-post.php?action=bw_clear_legacy'),
-            'bw_clear_legacy'
-        );
-
-        printf(
-            '<p style="margin-top:1em"><a class="button" href="%s">Liste zurücksetzen</a> '
-            . '<span class="description">Nach dem Umstellen — die Einträge erscheinen erneut '
-            . 'falls noch eine Fundstelle übrig ist.</span></p>',
-            esc_url($url)
-        );
-    }
-
-    public static function handle_clear_legacy() {
-        self::guard();
-        check_admin_referer('bw_clear_legacy');
-
-        BW_Shortcodes::clear_legacy_usage();
-        self::redirect(self::PAGE_SHORTCODES, [], 'ok:Liste zurückgesetzt.');
     }
 
     public static function handle_revoke_credit() {

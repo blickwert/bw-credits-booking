@@ -1,4 +1,17 @@
 /* assets/bwallet-frontend.css */
+
+/* Textfarben — WordPress Global-Styles-Presets mit statischem Fallback,
+   da nicht jedes Theme alle acht Farbrollen in seiner theme.json definiert */
+:root {
+  --bw-color-primary:   var(--wp--preset--color--primary,   #2271b1);
+  --bw-color-secondary: var(--wp--preset--color--secondary, #666);
+  --bw-color-text:      var(--wp--preset--color--contrast,  #1e1e1e);
+  --bw-color-accent:    var(--wp--preset--color--accent,    #2271b1);
+  --bw-color-success:   var(--wp--preset--color--success,   #116611);
+  --bw-color-warning:   var(--wp--preset--color--warning,   #996800);
+  --bw-color-error:     var(--wp--preset--color--error,     #b00020);
+  --bw-color-info:      var(--wp--preset--color--info,      #2271b1);
+}
 .bw-bwallet-btn {
   cursor: pointer;
   padding: 0.55rem 0.9rem;
@@ -32,11 +45,11 @@
 }
 
 .bw-bwallet-msg[data-state="error"] {
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
 }
 
 .bw-bwallet-msg[data-state="ok"] {
-  color: #116611;
+  color: var(--bw-color-success, #116611);
 }
 
 /* My Bookings List */
@@ -63,7 +76,7 @@
 
 .bw-booking-time {
   font-size: 0.9rem;
-  color: #555;
+  color: var(--bw-color-secondary, #666);
   white-space: nowrap;
 }
 
@@ -76,12 +89,12 @@
 
 .bw-status-booked .bw-booking-status {
   background: #e6f4ea;
-  color: #116611;
+  color: var(--bw-color-success, #116611);
 }
 
 .bw-status-cancelled .bw-booking-status {
   background: #fce8e6;
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
 }
 
 .bw-status-cancelled {
@@ -89,25 +102,32 @@
 }
 
 .bw-no-bookings {
-  color: #777;
+  color: var(--bw-color-secondary, #666);
 }
 
 .bw-booking-meta {
   display: block;
   font-size: 0.85rem;
-  color: #666;
+  color: var(--bw-color-secondary, #666);
   font-weight: 400;
   margin-top: 0.15rem;
 }
 
-/* Verfügbarkeit — beide Varianten im Markup, umgeschaltet über data-bw-state */
-.bw-availability[data-bw-state="free"] [data-bw-full-wrap],
-.bw-availability[data-bw-state="full"] [data-bw-free-wrap] {
+/* Verfügbarkeit — drei Varianten im Markup, umgeschaltet über data-bw-state */
+.bw-availability [data-bw-free-wrap],
+.bw-availability [data-bw-many-wrap],
+.bw-availability [data-bw-full-wrap] {
   display: none;
 }
 
+.bw-availability[data-bw-state="free"] [data-bw-free-wrap],
+.bw-availability[data-bw-state="many"] [data-bw-many-wrap],
+.bw-availability[data-bw-state="full"] [data-bw-full-wrap] {
+  display: inline;
+}
+
 .bw-availability[data-bw-state="full"] {
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
 }
 
 /* Terminliste [bw_course_slots] */
@@ -173,7 +193,7 @@
 
 .bw-course-slot-meta {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--bw-color-secondary, #666);
 }
 
 .bw-course-slot-side {
@@ -188,22 +208,22 @@
 }
 
 .bw-course-slots-empty {
-  color: #777;
+  color: var(--bw-color-secondary, #666);
 }
 
 /* Hinweise statt Button (ausgebucht, vorbei, keine Credits, …) */
 .bw-slot-note {
   margin: 0.45rem 0;
-  color: #555;
+  color: var(--bw-color-secondary, #666);
 }
 
 .bw-slot-note.bw-is-full,
 .bw-slot-note.bw-no-credits {
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
 }
 
 .bw-slot-note.bw-is-booked {
-  color: #116611;
+  color: var(--bw-color-success, #116611);
 }
 /* Zugangsdaten [bw_credits_course_access] */
 .bw-access {
@@ -226,7 +246,7 @@
 
 .bw-access__info {
   font-size: 0.92rem;
-  color: #444;
+  color: var(--bw-color-secondary, #666);
 }
 
 /* Guthaben-Details [bw_credits_user_credits] */
@@ -265,21 +285,21 @@
 
 .bw-credits-expiry {
   font-size: 0.9rem;
-  color: #666;
+  color: var(--bw-color-secondary, #666);
   white-space: nowrap;
 }
 
 .bw-credits-expiry--soon {
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
   font-weight: 600;
 }
 
 .bw-credits-empty {
-  color: #777;
+  color: var(--bw-color-secondary, #666);
 }
 
 /* Konto-Übersicht [bw_credits_view_overview] */
-.bw-overview {
+.bw-credits-overview {
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -290,42 +310,42 @@
   background: #fff;
 }
 
-.bw-overview__balance {
+.bw-credits-overview__balance {
   display: flex;
   align-items: baseline;
   gap: 0.5rem;
 }
 
-.bw-overview__count {
+.bw-credits-overview__count {
   font-size: 2rem;
   font-weight: 700;
   line-height: 1;
   font-variant-numeric: tabular-nums;
 }
 
-.bw-overview__next {
+.bw-credits-overview__next {
   display: flex;
   flex-direction: column;
   gap: 0.2rem;
 }
 
-.bw-overview__next-label {
+.bw-credits-overview__next-label {
   font-size: 0.85rem;
-  color: #666;
+  color: var(--bw-color-secondary, #666);
   text-transform: uppercase;
   letter-spacing: 0.03em;
 }
 
-.bw-overview__next-title {
+.bw-credits-overview__next-title {
   font-weight: 600;
 }
 
-.bw-overview__next--none {
-  color: #777;
+.bw-credits-overview__next--none {
+  color: var(--bw-color-secondary, #666);
   margin: 0;
 }
 
-.bw-overview__links {
+.bw-credits-overview__links {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -347,7 +367,7 @@
 }
 
 .bw-balance-empty {
-  color: #b00020;
+  color: var(--bw-color-error, #b00020);
 }
 
 .bw-balance-empty a {

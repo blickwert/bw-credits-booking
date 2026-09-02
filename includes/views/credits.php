@@ -40,46 +40,40 @@ class BW_View_Credits {
 
         if (empty($groups)) {
             $empty = $atts['empty'] !== '' ? $atts['empty'] : bw_text('credits.empty');
-            return '<p class="bw-credits-empty">' . esc_html($empty) . '</p>';
+            ob_start();
+            bw_get_template('credits/empty.php', ['message' => $empty]);
+            return ob_get_clean();
         }
 
         $now  = current_datetime();
         $soon = $now->modify('+' . self::SOON_DAYS . ' days');
 
-        ob_start();
-        echo '<ul class="bw-credits-list">';
-
+        $items = [];
         foreach ($groups as $group) {
             $expires   = $group['expires_at'];
             $expires_t = $expires ? strtotime($expires) : 0;
             $is_soon   = $expires_t && $expires_t <= $soon->getTimestamp();
             $is_gone   = $group['status'] !== 'available';
-            ?>
-            <li class="bw-credits-item<?php echo $is_gone ? ' bw-credits-item--gone' : ''; ?>">
-                <span class="bw-credits-amount"><?php echo (int) $group['count']; ?></span>
 
-                <span class="bw-credits-source">
-                    <?php echo esc_html(self::source_labels()[$group['source']] ?? $group['source']); ?>
-                </span>
+            if ($is_gone) {
+                $expiry_text = bw_text('credits.expired');
+            } elseif (!$expires_t) {
+                $expiry_text = bw_text('credits.unlimited');
+            } else {
+                $expiry_text = bw_text('credits.valid_until', ['datum' => wp_date('d.m.Y', $expires_t)]);
+            }
 
-                <span class="bw-credits-expiry<?php echo $is_soon && !$is_gone ? ' bw-credits-expiry--soon' : ''; ?>">
-                    <?php
-                    if ($is_gone) {
-                        echo esc_html(bw_text('credits.expired'));
-                    } elseif (!$expires_t) {
-                        echo esc_html(bw_text('credits.unlimited'));
-                    } else {
-                        echo esc_html(bw_text('credits.valid_until', [
-                            'datum' => wp_date('d.m.Y', $expires_t),
-                        ]));
-                    }
-                    ?>
-                </span>
-            </li>
-            <?php
+            $items[] = [
+                'group'        => $group,
+                'is_soon'      => $is_soon,
+                'is_gone'      => $is_gone,
+                'source_label' => self::source_labels()[$group['source']] ?? $group['source'],
+                'expiry_text'  => $expiry_text,
+            ];
         }
 
-        echo '</ul>';
+        ob_start();
+        bw_get_template('credits/list.php', ['items' => $items]);
         return ob_get_clean();
     }
 

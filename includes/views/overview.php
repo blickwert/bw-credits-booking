@@ -5,7 +5,8 @@ if (!defined('ABSPATH')) exit;
  * [bw_credits_view_overview] — Konto-Übersicht.
  *
  * Guthaben, nächster gebuchter Termin und Einstiegslinks in einem Block.
- * Gedacht fürs WooCommerce-Konto-Dashboard.
+ * Gedacht fürs WooCommerce-Konto-Dashboard. Markup liegt in
+ * templates/overview/, überschreibbar im Theme.
  */
 
 class BW_View_Overview {
@@ -20,40 +21,21 @@ class BW_View_Overview {
 
         if (!is_user_logged_in()) return '';
 
-        $user_id = get_current_user_id();
-
         // data-bw-balance wird vom JS aktualisiert — Skript und Styles nötig
         BW_Credits_Bookings_MVP::ensure_assets();
 
         ob_start();
-        echo '<div class="bw-overview">';
-
-        if (filter_var($atts['show_balance'], FILTER_VALIDATE_BOOLEAN)) {
-            self::render_balance($user_id);
-        }
-
-        if (filter_var($atts['show_next'], FILTER_VALIDATE_BOOLEAN)) {
-            self::render_next($user_id);
-        }
-
-        if (filter_var($atts['show_links'], FILTER_VALIDATE_BOOLEAN)) {
-            self::render_links($atts['list_url']);
-        }
-
-        echo '</div>';
+        bw_get_template('overview/wrapper.php', ['atts' => $atts]);
         return ob_get_clean();
     }
 
-    private static function render_balance(int $user_id) {
+    public static function render_balance(int $user_id) {
         $available = BW_Credits_Bookings_MVP::get_available_credits($user_id);
-        ?>
-        <div class="bw-overview__balance">
-            <span class="bw-overview__count" data-bw-balance><?php echo (int) $available; ?></span>
-            <span class="bw-overview__label"><?php
-                echo esc_html(bw_text($available === 1 ? 'balance.count.one' : 'balance.count.many'));
-            ?></span>
-        </div>
-        <?php
+
+        bw_get_template('overview/balance.php', [
+            'available' => $available,
+            'label'     => bw_text($available === 1 ? 'balance.count.one' : 'balance.count.many'),
+        ]);
     }
 
     /**
@@ -61,7 +43,7 @@ class BW_View_Overview {
      * frühesten der noch bevorsteht — die Startzeit liegt in Postmeta,
      * lässt sich also nicht direkt in der Buchungsabfrage sortieren.
      */
-    private static function render_next(int $user_id) {
+    public static function render_next(int $user_id) {
         $bookings = BW_Credits_Bookings_MVP::get_my_bookings($user_id, 100);
         $now      = time();
         $next     = null;
@@ -80,47 +62,28 @@ class BW_View_Overview {
             }
         }
 
-        if ($next === null) {
-            echo '<p class="bw-overview__next bw-overview__next--none">'
-               . esc_html(bw_text('overview.next.none')) . '</p>';
-            return;
-        }
-        ?>
-        <div class="bw-overview__next">
-            <span class="bw-overview__next-label"><?php echo esc_html(bw_text('overview.next.label')); ?></span>
-            <a class="bw-overview__next-title" href="<?php echo esc_url(get_permalink($next['slot_id'])); ?>">
-                <?php echo esc_html(get_the_title($next['slot_id'])); ?>
-            </a>
-            <span class="bw-overview__next-time">
-                <?php echo esc_html(wp_date('l, j. F, H:i', $next['ts'])); ?>
-            </span>
-
-            <?php echo BW_View_Access::render(['course_id' => $next['slot_id'], 'title' => '']); ?>
-        </div>
-        <?php
+        bw_get_template('overview/next.php', [
+            'next'       => $next,
+            'empty_text' => bw_text('overview.next.none'),
+        ]);
     }
 
-    private static function render_links(string $list_url) {
+    public static function render_links(string $list_url) {
         $links = [];
 
         if ($list_url !== '') {
             $links[] = ['url' => $list_url, 'label' => bw_text('overview.link.courses')];
         }
 
+        $shop_url = BW_Credits_Bookings_MVP::shop_url();
+        if ($shop_url !== '') {
+            $links[] = ['url' => $shop_url, 'label' => bw_text('overview.link.topup')];
+        }
+
         if (function_exists('wc_get_account_endpoint_url')) {
             $links[] = ['url' => wc_get_account_endpoint_url('orders'), 'label' => bw_text('overview.link.orders')];
         }
 
-        if (empty($links)) return;
-
-        echo '<ul class="bw-overview__links">';
-        foreach ($links as $link) {
-            printf(
-                '<li><a href="%s">%s</a></li>',
-                esc_url($link['url']),
-                esc_html($link['label'])
-            );
-        }
-        echo '</ul>';
+        bw_get_template('overview/links.php', ['links' => $links]);
     }
 }

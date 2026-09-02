@@ -92,16 +92,26 @@
     });
   }
 
-  // Freie Plätze ohne Neuladen mitführen. Beide Varianten stehen im Markup,
-  // umgeschaltet wird über data-bw-state.
+  // Freie Plätze ohne Neuladen mitführen. Drei Varianten stehen im Markup,
+  // umgeschaltet wird über data-bw-state. Die Zahl in data-bw-free bleibt
+  // auch im "many"-Zustand aktuell, damit ein Wechsel unter die Schwelle
+  // sofort die richtige Zahl zeigt statt einer veralteten.
+  function availabilityState(free, cap) {
+    if (free <= 0) return "full";
+    if (cap > 0 && free > cap) return "many";
+    return "free";
+  }
+
   function adjustAvailability(slotId, delta) {
+    const cap = getCfg().availabilityCap || 0;
+
     qsa('[data-bw-availability="' + slotId + '"]').forEach(function (el) {
       const numEl = qs("[data-bw-free]", el);
       if (!numEl) return;
 
       const next = Math.max(0, (parseInt(numEl.textContent, 10) || 0) + delta);
       numEl.textContent = next;
-      el.dataset.bwState = next > 0 ? "free" : "full";
+      el.dataset.bwState = availabilityState(next, cap);
     });
   }
 

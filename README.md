@@ -68,18 +68,21 @@ Jedes Kreditpaket ist ein einfaches WC-Produkt mit drei Zusatzfeldern (Tab *Allg
 
 Credits werden automatisch beim Status `completed` der Bestellung gutgeschrieben.
 
-## ACF Felder (`course_slot`)
+## ACF-Abhängigkeit
 
-Der Custom Post Type `course_slot` benötigt folgende ACF-Felder:
+Das Plugin braucht ACF nur noch für **ein** Feld am gewählten Inhaltstyp
+(*BW Credits → Einstellungen → Kurstermin-Inhaltstyp*):
 
 | Feldname | Typ | Beschreibung |
 |---|---|---|
-| `start_datetime` | Date Time Picker | Kursbeginn (`Y-m-d H:i:s`) |
-| `capacity` | Zahl | Maximale Teilnehmerzahl |
-| `booked_count` | Zahl | Aktuell bestätigte Buchungen (Systemfeld, readonly) |
-| `duration` | Zahl | Dauer in Minuten (optional) |
+| `start_datetime` | Date Time Picker | Kursbeginn, Rückgabeformat `Y-m-d H:i:s` |
 
-Taxonomien: `course_type`, `course_level`, `course_lang`
+`capacity` und `booked_count` sind seit v0.8.0 plugin-eigene Metaboxen
+(`includes/metaboxes.php`) — **keine** ACF-Felder mehr. Falls sie noch in
+einer ACF-Feldgruppe liegen, dort entfernen, sonst erscheinen sie doppelt.
+
+Taxonomien (`course_type`, `course_level`, `course_lang`) bleiben unabhängig
+von ACF extern gepflegt.
 
 ## Shortcodes
 
@@ -175,48 +178,37 @@ Guthaben, nächster gebuchter Termin (mit Zugangsdaten) und Einstiegslinks. Steh
 
 `show_balance`, `show_next`, `show_links`, `list_url`
 
-### Alte Namen
-
-Diese funktionieren weiterhin und leiten auf die neuen um. Unter *BW Credits → Shortcodes* siehst du, welche Seiten noch umzustellen sind.
-
-| Alt | Neu |
-|---|---|
-| `bw_course_slots` | `bw_credits_course_list` |
-| `bw_slot_action` | `bw_credits_course_booking` |
-| `bw_availability` | `bw_credits_course_availability` |
-| `bw_my_bookings` | `bw_credits_user_bookings` |
-| `bw_balance_inline` | `bw_credits_user_balance` |
-| `bw_credits_balance` | `bw_credits_user_balance` (`format="block"`) |
-| `bw_book_button` | `bw_credits_course_booking` |
-| `bw_cancel_button` | `bw_credits_course_booking` |
-
-Der frühere Parameter `slot_id` wird automatisch auf `course_id` übersetzt.
-
 ## Templates anpassen
 
-Das Markup der Terminliste liegt in eigenständigen Dateien und lässt sich im Theme überschreiben — nach demselben Muster wie WooCommerce:
+Das komplette Markup jeder Ausgabe liegt in eigenständigen Dateien und lässt sich im Theme überschreiben — nach demselben Muster wie WooCommerce:
 
 ```
-wp-content/plugins/bw-credits-booking/templates/course-list/
-  list.php    Rahmen und Tagesgruppierung
-  item.php    eine Terminzeile
-  filter.php  das Filterformular
-  empty.php   Meldung ohne Treffer
+wp-content/plugins/bw-credits-booking/templates/
+  course-list/    list.php, item.php, filter.php, empty.php
+  bookings/       list.php, item.php, empty.php
+  credits/        list.php, item.php, empty.php
+  balance/        simple.php, states.php
+  booking/        action.php, note.php
+  overview/       wrapper.php, balance.php, next.php, links.php
+  access/         box.php
+  availability.php
 ```
 
-**Überschreiben:** Datei nach `wp-content/themes/<dein-theme>/bw-credits-booking/course-list/<name>.php` kopieren und anpassen. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
+**Überschreiben:** Datei nach `wp-content/themes/<dein-theme>/bw-credits-booking/<pfad>.php` kopieren und anpassen — z. B. `bw-credits-booking/bookings/item.php`. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
 
 Die Templates enthalten **keinen Wortlaut** — jeder Text kommt über `bw_text()` aus dem [Text-Katalog](#texte-anpassen). Eine Theme-Kopie legt also nur das Layout fest, nie die Formulierung.
 
-**Status behalten:** *BW Credits → Templates* zeigt, welche Templates im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
+**Status behalten:** *BW Credits → Templates* listet alle 20 Templates, zeigt welche im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
 
 ### Für kleine Eingriffe ohne Theme-Kopie
 
 | Hook | Zweck |
 |---|---|
-| `bw_before_course_list` / `bw_after_course_list` *(Action)* | um den gesamten Block herum |
+| `bw_before_course_list` / `bw_after_course_list` *(Action)* | um die Terminliste herum |
 | `bw_before_slot_item` / `bw_after_slot_item` *(Action, `$slot`)* | vor bzw. nach jeder Terminzeile |
-| `bw_course_list_query_args` *(Filter)* | die `WP_Query`-Argumente anpassen — z. B. Sortierung ändern oder Termine ausschließen |
+| `bw_course_list_query_args` *(Filter)* | die `WP_Query`-Argumente der Terminliste anpassen — z. B. Sortierung ändern oder Termine ausschließen |
+| `bw_before_bookings_item` / `bw_after_bookings_item` *(Action, `$booking_id`, `$slot_id`)* | vor bzw. nach jeder Zeile der Buchungsliste |
+| `bw_before_credits_item` / `bw_after_credits_item` *(Action, `$group`)* | vor bzw. nach jeder Zeile der Guthaben-Details |
 
 ```php
 // Bereits gebuchte Termine aus der Liste ausblenden

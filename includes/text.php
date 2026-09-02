@@ -65,7 +65,7 @@ class BW_Text {
                 'Du bist für diesen Termin angemeldet.', 'Gebucht, aber Stornofrist abgelaufen', 'booking',
             ],
             'booking.note.no_credits' => [
-                'Du hast keine Credits mehr.', 'Guthaben aufgebraucht, vor dem Aufladen-Link', 'booking',
+                'Du hast keine Credits.', 'Guthaben aufgebraucht, vor dem Aufladen-Link — passt auch für Kunden ohne bisherige Buchung', 'booking',
             ],
             'booking.link.topup' => [
                 'Jetzt aufladen', 'Beschriftung des Links zur Shop-Seite', 'booking',
@@ -73,7 +73,10 @@ class BW_Text {
 
             /* --- Verfügbarkeit --- */
             'availability.free' => [
-                '{frei} freie Plätze', 'Platzhalter {frei} wird durch die Zahl ersetzt', 'availability',
+                '{frei} freie Plätze', 'Platzhalter {frei} wird durch die Zahl ersetzt — bis zur Schwelle aus den Einstellungen', 'availability',
+            ],
+            'availability.more_than' => [
+                'mehr als {n} Plätze frei', 'Ab der Schwelle aus den Einstellungen statt der exakten Zahl', 'availability',
             ],
             'availability.full' => [
                 'Ausgebucht', 'Wenn kein Platz mehr frei ist', 'availability',
@@ -182,6 +185,9 @@ class BW_Text {
             ],
             'overview.link.orders' => [
                 'Meine Bestellungen', 'Link zu den WooCommerce-Bestellungen', 'overview',
+            ],
+            'overview.link.topup' => [
+                'Guthaben aufladen', 'Link zur Shop-Seite', 'overview',
             ],
 
             /* --- Fehlermeldungen ---
