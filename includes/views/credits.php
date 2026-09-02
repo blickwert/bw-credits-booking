@@ -38,10 +38,14 @@ class BW_View_Credits {
 
         BW_Credits_Bookings_MVP::ensure_assets();
 
+        $empty_message = $atts['empty'] !== '' ? $atts['empty'] : bw_text('credits.empty');
+
         if (empty($groups)) {
-            $empty = $atts['empty'] !== '' ? $atts['empty'] : bw_text('credits.empty');
             ob_start();
-            bw_get_template('credits/empty.php', ['message' => $empty]);
+            bw_get_template('user_credits/user_credits.php', [
+                'items'         => [],
+                'empty_message' => $empty_message,
+            ]);
             return ob_get_clean();
         }
 
@@ -73,7 +77,10 @@ class BW_View_Credits {
         }
 
         ob_start();
-        bw_get_template('credits/list.php', ['items' => $items]);
+        bw_get_template('user_credits/user_credits.php', [
+            'items'         => $items,
+            'empty_message' => '',
+        ]);
         return ob_get_clean();
     }
 

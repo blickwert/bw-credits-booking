@@ -21,6 +21,7 @@ class BW_Admin_Pages {
         add_action('admin_post_bw_cancel_booking', [__CLASS__, 'handle_cancel_booking']);
         add_action('admin_post_bw_grant_credits',  [__CLASS__, 'handle_grant_credits']);
         add_action('admin_post_bw_revoke_credit',  [__CLASS__, 'handle_revoke_credit']);
+        add_action('admin_post_bw_copy_template',  [__CLASS__, 'handle_copy_template']);
         add_action('admin_init',                   [__CLASS__, 'register_text_settings']);
     }
 
@@ -638,14 +639,17 @@ class BW_Admin_Pages {
 
         echo '<div class="wrap"><h1>Templates</h1>';
 
+        self::notice();
+
         echo '<p>Jedes Template kann im aktiven Theme unter '
            . '<code>bw-credits-booking/&lt;pfad&gt;</code> überschrieben werden — '
-           . 'z.&nbsp;B. <code>yourtheme/bw-credits-booking/course-list/item.php</code>. '
-           . 'Wortlaut gehört nicht in die Templates, der wird unter '
+           . 'z.&nbsp;B. <code>yourtheme/bw-credits-booking/course_list/course_list.php</code>. '
+           . '„In Theme kopieren" legt die Datei dort direkt an. Wortlaut gehört nicht in '
+           . 'die Templates, der wird unter '
            . '<a href="' . esc_url(self::page_url(self::PAGE_TEXTS)) . '">Texte</a> gepflegt.</p>';
 
         echo '<table class="wp-list-table widefat striped"><thead><tr>'
-           . '<th>Template</th><th>Beschreibung</th><th>Status</th><th>Version</th>'
+           . '<th>Template</th><th>Beschreibung</th><th>Status</th><th>Version</th><th></th>'
            . '</tr></thead><tbody>';
 
         foreach (BW_Templates::registry() as $path => $description) {
@@ -679,11 +683,58 @@ class BW_Admin_Pages {
                         <br><small>Plugin: <?php echo esc_html($plugin_version); ?></small>
                     <?php endif; ?>
                 </td>
+                <td>
+                    <?php if (!$overridden) : ?>
+                        <a class="button button-small" href="<?php echo esc_url(self::copy_template_url($path)); ?>">
+                            In Theme kopieren
+                        </a>
+                    <?php endif; ?>
+                </td>
             </tr>
             <?php
         }
 
         echo '</tbody></table></div>';
+    }
+
+    private static function copy_template_url(string $path): string {
+        return wp_nonce_url(
+            admin_url('admin-post.php?action=bw_copy_template&path=' . rawurlencode($path)),
+            'bw_copy_template_' . $path
+        );
+    }
+
+    /**
+     * Kopiert die Plugin-Vorlage ins aktive Theme. Direkte Dateizugriffe
+     * statt WP_Filesystem — die Aktion ist admin-only und schreibt nur ins
+     * eigene Theme-Unterverzeichnis, keine Notwendigkeit für die
+     * FTP-Credentials-Abstraktion die WP_Filesystem sonst mitbringt.
+     */
+    public static function handle_copy_template() {
+        self::guard();
+
+        $path = isset($_GET['path']) ? sanitize_text_field(wp_unslash($_GET['path'])) : '';
+        check_admin_referer('bw_copy_template_' . $path);
+
+        $registry = BW_Templates::registry();
+        if (!isset($registry[$path])) {
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:Unbekanntes Template.');
+        }
+
+        $source = BW_Templates::plugin_path($path);
+        $target = get_stylesheet_directory() . '/bw-credits-booking/' . $path;
+
+        if (!is_readable($source)) {
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:Quelldatei nicht lesbar.');
+        }
+
+        wp_mkdir_p(dirname($target));
+
+        if (!copy($source, $target)) {
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:Kopieren fehlgeschlagen — Schreibrechte im Theme prüfen.');
+        }
+
+        self::redirect(self::PAGE_TEMPLATES, [], 'ok:' . $path . ' ins Theme kopiert.');
     }
 
     public static function render_texts() {

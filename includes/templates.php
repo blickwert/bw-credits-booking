@@ -17,26 +17,14 @@ class BW_Templates {
      */
     public static function registry(): array {
         return [
-            'course-list/list.php'   => 'Terminliste — Rahmen und Tagesgruppierung',
-            'course-list/item.php'   => 'Terminliste — einzelne Terminzeile',
-            'course-list/filter.php' => 'Terminliste — Filterformular',
-            'course-list/empty.php'  => 'Terminliste — Meldung ohne Treffer',
-            'availability.php'       => 'Freie Plätze eines Termins',
-            'booking/action.php'     => 'Buchen/Stornieren-Button',
-            'booking/note.php'       => 'Hinweis statt Buchen/Stornieren-Button',
-            'balance/simple.php'     => 'Guthaben — einfache Anzeige',
-            'balance/states.php'     => 'Guthaben — Aufforderung zum Nachkaufen',
-            'bookings/list.php'      => 'Buchungsliste — Rahmen',
-            'bookings/item.php'      => 'Buchungsliste — eine Buchungszeile',
-            'bookings/empty.php'     => 'Buchungsliste — Meldung ohne Treffer',
-            'credits/list.php'       => 'Guthaben-Details — Rahmen',
-            'credits/item.php'       => 'Guthaben-Details — eine Credit-Gruppe',
-            'credits/empty.php'      => 'Guthaben-Details — Meldung ohne Guthaben',
-            'access/box.php'         => 'Zugangsdaten-Box',
-            'overview/wrapper.php'    => 'Konto-Übersicht — Rahmen',
-            'overview/balance.php'    => 'Konto-Übersicht — Guthaben-Block',
-            'overview/next.php'       => 'Konto-Übersicht — nächster Termin',
-            'overview/links.php'      => 'Konto-Übersicht — Einstiegslinks',
+            'course_list/course_list.php'               => 'Terminliste — [bw_credits_course_list]',
+            'course_availability/course_availability.php' => 'Freie Plätze — [bw_credits_course_availability]',
+            'course_access/course_access.php'           => 'Zugangsdaten — [bw_credits_course_access]',
+            'course_booking/course_booking.php'         => 'Buchen/Stornieren — [bw_credits_course_booking]',
+            'user_balance/user_balance.php'             => 'Guthaben — [bw_credits_user_balance]',
+            'user_credits/user_credits.php'             => 'Guthaben im Detail — [bw_credits_user_credits]',
+            'user_bookings/user_bookings.php'           => 'Buchungsliste — [bw_credits_user_bookings]',
+            'view_overview/view_overview.php'           => 'Konto-Übersicht — [bw_credits_view_overview]',
         ];
     }
 

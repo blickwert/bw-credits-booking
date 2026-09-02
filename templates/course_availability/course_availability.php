@@ -2,7 +2,7 @@
 /**
  * Verfügbarkeit — freie Plätze eines Termins
  *
- * Override: yourtheme/bw-credits-booking/availability.php
+ * Override: yourtheme/bw-credits-booking/course_availability/course_availability.php
  *
  * Drei Zustände stehen gleichzeitig im Markup und werden über data-bw-state
  * umgeschaltet, damit das JS nach Buchung/Storno live wechseln kann — auch
@@ -16,7 +16,7 @@
  * @var string $free_after  Text nach der Zahl
  * @var string $more_text   fertig zusammengesetzter "mehr als N"-Text
  * @var string $full_text
- * @version 0.14.0
+ * @version 0.15.0
  */
 if (!defined('ABSPATH')) exit;
 ?>

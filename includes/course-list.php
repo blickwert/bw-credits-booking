@@ -4,10 +4,9 @@ if (!defined('ABSPATH')) exit;
 /**
  * [bw_credits_course_list] — Terminliste mit optionalen Filtern.
  *
- * Reine Logik hier — das Markup liegt seit v0.13.0 in templates/course-list/,
- * überschreibbar im Theme unter bw-credits-booking/course-list/. Wortlaut
- * kommt seit v0.12.0 über bw_text(), nicht aus dieser Datei oder den
- * Templates.
+ * Reine Logik hier — das Markup liegt in templates/course_list/course_list.php,
+ * überschreibbar im Theme unter bw-credits-booking/course_list/. Wortlaut
+ * kommt über bw_text(), nicht aus dieser Datei oder dem Template.
  */
 
 class BW_Course_List {
@@ -40,22 +39,24 @@ class BW_Course_List {
 
         $slots = self::query_slots($atts, $selected);
 
+        $items = [];
+        foreach ($slots as $slot) {
+            $items[] = ['slot' => $slot, 'ts' => self::slot_timestamp($slot->ID)];
+        }
+
         do_action('bw_before_course_list', $atts);
 
         ob_start();
-        echo '<div class="bw-course-slots">';
-
-        if ($show_filter) {
-            self::render_filter($selected);
-        }
-
-        if (empty($slots)) {
-            self::render_empty($atts);
-        } else {
-            self::render_slots($slots, $atts);
-        }
-
-        echo '</div>';
+        bw_get_template('course_list/course_list.php', [
+            'items'         => $items,
+            'empty_message' => $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty'),
+            'taxonomies'    => self::taxonomies(),
+            'group_by_day'  => filter_var($atts['group_by_day'], FILTER_VALIDATE_BOOLEAN),
+            'show_action'   => filter_var($atts['show_action'], FILTER_VALIDATE_BOOLEAN),
+            'show_avail'    => filter_var($atts['availability'], FILTER_VALIDATE_BOOLEAN),
+            'show_filter'   => $show_filter,
+            'filter'        => $show_filter ? self::build_filter_data($selected) : [],
+        ]);
         $html = ob_get_clean();
 
         do_action('bw_after_course_list', $atts);
@@ -150,10 +151,10 @@ class BW_Course_List {
     }
 
     /* ---------------------------------------------------------
-     * Filterformular
+     * Filterformular — Daten fürs Template, kein Markup hier
      * --------------------------------------------------------- */
 
-    private static function render_filter(array $selected) {
+    private static function build_filter_data(array $selected): array {
         $available = [];
 
         foreach (self::taxonomies() as $taxonomy => $label) {
@@ -164,8 +165,6 @@ class BW_Course_List {
 
             $available[$taxonomy] = ['label' => $label, 'terms' => $terms];
         }
-
-        if (empty($available)) return;
 
         $hidden = [];
         foreach ($_GET as $key => $value) {
@@ -179,39 +178,12 @@ class BW_Course_List {
             ? (string) remove_query_arg(['bw_type', 'bw_level', 'bw_lang'])
             : '';
 
-        bw_get_template('course-list/filter.php', [
+        return [
             'available' => $available,
             'selected'  => $selected,
             'hidden'    => $hidden,
             'reset_url' => $reset_url,
-        ]);
-    }
-
-    /* ---------------------------------------------------------
-     * Ausgabe
-     * --------------------------------------------------------- */
-
-    private static function render_empty(array $atts) {
-        $message = $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty');
-
-        bw_get_template('course-list/empty.php', [
-            'message' => $message,
-        ]);
-    }
-
-    private static function render_slots(array $slots, array $atts) {
-        $items = [];
-        foreach ($slots as $slot) {
-            $items[] = ['slot' => $slot, 'ts' => self::slot_timestamp($slot->ID)];
-        }
-
-        bw_get_template('course-list/list.php', [
-            'items'        => $items,
-            'taxonomies'   => self::taxonomies(),
-            'group_by_day' => filter_var($atts['group_by_day'], FILTER_VALIDATE_BOOLEAN),
-            'show_action'  => filter_var($atts['show_action'], FILTER_VALIDATE_BOOLEAN),
-            'show_avail'   => filter_var($atts['availability'], FILTER_VALIDATE_BOOLEAN),
-        ]);
+        ];
     }
 
     private static function slot_timestamp(int $slot_id): ?int {
