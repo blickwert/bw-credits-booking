@@ -4,6 +4,29 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.12.0] – 2026-09-02
+
+Trennt drei Ebenen, die bisher im Code vermischt waren: **Struktur** (Markup),
+**Wortlaut** (welche Worte) und **Sprache** (Übersetzung). Diese Version bringt
+Wortlaut und Sprache; die Templates folgen in 0.13.0 — dann entstehen sie ohne
+ein einziges deutsches Wort darin.
+
+### Neu
+- **Text-Katalog** (`includes/text.php`) mit 54 Einträgen. Jeder Text hat einen Schlüssel, einen Standard, eine Beschreibung und eine Gruppe. Ein neuer Text braucht einen einzigen Array-Eintrag und erscheint dadurch automatisch auf der Einstellungsseite, in der WPML-Registrierung und in der `.pot`.
+- **Seite BW Credits → Texte** — alle Texte nach Gruppen sortiert, mit Standard als Platzhalter. Gespeichert wird nur, was tatsächlich abweicht: eine einzige Option statt 54 Datenbankeinträgen.
+- **Übersetzbarkeit** — Textdomain `bw-credits-booking`, `load_plugin_textdomain()`, `languages/bw-credits-booking.pot`. Zusätzlich WPML-Registrierung im Kontext *BW Credits Texte*.
+- **`tools/make-pot.php`** erzeugt die `.pot` aus dem Katalog. Nötig, weil die Standards zur Laufzeit als Variable an `__()` gehen — das übersetzt korrekt, ist für `xgettext` aber unsichtbar.
+
+### Behoben
+- **Fehlermeldungen erschienen beim Kunden auf Englisch.** Wer einen vollen Kurs buchen wollte, bekam „Slot is full.", wer kein Guthaben hatte „No available credits." — beides ging über die REST-Schnittstelle direkt in die Meldungszeile auf der Seite. Betraf 23 Meldungen.
+- **Derselbe Fehlercode lieferte je nach Pfad unterschiedlichen Text** — `bw_booking_not_found`, `bw_not_active`, `bw_cancel_failed` und `bw_bookedcount_failed` existierten in deutscher und englischer Fassung nebeneinander. Jetzt eine Quelle je Code.
+
+### Geändert
+- Shortcode-Attribute für Beschriftungen sind standardmäßig leer und greifen auf den Katalog zurück. Gesetzte Attribute wirken unverändert.
+- Nicht enthalten: Adminbereich und die beiden Demo-Shortcodes behalten ihre festen Texte.
+
+---
+
 ## [0.11.0] – 2026-09-01
 
 ### Neu

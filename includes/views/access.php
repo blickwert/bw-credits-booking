@@ -14,7 +14,7 @@ class BW_View_Access {
     public static function render($atts) {
         $atts = shortcode_atts([
             'course_id' => 0,
-            'title'     => 'Zugangsdaten',
+            'title'     => '',   // leer = Text aus dem Katalog
         ], $atts, 'bw_credits_course_access');
 
         if (!is_user_logged_in()) return '';
@@ -30,19 +30,21 @@ class BW_View_Access {
 
         if ($link === '' && $info === '') return '';
 
+        $title = $atts['title'] !== '' ? $atts['title'] : bw_text('access.title');
+
         BW_Credits_Bookings_MVP::ensure_assets();
 
         ob_start();
         ?>
         <div class="bw-access">
-            <?php if ($atts['title'] !== '') : ?>
-                <h3 class="bw-access__title"><?php echo esc_html($atts['title']); ?></h3>
+            <?php if ($title !== '') : ?>
+                <h3 class="bw-access__title"><?php echo esc_html($title); ?></h3>
             <?php endif; ?>
 
             <?php if ($link !== '') : ?>
                 <p class="bw-access__link">
                     <a href="<?php echo esc_url($link); ?>" target="_blank" rel="noopener">
-                        Zum Online-Kurs
+                        <?php echo esc_html(bw_text('access.link')); ?>
                     </a>
                 </p>
             <?php endif; ?>

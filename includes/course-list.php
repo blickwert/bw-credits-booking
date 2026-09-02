@@ -12,11 +12,13 @@ if (!defined('ABSPATH')) exit;
 class BW_Course_List {
 
     /** Taxonomien für Anzeige und Filter — fehlende werden übersprungen. */
-    private const TAXONOMIES = [
-        'course_type'  => 'Kursart',
-        'course_level' => 'Level',
-        'course_lang'  => 'Sprache',
-    ];
+    private static function taxonomies(): array {
+        return [
+            'course_type'  => bw_text('course_list.filter.type'),
+            'course_level' => bw_text('course_list.filter.level'),
+            'course_lang'  => bw_text('course_list.filter.lang'),
+        ];
+    }
 
     public static function render($atts) {
         $atts = shortcode_atts([
@@ -29,7 +31,7 @@ class BW_Course_List {
             'show_action'  => 'true',
             'availability' => 'true',
             'group_by_day' => 'true',
-            'empty'        => 'Aktuell sind keine Termine geplant.',
+            'empty'        => '',   // leer = Text aus dem Katalog
         ], $atts, 'bw_credits_course_list');
 
         $show_filter = filter_var($atts['show_filter'], FILTER_VALIDATE_BOOLEAN);
@@ -45,7 +47,8 @@ class BW_Course_List {
         }
 
         if (empty($slots)) {
-            echo '<p class="bw-course-slots-empty">' . esc_html($atts['empty']) . '</p>';
+            $empty = $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty');
+            echo '<p class="bw-course-slots-empty">' . esc_html($empty) . '</p>';
         } else {
             self::render_slots($slots, $atts);
         }
@@ -143,7 +146,7 @@ class BW_Course_List {
     private static function render_filter(array $selected) {
         $available = [];
 
-        foreach (self::TAXONOMIES as $taxonomy => $label) {
+        foreach (self::taxonomies() as $taxonomy => $label) {
             if (!taxonomy_exists($taxonomy)) continue;
 
             $terms = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => true]);
@@ -175,7 +178,7 @@ class BW_Course_List {
                 <label class="bw-course-filter__field">
                     <span><?php echo esc_html($data['label']); ?></span>
                     <select name="<?php echo esc_attr($param); ?>">
-                        <option value="">Alle</option>
+                        <option value=""><?php echo esc_html(bw_text('course_list.filter.all')); ?></option>
                         <?php foreach ($data['terms'] as $term) : ?>
                             <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($value, $term->slug); ?>>
                                 <?php echo esc_html($term->name); ?>
@@ -185,12 +188,12 @@ class BW_Course_List {
                 </label>
             <?php endforeach; ?>
 
-            <button type="submit" class="bw-bwallet-btn">Filtern</button>
+            <button type="submit" class="bw-bwallet-btn"><?php echo esc_html(bw_text('course_list.filter.submit')); ?></button>
             <?php if ($selected) :
                 // Nur die Filter entfernen — Seiten-Parameter wie page_id bleiben
                 $reset = remove_query_arg(['bw_type', 'bw_level', 'bw_lang']);
             ?>
-                <a class="bw-course-filter__reset" href="<?php echo esc_url($reset); ?>">Zurücksetzen</a>
+                <a class="bw-course-filter__reset" href="<?php echo esc_url($reset); ?>"><?php echo esc_html(bw_text('course_list.filter.reset')); ?></a>
             <?php endif; ?>
         </form>
         <?php
@@ -230,7 +233,7 @@ class BW_Course_List {
 
     private static function render_slot(WP_Post $slot, ?int $ts, bool $show_action, bool $show_avail) {
         $terms = [];
-        foreach (array_keys(self::TAXONOMIES) as $taxonomy) {
+        foreach (array_keys(self::taxonomies()) as $taxonomy) {
             $name = bw_cs_first_term($slot->ID, $taxonomy);
             if ($name !== '') $terms[] = $name;
         }
