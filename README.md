@@ -138,6 +138,8 @@ Meeting-Link und Zugangsdaten. **Sichtbar ausschließlich für eingeloggte Nutze
 #### `[bw_credits_user_balance]`
 Verfügbares Guthaben. `format="inline"` (Standard) gibt nur die Zahl aus, `format="block"` einen beschrifteten Absatz. Wird per JavaScript aktualisiert.
 
+**Erscheint nur wenn ein Credit-Paket im Warenkorb liegt** — ein gezielter Hinweis während des Kaufs statt eines allgegenwärtigen Zählers, z. B. auf der Warenkorb- oder Checkout-Seite. Ohne passendes Produkt im Warenkorb (oder ohne Login) gibt der Shortcode nichts aus, unabhängig vom `mode`.
+
 Mit **`mode="empty_only"`** wird daraus eine Aufforderung zum Nachkaufen: sichtbar nur, wenn der Kunde eingeloggt ist, **schon einmal Guthaben hatte** und jetzt keines mehr hat. Wer nie Credits hatte, sieht nichts — der soll über den Shop einsteigen.
 
 „Schon einmal Guthaben gehabt" zählt jede Herkunft mit, auch manuelle Gutschriften aus Willkommensaktionen (Newsletter-Anmeldung, Aktionszeitraum).
@@ -174,31 +176,31 @@ Buchungen des Kunden mit Status, Kurstyp/Level/Sprache, Stornieren-Button und �
 ### Ansicht
 
 #### `[bw_credits_view_overview]`
-Guthaben, nächster gebuchter Termin (mit Zugangsdaten) und Einstiegslinks. Steht automatisch im WooCommerce-Konto-Dashboard.
+Guthaben, eine kurze Liste kommender Kurstermine (mit Verfügbarkeit und Buchen/Stornieren-Button, wie in der Terminliste) und Einstiegslinks. Steht automatisch im WooCommerce-Konto-Dashboard.
 
-`show_balance`, `show_next`, `show_links`, `list_url`
+`show_balance`, `show_next`, `next_limit` (Standard 5), `show_links`, `list_url`
 
 ## Templates anpassen
 
-Das komplette Markup jeder Ausgabe liegt in eigenständigen Dateien und lässt sich im Theme überschreiben — nach demselben Muster wie WooCommerce:
+Jeder Shortcode hat genau eine Template-Datei, benannt nach dem Shortcode selbst — überschreibbar im Theme, nach demselben Muster wie WooCommerce:
 
 ```
 wp-content/plugins/bw-credits-booking/templates/
-  course-list/    list.php, item.php, filter.php, empty.php
-  bookings/       list.php, item.php, empty.php
-  credits/        list.php, item.php, empty.php
-  balance/        simple.php, states.php
-  booking/        action.php, note.php
-  overview/       wrapper.php, balance.php, next.php, links.php
-  access/         box.php
-  availability.php
+  course_list/course_list.php               [bw_credits_course_list]
+  course_availability/course_availability.php [bw_credits_course_availability]
+  course_access/course_access.php           [bw_credits_course_access]
+  course_booking/course_booking.php         [bw_credits_course_booking]
+  user_balance/user_balance.php             [bw_credits_user_balance]
+  user_credits/user_credits.php             [bw_credits_user_credits]
+  user_bookings/user_bookings.php           [bw_credits_user_bookings]
+  view_overview/view_overview.php           [bw_credits_view_overview]
 ```
 
-**Überschreiben:** Datei nach `wp-content/themes/<dein-theme>/bw-credits-booking/<pfad>.php` kopieren und anpassen — z. B. `bw-credits-booking/bookings/item.php`. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
+**Überschreiben:** Auf *BW Credits → Templates* neben der gewünschten Zeile auf **„In Theme kopieren"** klicken — legt die Datei automatisch unter `wp-content/themes/<dein-theme>/bw-credits-booking/<pfad>.php` an. Alternativ von Hand kopieren. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
 
 Die Templates enthalten **keinen Wortlaut** — jeder Text kommt über `bw_text()` aus dem [Text-Katalog](#texte-anpassen). Eine Theme-Kopie legt also nur das Layout fest, nie die Formulierung.
 
-**Status behalten:** *BW Credits → Templates* listet alle 20 Templates, zeigt welche im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
+**Status behalten:** *BW Credits → Templates* listet alle acht Templates, zeigt welche im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
 
 ### Für kleine Eingriffe ohne Theme-Kopie
 

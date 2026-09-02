@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.14.0
+ * Version: 0.15.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.14.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.15.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -1077,6 +1077,13 @@ class BW_Credits_Bookings_MVP {
             return $atts['logged_out'] !== '' ? esc_html($atts['logged_out']) : '';
         }
 
+        // Gezielter Hinweis während des Credit-Kaufs statt eines
+        // allgegenwärtigen Zählers — nur sichtbar solange ein Credit-Paket
+        // im Warenkorb liegt, z. B. auf der Warenkorb-/Checkout-Seite.
+        if (!self::cart_has_credit_product()) {
+            return '';
+        }
+
         $atts['label']      = $atts['label']      !== '' ? $atts['label']      : bw_text('balance.label');
         $atts['empty_text'] = $atts['empty_text'] !== '' ? $atts['empty_text'] : bw_text('balance.empty');
         $atts['empty_link'] = $atts['empty_link'] !== '' ? $atts['empty_link'] : bw_text('booking.link.topup');
@@ -1099,10 +1106,11 @@ class BW_Credits_Bookings_MVP {
 
         if ($atts['mode'] !== 'empty_only') {
             ob_start();
-            bw_get_template('balance/simple.php', [
-                'format' => $atts['format'],
-                'label'  => $atts['label'],
-                'number' => $number,
+            bw_get_template('user_balance/user_balance.php', [
+                'variant' => 'simple',
+                'format'  => $atts['format'],
+                'label'   => $atts['label'],
+                'number'  => $number,
             ]);
             return ob_get_clean();
         }
@@ -1118,7 +1126,8 @@ class BW_Credits_Bookings_MVP {
      */
     private static function render_balance_states(array $atts, string $number, int $available): string {
         ob_start();
-        bw_get_template('balance/states.php', [
+        bw_get_template('user_balance/user_balance.php', [
+            'variant'         => 'states',
             'state'           => $available > 0 ? 'has' : 'empty',
             'label'           => $atts['label'],
             'number'          => $number,
@@ -1126,6 +1135,22 @@ class BW_Credits_Bookings_MVP {
             'empty_link_html' => $atts['empty_link'] !== '' ? self::shop_link($atts['empty_link']) : '',
         ]);
         return ob_get_clean();
+    }
+
+    /** Liegt ein Credit-Paket (_bw_credit_amount gesetzt) im Warenkorb? */
+    private static function cart_has_credit_product(): bool {
+        if (!function_exists('WC') || !WC()->cart) return false;
+
+        foreach (WC()->cart->get_cart() as $cart_item) {
+            $product_id = (int) ($cart_item['product_id'] ?? 0);
+            if ($product_id <= 0) continue;
+
+            if ((int) get_post_meta($product_id, self::PM_CREDIT_AMOUNT, true) > 0) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /** WooCommerce-Shopseite, ausschließliche Quelle für Aufladen-Links. */
@@ -1192,7 +1217,8 @@ class BW_Credits_Bookings_MVP {
     /** $suffix_html muss bereits escaped sein — gedacht für einen Link. */
     private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
         ob_start();
-        bw_get_template('booking/note.php', [
+        bw_get_template('course_booking/course_booking.php', [
+            'variant'     => 'note',
             'text'        => $text,
             'modifier'    => $modifier,
             'suffix_html' => $suffix_html,
@@ -1274,7 +1300,8 @@ class BW_Credits_Bookings_MVP {
     /** Umschaltbarer Button — das JS tauscht Aktion und Beschriftung nach dem Klick. */
     private static function action_button(array $args): string {
         ob_start();
-        bw_get_template('booking/action.php', [
+        bw_get_template('course_booking/course_booking.php', [
+            'variant'      => 'action',
             'action'       => $args['action'],
             'slot_id'      => (int) $args['slot_id'],
             'booking_id'   => !empty($args['booking_id']) ? (int) $args['booking_id'] : null,
@@ -1314,7 +1341,7 @@ class BW_Credits_Bookings_MVP {
         $state = $free <= 0 ? 'full' : (($cap > 0 && $free > $cap) ? 'many' : 'free');
 
         ob_start();
-        bw_get_template('availability.php', [
+        bw_get_template('course_availability/course_availability.php', [
             'slot_id'     => $slot_id,
             'free'        => $free,
             'cap'         => $cap,
@@ -1354,7 +1381,10 @@ class BW_Credits_Bookings_MVP {
 
         if (empty($bookings)) {
             ob_start();
-            bw_get_template('bookings/empty.php', ['message' => bw_text('bookings.empty')]);
+            bw_get_template('user_bookings/user_bookings.php', [
+                'items'         => [],
+                'empty_message' => bw_text('bookings.empty'),
+            ]);
             return ob_get_clean();
         }
 
@@ -1404,7 +1434,10 @@ class BW_Credits_Bookings_MVP {
         }
 
         ob_start();
-        bw_get_template('bookings/list.php', ['items' => $items]);
+        bw_get_template('user_bookings/user_bookings.php', [
+            'items'         => $items,
+            'empty_message' => '',
+        ]);
         return ob_get_clean();
     }
 

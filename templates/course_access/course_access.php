@@ -2,13 +2,13 @@
 /**
  * Zugangsdaten-Box
  *
- * Override: yourtheme/bw-credits-booking/access/box.php
+ * Override: yourtheme/bw-credits-booking/course_access/course_access.php
  *
  * @var string $title  leer = keine Überschrift
  * @var string $link   leer = kein Meeting-Link vorhanden
  * @var string $info   leer = keine Zusatzinfo vorhanden
  * @var string $link_label
- * @version 0.14.0
+ * @version 0.15.0
  */
 if (!defined('ABSPATH')) exit;
 ?>

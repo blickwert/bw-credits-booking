@@ -4,6 +4,19 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.15.0] – 2026-09-02
+
+### Neu
+- **Template-Konsolidierung: 20 Dateien → 8.** Jeder Shortcode hat jetzt genau eine Template-Datei, benannt nach dem Shortcode selbst (`course_booking/course_booking.php` statt vormals `booking/action.php` + `booking/note.php` in getrennten Ordnern). Wer einen Shortcode anpassen will, öffnet eine Datei statt mehrere zusammengehörige zu suchen. Alle Hooks (`bw_before_slot_item` usw.) bleiben erhalten, feuern jetzt innerhalb der jeweils einen Datei.
+- **„In Theme kopieren"-Button** auf *BW Credits → Templates* — kopiert eine Vorlage direkt ins aktive Theme, keine manuelle Dateiarbeit mehr nötig. Erscheint nur bei Templates ohne bestehenden Override.
+- **`[bw_credits_user_balance]` erscheint nur noch mit Credit-Paket im Warenkorb.** Aus dem allgegenwärtigen Guthaben-Zähler wird ein gezielter Hinweis während des Kaufs — z. B. auf der Warenkorb- oder Checkout-Seite. Gilt unabhängig vom `mode`-Attribut und betrifft ausschließlich diesen Shortcode; die Konto-Übersicht berechnet ihr Guthaben weiterhin unabhängig davon.
+- **Kommende Kurse im WooCommerce-Dashboard.** `[bw_credits_view_overview]` zeigt statt des einen nächsten gebuchten Termins jetzt eine kurze Liste kommender Kurstermine — mit Verfügbarkeit und Buchen/Stornieren-Button, durch Wiederverwendung der Terminliste. Ein bereits gebuchter Termin darin zeigt automatisch „Stornieren" statt „Buchen". Neues Attribut `next_limit` (Standard 5).
+
+### Geändert
+- Text-Katalog: `overview.next.label`/`overview.next.none` durch `overview.upcoming.label` ersetzt — der Leerfall läuft jetzt über die ohnehin vorhandene Leermeldung der Terminliste.
+
+---
+
 ## [0.14.0] – 2026-09-02
 
 Acht Änderungen aus einer Sammel-Rückmeldung, größter Posten ist die

@@ -4,9 +4,10 @@ if (!defined('ABSPATH')) exit;
 /**
  * [bw_credits_view_overview] — Konto-Übersicht.
  *
- * Guthaben, nächster gebuchter Termin und Einstiegslinks in einem Block.
- * Gedacht fürs WooCommerce-Konto-Dashboard. Markup liegt in
- * templates/overview/, überschreibbar im Theme.
+ * Guthaben, kommende Kurstermine (wiederverwendet aus der Terminliste, samt
+ * Verfügbarkeit und Buchen/Stornieren-Button) und Einstiegslinks in einem
+ * Block. Gedacht fürs WooCommerce-Konto-Dashboard. Markup liegt in
+ * templates/view_overview/view_overview.php, überschreibbar im Theme.
  */
 
 class BW_View_Overview {
@@ -17,6 +18,7 @@ class BW_View_Overview {
             'show_next'    => 'true',
             'show_links'   => 'true',
             'list_url'     => '',
+            'next_limit'   => 5,
         ], $atts, 'bw_credits_view_overview');
 
         if (!is_user_logged_in()) return '';
@@ -24,51 +26,24 @@ class BW_View_Overview {
         // data-bw-balance wird vom JS aktualisiert — Skript und Styles nötig
         BW_Credits_Bookings_MVP::ensure_assets();
 
+        $user_id       = get_current_user_id();
+        $show_balance  = filter_var($atts['show_balance'], FILTER_VALIDATE_BOOLEAN);
+        $available     = $show_balance ? BW_Credits_Bookings_MVP::get_available_credits($user_id) : 0;
+
         ob_start();
-        bw_get_template('overview/wrapper.php', ['atts' => $atts]);
+        bw_get_template('view_overview/view_overview.php', [
+            'show_balance'  => $show_balance,
+            'available'     => $available,
+            'balance_label' => bw_text($available === 1 ? 'balance.count.one' : 'balance.count.many'),
+            'show_next'     => filter_var($atts['show_next'], FILTER_VALIDATE_BOOLEAN),
+            'next_limit'    => max(1, (int) $atts['next_limit']),
+            'show_links'    => filter_var($atts['show_links'], FILTER_VALIDATE_BOOLEAN),
+            'links'         => self::build_links((string) $atts['list_url']),
+        ]);
         return ob_get_clean();
     }
 
-    public static function render_balance(int $user_id) {
-        $available = BW_Credits_Bookings_MVP::get_available_credits($user_id);
-
-        bw_get_template('overview/balance.php', [
-            'available' => $available,
-            'label'     => bw_text($available === 1 ? 'balance.count.one' : 'balance.count.many'),
-        ]);
-    }
-
-    /**
-     * Nächster anstehender Termin. Geht die Buchungen durch und nimmt den
-     * frühesten der noch bevorsteht — die Startzeit liegt in Postmeta,
-     * lässt sich also nicht direkt in der Buchungsabfrage sortieren.
-     */
-    public static function render_next(int $user_id) {
-        $bookings = BW_Credits_Bookings_MVP::get_my_bookings($user_id, 100);
-        $now      = time();
-        $next     = null;
-
-        foreach ($bookings as $booking) {
-            if ((int) $booking['is_active'] !== 1 || $booking['status'] !== 'booked') continue;
-
-            $start = BW_Credits_Bookings_MVP::get_slot_start_datetime((int) $booking['slot_id']);
-            if (!$start || $start->getTimestamp() <= $now) continue;
-
-            if ($next === null || $start->getTimestamp() < $next['ts']) {
-                $next = [
-                    'ts'      => $start->getTimestamp(),
-                    'slot_id' => (int) $booking['slot_id'],
-                ];
-            }
-        }
-
-        bw_get_template('overview/next.php', [
-            'next'       => $next,
-            'empty_text' => bw_text('overview.next.none'),
-        ]);
-    }
-
-    public static function render_links(string $list_url) {
+    private static function build_links(string $list_url): array {
         $links = [];
 
         if ($list_url !== '') {
@@ -84,6 +59,6 @@ class BW_View_Overview {
             $links[] = ['url' => wc_get_account_endpoint_url('orders'), 'label' => bw_text('overview.link.orders')];
         }
 
-        bw_get_template('overview/links.php', ['links' => $links]);
+        return $links;
     }
 }

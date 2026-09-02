@@ -35,7 +35,7 @@ class BW_View_Access {
         BW_Credits_Bookings_MVP::ensure_assets();
 
         ob_start();
-        bw_get_template('access/box.php', [
+        bw_get_template('course_access/course_access.php', [
             'title'      => $title,
             'link'       => $link,
             'info'       => $info,

@@ -174,11 +174,8 @@ class BW_Text {
             'overview.heading.courses' => [
                 'Meine Kurse', 'Überschrift über der Buchungsliste im Konto', 'overview',
             ],
-            'overview.next.label' => [
-                'Dein nächster Kurs', 'Beschriftung über dem nächsten Termin', 'overview',
-            ],
-            'overview.next.none' => [
-                'Aktuell kein Kurs gebucht.', 'Wenn kein Termin ansteht', 'overview',
+            'overview.upcoming.label' => [
+                'Kommende Kurse', 'Überschrift über der Kursliste im Konto', 'overview',
             ],
             'overview.link.courses' => [
                 'Kurstermine ansehen', 'Link zur Terminliste', 'overview',
