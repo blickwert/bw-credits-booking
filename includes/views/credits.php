@@ -14,16 +14,18 @@ class BW_View_Credits {
     /** Ab wann ein Ablaufdatum hervorgehoben wird */
     const SOON_DAYS = 30;
 
-    private const SOURCE_LABELS = [
-        'purchase'   => 'Kauf',
-        'membership' => 'Mitgliedschaft',
-        'manual'     => 'Gutschrift',
-    ];
+    private static function source_labels(): array {
+        return [
+            'purchase'   => bw_text('credits.source.purchase'),
+            'membership' => bw_text('credits.source.membership'),
+            'manual'     => bw_text('credits.source.manual'),
+        ];
+    }
 
     public static function render($atts) {
         $atts = shortcode_atts([
             'show_expired' => 'false',
-            'empty'        => 'Du hast aktuell kein Guthaben.',
+            'empty'        => '',   // leer = Text aus dem Katalog
         ], $atts, 'bw_credits_user_credits');
 
         if (!is_user_logged_in()) return '';
@@ -37,7 +39,8 @@ class BW_View_Credits {
         BW_Credits_Bookings_MVP::ensure_assets();
 
         if (empty($groups)) {
-            return '<p class="bw-credits-empty">' . esc_html($atts['empty']) . '</p>';
+            $empty = $atts['empty'] !== '' ? $atts['empty'] : bw_text('credits.empty');
+            return '<p class="bw-credits-empty">' . esc_html($empty) . '</p>';
         }
 
         $now  = current_datetime();
@@ -56,17 +59,19 @@ class BW_View_Credits {
                 <span class="bw-credits-amount"><?php echo (int) $group['count']; ?></span>
 
                 <span class="bw-credits-source">
-                    <?php echo esc_html(self::SOURCE_LABELS[$group['source']] ?? $group['source']); ?>
+                    <?php echo esc_html(self::source_labels()[$group['source']] ?? $group['source']); ?>
                 </span>
 
                 <span class="bw-credits-expiry<?php echo $is_soon && !$is_gone ? ' bw-credits-expiry--soon' : ''; ?>">
                     <?php
                     if ($is_gone) {
-                        echo 'abgelaufen';
+                        echo esc_html(bw_text('credits.expired'));
                     } elseif (!$expires_t) {
-                        echo 'unbegrenzt gültig';
+                        echo esc_html(bw_text('credits.unlimited'));
                     } else {
-                        printf('gültig bis %s', esc_html(wp_date('d.m.Y', $expires_t)));
+                        echo esc_html(bw_text('credits.valid_until', [
+                            'datum' => wp_date('d.m.Y', $expires_t),
+                        ]));
                     }
                     ?>
                 </span>

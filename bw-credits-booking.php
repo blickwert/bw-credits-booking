@@ -2,15 +2,18 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.11.0
+ * Version: 0.12.0
  * Author: Blickwert
+ * Text Domain: bw-credits-booking
+ * Domain Path: /languages
  */
 
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.11.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.12.0');
 
+require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin.php';
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
@@ -433,7 +436,7 @@ class BW_Credits_Bookings_MVP {
         ));
 
         if ($credit_id <= 0) {
-            return new WP_Error('bw_no_credits', 'No available credits.');
+            return new WP_Error('bw_no_credits', bw_text('error.no_credits'));
         }
 
         $updated = $wpdb->query($wpdb->prepare(
@@ -444,7 +447,7 @@ class BW_Credits_Bookings_MVP {
         ));
 
         if ($updated !== 1) {
-            return new WP_Error('bw_race_credit', 'Could not reserve credit. Please try again.');
+            return new WP_Error('bw_race_credit', bw_text('error.retry'));
         }
 
         return $credit_id;
@@ -462,7 +465,7 @@ class BW_Credits_Bookings_MVP {
         ));
 
         if ($updated !== 1) {
-            return new WP_Error('bw_no_credit_for_booking', 'No used credit found for this booking.');
+            return new WP_Error('bw_no_credit_for_booking', bw_text('error.generic'));
         }
 
         return true;
@@ -609,23 +612,23 @@ class BW_Credits_Bookings_MVP {
         global $wpdb;
 
         if ($user_id <= 0 || $slot_id <= 0) {
-            return new WP_Error('bw_invalid', 'Invalid user or slot.');
+            return new WP_Error('bw_invalid', bw_text('error.generic'));
         }
 
         $post = get_post($slot_id);
         if (!$post || $post->post_status !== 'publish') {
-            return new WP_Error('bw_slot_invalid', 'Slot not found or not published.');
+            return new WP_Error('bw_slot_invalid', bw_text('error.slot_invalid'));
         }
 
         $capacity = self::get_slot_capacity($slot_id);
         if ($capacity <= 0) {
-            return new WP_Error('bw_capacity_missing', 'Slot capacity missing or zero.');
+            return new WP_Error('bw_capacity_missing', bw_text('error.capacity_missing'));
         }
 
         if ($enforce_future) {
             $start = self::get_slot_start_datetime($slot_id);
             if ($start && $start <= new DateTime('now', wp_timezone())) {
-                return new WP_Error('bw_slot_past', 'Dieser Termin liegt in der Vergangenheit.');
+                return new WP_Error('bw_slot_past', bw_text('error.slot_past'));
             }
         }
 
@@ -643,14 +646,14 @@ class BW_Credits_Bookings_MVP {
         ));
         if ($existing > 0) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_already_booked', 'You already booked this slot.');
+            return new WP_Error('bw_already_booked', bw_text('error.already_booked'));
         }
 
         // capacity + increment booked_count atomically
         $ok = self::try_increment_booked_count($slot_id, $capacity);
         if (!$ok) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_full', 'Slot is full.');
+            return new WP_Error('bw_full', bw_text('error.full'));
         }
 
         // insert booking pending
@@ -666,7 +669,7 @@ class BW_Credits_Bookings_MVP {
         if ($inserted !== 1) {
             self::decrement_booked_count($slot_id);
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_booking_insert_failed', 'Could not create booking.');
+            return new WP_Error('bw_booking_insert_failed', bw_text('error.generic'));
         }
 
         $booking_id = (int) $wpdb->insert_id;
@@ -701,7 +704,7 @@ class BW_Credits_Bookings_MVP {
             self::decrement_booked_count($slot_id);
             $wpdb->query($wpdb->prepare("DELETE FROM {$bookings_table} WHERE id=%d", $booking_id));
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_booking_finalize_failed', 'Could not finalize booking.');
+            return new WP_Error('bw_booking_finalize_failed', bw_text('error.generic'));
         }
 
         $wpdb->query('COMMIT');
@@ -723,7 +726,7 @@ class BW_Credits_Bookings_MVP {
         $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
 
         if ($user_id <= 0 || $booking_id <= 0) {
-            return new WP_Error('bw_invalid', 'Invalid user or booking.');
+            return new WP_Error('bw_invalid', bw_text('error.generic'));
         }
 
         $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();
@@ -741,12 +744,12 @@ class BW_Credits_Bookings_MVP {
 
         if (!$booking) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_booking_not_found', 'Booking not found.');
+            return new WP_Error('bw_booking_not_found', bw_text('error.booking_not_found'));
         }
 
         if ((int)$booking['is_active'] !== 1 || $booking['status'] !== 'booked') {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_not_active', 'Booking is not active.');
+            return new WP_Error('bw_not_active', bw_text('error.not_active'));
         }
 
         $slot_id = (int) $booking['slot_id'];
@@ -754,7 +757,7 @@ class BW_Credits_Bookings_MVP {
         $start = self::get_slot_start_datetime($slot_id);
         if (!$start) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_slot_time_missing', 'Slot start time missing.');
+            return new WP_Error('bw_slot_time_missing', bw_text('error.slot_time_missing'));
         }
 
         $cutoff = clone $start;
@@ -762,7 +765,7 @@ class BW_Credits_Bookings_MVP {
 
         if ($now >= $cutoff) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_cutoff_passed', 'Cancellation cutoff passed.');
+            return new WP_Error('bw_cutoff_passed', bw_text('error.cutoff_passed'));
         }
 
         $cancelled_at = $now->format('Y-m-d H:i:s');
@@ -775,7 +778,7 @@ class BW_Credits_Bookings_MVP {
 
         if ($updated !== 1) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_cancel_failed', 'Could not cancel booking.');
+            return new WP_Error('bw_cancel_failed', bw_text('error.generic'));
         }
 
         $ref = self::refund_credit_by_booking($user_id, $booking_id);
@@ -787,7 +790,7 @@ class BW_Credits_Bookings_MVP {
         $ok = self::decrement_booked_count($slot_id);
         if (!$ok) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_bookedcount_failed', 'Could not update booked_count.');
+            return new WP_Error('bw_bookedcount_failed', bw_text('error.generic'));
         }
 
         $wpdb->query('COMMIT');
@@ -881,7 +884,7 @@ class BW_Credits_Bookings_MVP {
         $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
 
         if ($booking_id <= 0) {
-            return new WP_Error('bw_invalid', 'Ungültige Buchung.');
+            return new WP_Error('bw_invalid', bw_text('error.generic'));
         }
 
         $wpdb->query('START TRANSACTION');
@@ -893,12 +896,12 @@ class BW_Credits_Bookings_MVP {
 
         if (!$booking) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_booking_not_found', 'Buchung nicht gefunden.');
+            return new WP_Error('bw_booking_not_found', bw_text('error.booking_not_found'));
         }
 
         if ((int) $booking['is_active'] !== 1) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_not_active', 'Buchung ist bereits storniert.');
+            return new WP_Error('bw_not_active', bw_text('error.not_active'));
         }
 
         $user_id = (int) $booking['user_id'];
@@ -915,7 +918,7 @@ class BW_Credits_Bookings_MVP {
 
         if ($updated !== 1) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_cancel_failed', 'Storno fehlgeschlagen.');
+            return new WP_Error('bw_cancel_failed', bw_text('error.generic'));
         }
 
         // Freiplätze (Admin-Buchung ohne Credit) haben nichts zurückzugeben
@@ -929,7 +932,7 @@ class BW_Credits_Bookings_MVP {
 
         if (!self::decrement_booked_count($slot_id)) {
             $wpdb->query('ROLLBACK');
-            return new WP_Error('bw_bookedcount_failed', 'booked_count konnte nicht aktualisiert werden.');
+            return new WP_Error('bw_bookedcount_failed', bw_text('error.generic'));
         }
 
         $wpdb->query('COMMIT');
@@ -1046,10 +1049,10 @@ class BW_Credits_Bookings_MVP {
 
     public static function status_labels(): array {
         return [
-            'booked'    => 'Gebucht',
-            'cancelled' => 'Storniert',
-            'pending'   => 'Ausstehend',
-            'no_show'   => 'Nicht erschienen',
+            'booked'    => bw_text('bookings.status.booked'),
+            'cancelled' => bw_text('bookings.status.cancelled'),
+            'pending'   => bw_text('bookings.status.pending'),
+            'no_show'   => bw_text('bookings.status.no_show'),
         ];
     }
 
@@ -1062,9 +1065,9 @@ class BW_Credits_Bookings_MVP {
         $atts = shortcode_atts([
             'mode'       => 'always',      // always | empty_only
             'format'     => 'inline',      // inline | block
-            'label'      => 'Verfügbare Credits:',
-            'empty_text' => 'Dein Guthaben ist aufgebraucht.',
-            'empty_link' => 'Jetzt aufladen',
+            'label'      => '',   // leer = Text aus dem Katalog
+            'empty_text' => '',
+            'empty_link' => '',
             'shop_url'   => '',
             'logged_out' => '',
         ], $atts, 'bw_credits_user_balance');
@@ -1072,6 +1075,10 @@ class BW_Credits_Bookings_MVP {
         if (!is_user_logged_in()) {
             return $atts['logged_out'] !== '' ? esc_html($atts['logged_out']) : '';
         }
+
+        $atts['label']      = $atts['label']      !== '' ? $atts['label']      : bw_text('balance.label');
+        $atts['empty_text'] = $atts['empty_text'] !== '' ? $atts['empty_text'] : bw_text('balance.empty');
+        $atts['empty_link'] = $atts['empty_link'] !== '' ? $atts['empty_link'] : bw_text('booking.link.topup');
 
         $user_id   = get_current_user_id();
         $available = self::get_available_credits($user_id);
@@ -1139,7 +1146,7 @@ class BW_Credits_Bookings_MVP {
 
         $atts = shortcode_atts([
             'slot_id' => 0,
-            'label'   => 'Kurs buchen (1 Credit)',
+            'label'   => '',   // leer = Text aus dem Katalog
             'wrap'    => '1',
             'class'   => 'bw-bwallet-btn',
         ], $atts);
@@ -1148,6 +1155,8 @@ class BW_Credits_Bookings_MVP {
         if ($slot_id <= 0) return '';
 
         self::ensure_assets();
+
+        $atts['label'] = $atts['label'] !== '' ? $atts['label'] : bw_text('booking.button.book');
 
         $btn = sprintf(
             '<button type="button" class="%s" data-bw-action="book" data-slot-id="%d">%s</button>',
@@ -1168,7 +1177,7 @@ class BW_Credits_Bookings_MVP {
         $atts = shortcode_atts([
             'booking_id' => 0,
             'slot_id'    => 0,
-            'label'      => 'Stornieren',
+            'label'      => '',   // leer = Text aus dem Katalog
             'wrap'       => '1',
             'class'      => 'bw-bwallet-btn',
         ], $atts);
@@ -1177,6 +1186,8 @@ class BW_Credits_Bookings_MVP {
         if ($booking_id <= 0) return '';
 
         self::ensure_assets();
+
+        $atts['label'] = $atts['label'] !== '' ? $atts['label'] : bw_text('booking.button.cancel_short');
 
         $slot_id = (int) $atts['slot_id'];
 
@@ -1252,10 +1263,14 @@ class BW_Credits_Bookings_MVP {
         $atts = shortcode_atts([
             'course_id'    => 0,
             'slot_id'      => 0,   // alter Name, bleibt gültig
-            'label_book'   => 'Kurs buchen (1 Credit)',
-            'label_cancel' => 'Buchung stornieren',
+            'label_book'   => '',  // leer = Text aus dem Katalog
+            'label_cancel' => '',
             'class'        => 'bw-bwallet-btn',
         ], $atts, 'bw_credits_course_booking');
+
+        // Attribut schlägt Admin-Override schlägt übersetzten Standard
+        $atts['label_book']   = $atts['label_book']   !== '' ? $atts['label_book']   : bw_text('booking.button.book');
+        $atts['label_cancel'] = $atts['label_cancel'] !== '' ? $atts['label_cancel'] : bw_text('booking.button.cancel');
 
         $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
@@ -1266,10 +1281,10 @@ class BW_Credits_Bookings_MVP {
         $past  = $start && $start <= new DateTime('now', wp_timezone());
 
         if (!is_user_logged_in()) {
-            if ($past) return self::note('Dieser Termin ist vorbei.', 'bw-is-past');
+            if ($past) return self::note(bw_text('booking.note.past'), 'bw-is-past');
 
             return '<p class="bw-slot-note"><a href="' . esc_url(wp_login_url(get_permalink() ?: '')) . '">'
-                 . 'Bitte einloggen um zu buchen.</a></p>';
+                 . esc_html(bw_text('booking.note.login')) . '</a></p>';
         }
 
         $user_id = get_current_user_id();
@@ -1278,7 +1293,7 @@ class BW_Credits_Bookings_MVP {
         // Bereits gebucht → stornieren, solange die Frist läuft
         if ($booking) {
             if ($booking['status'] !== 'booked' || !self::can_cancel_now($start)) {
-                return self::note('Du bist für diesen Termin angemeldet.', 'bw-is-booked');
+                return self::note(bw_text('booking.note.booked'), 'bw-is-booked');
             }
 
             return self::action_button([
@@ -1291,14 +1306,14 @@ class BW_Credits_Bookings_MVP {
             ]);
         }
 
-        if ($past)                              return self::note('Dieser Termin ist vorbei.', 'bw-is-past');
-        if (self::get_free_spots($slot_id) < 1) return self::note('Dieser Termin ist ausgebucht.', 'bw-is-full');
+        if ($past)                              return self::note(bw_text('booking.note.past'), 'bw-is-past');
+        if (self::get_free_spots($slot_id) < 1) return self::note(bw_text('booking.note.full'), 'bw-is-full');
 
         if (self::get_available_credits($user_id) < 1) {
             return self::note(
-                'Du hast keine Credits mehr.',
+                bw_text('booking.note.no_credits'),
                 'bw-no-credits',
-                self::shop_link('Jetzt aufladen')
+                self::shop_link(bw_text('booking.link.topup'))
             );
         }
 
@@ -1337,9 +1352,12 @@ class BW_Credits_Bookings_MVP {
         $atts = shortcode_atts([
             'course_id' => 0,
             'slot_id'   => 0,   // alter Name, bleibt gültig
-            'format'    => '{frei} freie Plätze',
-            'full'      => 'Ausgebucht',
+            'format'    => '',   // leer = Text aus dem Katalog
+            'full'      => '',
         ], $atts, 'bw_credits_course_availability');
+
+        $atts['format'] = $atts['format'] !== '' ? $atts['format'] : bw_text('availability.free');
+        $atts['full']   = $atts['full']   !== '' ? $atts['full']   : bw_text('availability.full');
 
         $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
@@ -1371,13 +1389,15 @@ class BW_Credits_Bookings_MVP {
 
         echo BW_View_Overview::render([]);
 
-        echo '<h2>Meine Kurse</h2>';
+        echo '<h2>' . esc_html(bw_text('overview.heading.courses')) . '</h2>';
         echo self::sc_my_bookings(['limit' => 10]);
     }
 
     // [bw_my_bookings limit="20"]
     public static function sc_my_bookings($atts) {
-        if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
+        if (!is_user_logged_in()) {
+            return '<p>' . esc_html(bw_text('bookings.login_required')) . '</p>';
+        }
 
         self::ensure_assets();
 
@@ -1389,7 +1409,7 @@ class BW_Credits_Bookings_MVP {
         $bookings   = self::get_my_bookings($uid, (int) $atts['limit']);
 
         if (empty($bookings)) {
-            return '<p class="bw-no-bookings">Noch keine Buchungen vorhanden.</p>';
+            return '<p class="bw-no-bookings">' . esc_html(bw_text('bookings.empty')) . '</p>';
         }
 
         $cutoff_hours = BW_Settings::get_cancel_cutoff_hours();

@@ -11,6 +11,7 @@ class BW_Admin_Pages {
     const PAGE_BOOKINGS = 'bw-credits-bookings';
     const PAGE_CREDITS  = 'bw-credits-credits';
     const PAGE_SHORTCODES = 'bw-credits-shortcodes';
+    const PAGE_TEXTS      = 'bw-credits-texts';
 
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'register_menu'], 20);
@@ -20,6 +21,7 @@ class BW_Admin_Pages {
         add_action('admin_post_bw_grant_credits',  [__CLASS__, 'handle_grant_credits']);
         add_action('admin_post_bw_revoke_credit',  [__CLASS__, 'handle_revoke_credit']);
         add_action('admin_post_bw_clear_legacy',   [__CLASS__, 'handle_clear_legacy']);
+        add_action('admin_init',                   [__CLASS__, 'register_text_settings']);
     }
 
     private static function cap(): string {
@@ -38,6 +40,7 @@ class BW_Admin_Pages {
         add_submenu_page($parent, 'Buchungen', 'Buchungen', $cap, self::PAGE_BOOKINGS, [__CLASS__, 'render_bookings']);
         add_submenu_page($parent, 'Credits',   'Credits',   $cap, self::PAGE_CREDITS,  [__CLASS__, 'render_credits']);
         add_submenu_page($parent, 'Shortcodes', 'Shortcodes', $cap, self::PAGE_SHORTCODES, [__CLASS__, 'render_shortcodes']);
+        add_submenu_page($parent, 'Texte', 'Texte', $cap, self::PAGE_TEXTS, [__CLASS__, 'render_texts']);
     }
 
     /* =========================================================
@@ -589,6 +592,103 @@ class BW_Admin_Pages {
                 ? 'err:' . $res->get_error_message()
                 : 'ok:' . $amount . ' Credit(s) gutgeschrieben.'
         );
+    }
+
+    /* =========================================================
+     * Seite: Texte
+     * ========================================================= */
+
+    public static function register_text_settings() {
+        register_setting('bw_credits_texts', BW_Text::OPT_OVERRIDES, [
+            'type'              => 'array',
+            'sanitize_callback' => [__CLASS__, 'sanitize_texts'],
+        ]);
+    }
+
+    /**
+     * Nur tatsächlich geänderte Texte speichern. Wer ein Feld leert oder auf
+     * den Standard zurücksetzt, bekommt wieder den übersetzbaren Standard —
+     * die Option bleibt so klein wie möglich.
+     */
+    public static function sanitize_texts($value): array {
+        if (!is_array($value)) return [];
+
+        $catalogue = BW_Text::catalogue();
+        $clean     = [];
+
+        foreach ($value as $key => $text) {
+            if (!isset($catalogue[$key])) continue;
+
+            $text = sanitize_text_field(wp_unslash($text));
+            if ($text === '' || $text === $catalogue[$key][0]) continue;
+
+            $clean[$key] = $text;
+        }
+
+        return $clean;
+    }
+
+    public static function render_texts() {
+        self::guard();
+
+        $catalogue = BW_Text::catalogue();
+        $overrides = BW_Text::overrides();
+
+        $by_group = [];
+        foreach ($catalogue as $key => [$default, $description, $group]) {
+            $by_group[$group][$key] = [$default, $description];
+        }
+
+        echo '<div class="wrap"><h1>Texte</h1>';
+        self::notice();
+
+        printf(
+            '<p>%d Texte, davon %d angepasst. Ein leeres Feld nutzt den Standardtext.</p>',
+            count($catalogue),
+            count($overrides)
+        );
+
+        echo '<p class="description">Platzhalter in geschweiften Klammern bleiben erhalten, '
+           . 'z.&nbsp;B. <code>{frei}</code> oder <code>{datum}</code>.</p>';
+
+        echo '<form method="post" action="options.php">';
+        settings_fields('bw_credits_texts');
+
+        foreach (BW_Text::GROUPS as $group => $heading) {
+            if (empty($by_group[$group])) continue;
+
+            printf('<h2>%s</h2>', esc_html($heading));
+            echo '<table class="form-table"><tbody>';
+
+            foreach ($by_group[$group] as $key => [$default, $description]) {
+                $current = $overrides[$key] ?? '';
+                ?>
+                <tr>
+                    <th scope="row">
+                        <label for="<?php echo esc_attr('bwtxt-' . $key); ?>">
+                            <?php echo esc_html($description); ?>
+                        </label>
+                    </th>
+                    <td>
+                        <input type="text" class="large-text"
+                               id="<?php echo esc_attr('bwtxt-' . $key); ?>"
+                               name="<?php echo esc_attr(BW_Text::OPT_OVERRIDES . '[' . $key . ']'); ?>"
+                               value="<?php echo esc_attr($current); ?>"
+                               placeholder="<?php echo esc_attr($default); ?>">
+                        <p class="description">
+                            <code><?php echo esc_html($key); ?></code>
+                            &nbsp;·&nbsp; Standard: <em><?php echo esc_html($default); ?></em>
+                        </p>
+                    </td>
+                </tr>
+                <?php
+            }
+
+            echo '</tbody></table>';
+        }
+
+        submit_button();
+        echo '</form></div>';
     }
 
     /* =========================================================

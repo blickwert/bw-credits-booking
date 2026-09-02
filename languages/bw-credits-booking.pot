@@ -1,0 +1,275 @@
+# BW Credits + Bookings
+# Erzeugt aus includes/text.php — nicht von Hand bearbeiten.
+msgid ""
+msgstr ""
+"Project-Id-Version: BW Credits + Bookings\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Domain: bw-credits-booking\n"
+
+#. Beschriftung des Buchen-Buttons
+#: catalogue:booking.button.book
+msgid "Kurs buchen (1 Credit)"
+msgstr ""
+
+#. Beschriftung wenn der Termin gebucht ist
+#: catalogue:booking.button.cancel
+msgid "Buchung stornieren"
+msgstr ""
+
+#. Kurze Beschriftung in der Buchungsliste
+#: catalogue:booking.button.cancel_short
+msgid "Stornieren"
+msgstr ""
+
+#. Hinweis für nicht angemeldete Besucher
+#: catalogue:booking.note.login
+msgid "Bitte einloggen um zu buchen."
+msgstr ""
+
+#. Der Termin liegt in der Vergangenheit
+#: catalogue:booking.note.past
+msgid "Dieser Termin ist vorbei."
+msgstr ""
+
+#. Kein Platz mehr frei
+#: catalogue:booking.note.full
+msgid "Dieser Termin ist ausgebucht."
+msgstr ""
+
+#. Gebucht, aber Stornofrist abgelaufen
+#: catalogue:booking.note.booked
+msgid "Du bist für diesen Termin angemeldet."
+msgstr ""
+
+#. Guthaben aufgebraucht, vor dem Aufladen-Link
+#: catalogue:booking.note.no_credits
+msgid "Du hast keine Credits mehr."
+msgstr ""
+
+#. Beschriftung des Links zur Shop-Seite
+#: catalogue:booking.link.topup
+msgid "Jetzt aufladen"
+msgstr ""
+
+#. Platzhalter {frei} wird durch die Zahl ersetzt
+#: catalogue:availability.free
+msgid "{frei} freie Plätze"
+msgstr ""
+
+#. Wenn kein Platz mehr frei ist
+#: catalogue:availability.full
+msgid "Ausgebucht"
+msgstr ""
+
+#. Beschriftung vor der Zahl
+#: catalogue:balance.label
+msgid "Verfügbare Credits:"
+msgstr ""
+
+#. Hinweis bei null Credits
+#: catalogue:balance.empty
+msgid "Dein Guthaben ist aufgebraucht."
+msgstr ""
+
+#. Einzahl in der Konto-Übersicht
+#: catalogue:balance.count.one
+msgid "Credit verfügbar"
+msgstr ""
+
+#. Mehrzahl in der Konto-Übersicht
+#: catalogue:balance.count.many
+msgid "Credits verfügbar"
+msgstr ""
+
+#. Wenn keine Credits vorhanden sind
+#: catalogue:credits.empty
+msgid "Du hast aktuell kein Guthaben."
+msgstr ""
+
+#. Herkunft: über den Shop gekauft
+#: catalogue:credits.source.purchase
+msgid "Kauf"
+msgstr ""
+
+#. Herkunft: aus einer Mitgliedschaft
+#: catalogue:credits.source.membership
+msgid "Mitgliedschaft"
+msgstr ""
+
+#. Herkunft: manuell gutgeschrieben
+#: catalogue:credits.source.manual
+msgid "Gutschrift"
+msgstr ""
+
+#. Status eines verfallenen Credits
+#: catalogue:credits.expired
+msgid "abgelaufen"
+msgstr ""
+
+#. Credit ohne Ablaufdatum
+#: catalogue:credits.unlimited
+msgid "unbegrenzt gültig"
+msgstr ""
+
+#. Credit mit Ablaufdatum
+#: catalogue:credits.valid_until
+msgid "gültig bis {datum}"
+msgstr ""
+
+#. Leere Buchungsliste
+#: catalogue:bookings.empty
+msgid "Noch keine Buchungen vorhanden."
+msgstr ""
+
+#. Buchungsliste für nicht angemeldete Besucher
+#: catalogue:bookings.login_required
+msgid "Bitte einloggen."
+msgstr ""
+
+#. Status einer aktiven Buchung
+#: catalogue:bookings.status.booked
+msgid "Gebucht"
+msgstr ""
+
+#. Status einer stornierten Buchung
+#: catalogue:bookings.status.cancelled
+msgid "Storniert"
+msgstr ""
+
+#. Zwischenstatus während des Buchens
+#: catalogue:bookings.status.pending
+msgid "Ausstehend"
+msgstr ""
+
+#. Vom Studio als Nichterscheinen markiert
+#: catalogue:bookings.status.no_show
+msgid "Nicht erschienen"
+msgstr ""
+
+#. Keine Termine gefunden
+#: catalogue:course_list.empty
+msgid "Aktuell sind keine Termine geplant."
+msgstr ""
+
+#. Erste Option in den Filter-Auswahlfeldern
+#: catalogue:course_list.filter.all
+msgid "Alle"
+msgstr ""
+
+#. Schaltfläche im Filterformular
+#: catalogue:course_list.filter.submit
+msgid "Filtern"
+msgstr ""
+
+#. Link zum Aufheben der Filter
+#: catalogue:course_list.filter.reset
+msgid "Zurücksetzen"
+msgstr ""
+
+#. Beschriftung des Filters für course_type
+#: catalogue:course_list.filter.type
+msgid "Kursart"
+msgstr ""
+
+#. Beschriftung des Filters für course_level
+#: catalogue:course_list.filter.level
+msgid "Level"
+msgstr ""
+
+#. Beschriftung des Filters für course_lang
+#: catalogue:course_list.filter.lang
+msgid "Sprache"
+msgstr ""
+
+#. Überschrift über Meeting-Link und Hinweisen
+#: catalogue:access.title
+msgid "Zugangsdaten"
+msgstr ""
+
+#. Beschriftung des Meeting-Links
+#: catalogue:access.link
+msgid "Zum Online-Kurs"
+msgstr ""
+
+#. Überschrift über der Buchungsliste im Konto
+#: catalogue:overview.heading.courses
+msgid "Meine Kurse"
+msgstr ""
+
+#. Beschriftung über dem nächsten Termin
+#: catalogue:overview.next.label
+msgid "Dein nächster Kurs"
+msgstr ""
+
+#. Wenn kein Termin ansteht
+#: catalogue:overview.next.none
+msgid "Aktuell kein Kurs gebucht."
+msgstr ""
+
+#. Link zur Terminliste
+#: catalogue:overview.link.courses
+msgid "Kurstermine ansehen"
+msgstr ""
+
+#. Link zu den WooCommerce-Bestellungen
+#: catalogue:overview.link.orders
+msgid "Meine Bestellungen"
+msgstr ""
+
+#. Buchung ohne verfügbare Credits
+#: catalogue:error.no_credits
+msgid "Du hast kein Guthaben mehr."
+msgstr ""
+
+#. Buchung eines vergangenen Termins
+#: catalogue:error.slot_past
+msgid "Dieser Termin liegt in der Vergangenheit."
+msgstr ""
+
+#. Doppelbuchung
+#: catalogue:error.already_booked
+msgid "Du hast diesen Termin bereits gebucht."
+msgstr ""
+
+#. Storno einer unbekannten Buchung
+#: catalogue:error.booking_not_found
+msgid "Buchung nicht gefunden."
+msgstr ""
+
+#. Storno einer stornierten Buchung
+#: catalogue:error.not_active
+msgid "Diese Buchung ist bereits storniert."
+msgstr ""
+
+#. Storno nach Ablauf der Frist
+#: catalogue:error.cutoff_passed
+msgid "Die Stornofrist ist abgelaufen."
+msgstr ""
+
+#. Termin fehlt oder ist nicht veröffentlicht
+#: catalogue:error.slot_invalid
+msgid "Dieser Termin ist nicht verfügbar."
+msgstr ""
+
+#. Kapazität fehlt oder ist null
+#: catalogue:error.capacity_missing
+msgid "Für diesen Termin ist keine Kapazität hinterlegt."
+msgstr ""
+
+#. start_datetime nicht gesetzt
+#: catalogue:error.slot_time_missing
+msgid "Für diesen Termin fehlt die Startzeit."
+msgstr ""
+
+#. Gleichzeitiger Zugriff, Wiederholung nötig
+#: catalogue:error.retry
+msgid "Das hat nicht geklappt. Bitte versuche es noch einmal."
+msgstr ""
+
+#. Unerwarteter Fehler beim Buchen oder Stornieren
+#: catalogue:error.generic
+msgid "Die Aktion konnte nicht ausgeführt werden."
+msgstr ""
+

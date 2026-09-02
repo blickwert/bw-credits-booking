@@ -192,6 +192,32 @@ Diese funktionieren weiterhin und leiten auf die neuen um. Unter *BW Credits →
 
 Der frühere Parameter `slot_id` wird automatisch auf `course_id` übersetzt.
 
+## Texte anpassen
+
+Alle 54 Texte, die Kunden im Frontend sehen, liegen in einem zentralen Katalog und lassen sich unter *BW Credits → Texte* ändern — ohne Code anzufassen. Dazu zählen auch die Fehlermeldungen, die beim Buchen und Stornieren erscheinen.
+
+Ein leeres Feld nutzt den Standardtext. Platzhalter in geschweiften Klammern bleiben erhalten, etwa `{frei}` in „{frei} freie Plätze" oder `{datum}` in „gültig bis {datum}".
+
+### Drei Ebenen
+
+| Ebene | Womit |
+|---|---|
+| Einzelne Platzierung | Shortcode-Attribut, z. B. `label_book="Platz reservieren"` |
+| Ganze Seite | *BW Credits → Texte* |
+| Andere Sprache | WPML String Translation oder eine `.po`-Datei |
+
+Die Auflösung läuft von oben nach unten: Ein gesetztes Shortcode-Attribut gewinnt, sonst greift der Admin-Text, sonst der übersetzte Standard.
+
+### Übersetzung
+
+Das Plugin nutzt die Textdomain `bw-credits-booking`. Die Vorlage liegt unter `languages/bw-credits-booking.pot` und wird aus dem Katalog erzeugt:
+
+```
+php tools/make-pot.php
+```
+
+Bei aktivem WPML erscheinen alle Texte zusätzlich unter *String Translation* im Kontext **BW Credits Texte**.
+
 ## Buchungslogik
 
 - **Race Conditions**: Buchung läuft in einer DB-Transaktion mit `SELECT … FOR UPDATE` auf der Kapazitätsprüfung
