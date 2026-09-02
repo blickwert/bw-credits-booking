@@ -12,6 +12,7 @@ class BW_Admin_Pages {
     const PAGE_CREDITS  = 'bw-credits-credits';
     const PAGE_SHORTCODES = 'bw-credits-shortcodes';
     const PAGE_TEXTS      = 'bw-credits-texts';
+    const PAGE_TEMPLATES  = 'bw-credits-templates';
 
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'register_menu'], 20);
@@ -41,6 +42,7 @@ class BW_Admin_Pages {
         add_submenu_page($parent, 'Credits',   'Credits',   $cap, self::PAGE_CREDITS,  [__CLASS__, 'render_credits']);
         add_submenu_page($parent, 'Shortcodes', 'Shortcodes', $cap, self::PAGE_SHORTCODES, [__CLASS__, 'render_shortcodes']);
         add_submenu_page($parent, 'Texte', 'Texte', $cap, self::PAGE_TEXTS, [__CLASS__, 'render_texts']);
+        add_submenu_page($parent, 'Templates', 'Templates', $cap, self::PAGE_TEMPLATES, [__CLASS__, 'render_templates']);
     }
 
     /* =========================================================
@@ -626,6 +628,63 @@ class BW_Admin_Pages {
         }
 
         return $clean;
+    }
+
+    /* =========================================================
+     * Seite: Templates
+     * ========================================================= */
+
+    public static function render_templates() {
+        self::guard();
+
+        echo '<div class="wrap"><h1>Templates</h1>';
+
+        echo '<p>Jedes Template kann im aktiven Theme unter '
+           . '<code>bw-credits-booking/&lt;pfad&gt;</code> überschrieben werden — '
+           . 'z.&nbsp;B. <code>yourtheme/bw-credits-booking/course-list/item.php</code>. '
+           . 'Wortlaut gehört nicht in die Templates, der wird unter '
+           . '<a href="' . esc_url(self::page_url(self::PAGE_TEXTS)) . '">Texte</a> gepflegt.</p>';
+
+        echo '<table class="wp-list-table widefat striped"><thead><tr>'
+           . '<th>Template</th><th>Beschreibung</th><th>Status</th><th>Version</th>'
+           . '</tr></thead><tbody>';
+
+        foreach (BW_Templates::registry() as $path => $description) {
+            $plugin_file = BW_Templates::plugin_path($path);
+            $active_file = bw_locate_template($path);
+            $overridden  = ($active_file !== $plugin_file);
+
+            $plugin_version = BW_Templates::file_version($plugin_file);
+            $active_version = $overridden ? BW_Templates::file_version($active_file) : $plugin_version;
+
+            $outdated = $overridden
+                && $plugin_version !== null
+                && $active_version !== null
+                && version_compare($active_version, $plugin_version, '<');
+
+            if (!$overridden) {
+                $status = '<span style="color:#116611">Plugin-Standard</span>';
+            } elseif ($outdated) {
+                $status = '<span style="color:#b32d2e"><strong>Im Theme überschrieben — veraltet</strong></span>';
+            } else {
+                $status = '<span style="color:#2271b1">Im Theme überschrieben</span>';
+            }
+            ?>
+            <tr>
+                <td><code><?php echo esc_html($path); ?></code></td>
+                <td><?php echo esc_html($description); ?></td>
+                <td><?php echo $status; ?></td>
+                <td>
+                    <?php echo esc_html($active_version ?? '—'); ?>
+                    <?php if ($outdated) : ?>
+                        <br><small>Plugin: <?php echo esc_html($plugin_version); ?></small>
+                    <?php endif; ?>
+                </td>
+            </tr>
+            <?php
+        }
+
+        echo '</tbody></table></div>';
     }
 
     public static function render_texts() {

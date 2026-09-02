@@ -4,6 +4,28 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.13.0] – 2026-09-02
+
+Trennt die letzte der drei Ebenen: **Struktur** (Markup) ist jetzt vom Code
+getrennt, nach WooCommerce-Vorbild im Theme überschreibbar. Wortlaut (0.12.0)
+und Sprache waren bereits getrennt — die Reihenfolge war mit Absicht:
+die Templates entstehen dadurch ohne ein einziges deutsches Wort, eine
+Theme-Kopie legt also nur das Layout fest, nie die Formulierung.
+
+### Neu
+- **Template-System** (`includes/templates.php`) — `bw_locate_template()` und `bw_get_template()` suchen Child-Theme → Parent-Theme → Plugin, exakt wie bei WooCommerce.
+- **Vier Templates für die Terminliste** unter `templates/course-list/`: `list.php` (Rahmen, Tagesgruppierung), `item.php` (eine Terminzeile), `filter.php` (Filterformular), `empty.php` (Meldung ohne Treffer). Jedes mit `@version`-Header und dokumentierten `@var`-Variablen.
+- **Seite BW Credits → Templates** — zeigt je Template ob eine Theme-Kopie existiert und markiert sie als veraltet, sobald ihr `@version` hinter der Plugin-Version zurückliegt. Ohne das fällt eine vergessene alte Kopie oft erst Monate später auf, wenn sie eine neue Funktion verschluckt.
+- **Drei Hooks** für Eingriffe ohne Theme-Kopie: `bw_before_course_list` / `bw_after_course_list`, `bw_before_slot_item` / `bw_after_slot_item`, und der Filter `bw_course_list_query_args` für die zugrundeliegende `WP_Query`.
+
+### Geändert
+- `includes/course-list.php` enthält kein Markup mehr — nur noch Abfrage-Logik und `bw_get_template()`-Aufrufe.
+
+### Nicht enthalten
+Buchungsliste und Konto-Übersicht folgen als Templates in einer späteren Version, sobald sich das Muster an der Terminliste bewährt hat.
+
+---
+
 ## [0.12.0] – 2026-09-02
 
 Trennt drei Ebenen, die bisher im Code vermischt waren: **Struktur** (Markup),

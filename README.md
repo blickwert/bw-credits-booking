@@ -192,6 +192,40 @@ Diese funktionieren weiterhin und leiten auf die neuen um. Unter *BW Credits →
 
 Der frühere Parameter `slot_id` wird automatisch auf `course_id` übersetzt.
 
+## Templates anpassen
+
+Das Markup der Terminliste liegt in eigenständigen Dateien und lässt sich im Theme überschreiben — nach demselben Muster wie WooCommerce:
+
+```
+wp-content/plugins/bw-credits-booking/templates/course-list/
+  list.php    Rahmen und Tagesgruppierung
+  item.php    eine Terminzeile
+  filter.php  das Filterformular
+  empty.php   Meldung ohne Treffer
+```
+
+**Überschreiben:** Datei nach `wp-content/themes/<dein-theme>/bw-credits-booking/course-list/<name>.php` kopieren und anpassen. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
+
+Die Templates enthalten **keinen Wortlaut** — jeder Text kommt über `bw_text()` aus dem [Text-Katalog](#texte-anpassen). Eine Theme-Kopie legt also nur das Layout fest, nie die Formulierung.
+
+**Status behalten:** *BW Credits → Templates* zeigt, welche Templates im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
+
+### Für kleine Eingriffe ohne Theme-Kopie
+
+| Hook | Zweck |
+|---|---|
+| `bw_before_course_list` / `bw_after_course_list` *(Action)* | um den gesamten Block herum |
+| `bw_before_slot_item` / `bw_after_slot_item` *(Action, `$slot`)* | vor bzw. nach jeder Terminzeile |
+| `bw_course_list_query_args` *(Filter)* | die `WP_Query`-Argumente anpassen — z. B. Sortierung ändern oder Termine ausschließen |
+
+```php
+// Bereits gebuchte Termine aus der Liste ausblenden
+add_filter('bw_course_list_query_args', function ($args, $atts, $selected) {
+    // eigene Logik
+    return $args;
+}, 10, 3);
+```
+
 ## Texte anpassen
 
 Alle 54 Texte, die Kunden im Frontend sehen, liegen in einem zentralen Katalog und lassen sich unter *BW Credits → Texte* ändern — ohne Code anzufassen. Dazu zählen auch die Fehlermeldungen, die beim Buchen und Stornieren erscheinen.

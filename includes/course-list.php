@@ -4,9 +4,10 @@ if (!defined('ABSPATH')) exit;
 /**
  * [bw_credits_course_list] — Terminliste mit optionalen Filtern.
  *
- * Ersetzt das frühere Snippet: nutzt den eingestellten Inhaltstyp statt
- * eines fest verdrahteten course_slot, rechnet in der WordPress-Zeitzone
- * und bindet Verfügbarkeit und Buchen-Button gleich mit ein.
+ * Reine Logik hier — das Markup liegt seit v0.13.0 in templates/course-list/,
+ * überschreibbar im Theme unter bw-credits-booking/course-list/. Wortlaut
+ * kommt seit v0.12.0 über bw_text(), nicht aus dieser Datei oder den
+ * Templates.
  */
 
 class BW_Course_List {
@@ -39,6 +40,8 @@ class BW_Course_List {
 
         $slots = self::query_slots($atts, $selected);
 
+        do_action('bw_before_course_list', $atts);
+
         ob_start();
         echo '<div class="bw-course-slots">';
 
@@ -47,14 +50,17 @@ class BW_Course_List {
         }
 
         if (empty($slots)) {
-            $empty = $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty');
-            echo '<p class="bw-course-slots-empty">' . esc_html($empty) . '</p>';
+            self::render_empty($atts);
         } else {
             self::render_slots($slots, $atts);
         }
 
         echo '</div>';
-        return ob_get_clean();
+        $html = ob_get_clean();
+
+        do_action('bw_after_course_list', $atts);
+
+        return $html;
     }
 
     /* ---------------------------------------------------------
@@ -136,6 +142,10 @@ class BW_Course_List {
             $args['tax_query'] = $tax_query;
         }
 
+        // Erlaubt Sortierung, Ausschlüsse oder zusätzliche Filter ohne
+        // Template-Kopie — z. B. um bereits gebuchte Termine auszublenden
+        $args = apply_filters('bw_course_list_query_args', $args, $atts, $selected);
+
         return get_posts($args);
     }
 
@@ -156,114 +166,52 @@ class BW_Course_List {
         }
 
         if (empty($available)) return;
-        ?>
-        <form class="bw-course-filter" method="get">
-            <?php
-            // Bestehende Query-Parameter (z. B. Seiten-ID) erhalten
-            foreach ($_GET as $key => $value) {
-                $key = sanitize_key($key);
-                if (strpos($key, 'bw_') === 0 || is_array($value)) continue;
-                printf(
-                    '<input type="hidden" name="%s" value="%s">',
-                    esc_attr($key),
-                    esc_attr(wp_unslash($value))
-                );
-            }
-            ?>
 
-            <?php foreach ($available as $taxonomy => $data) :
-                $param = 'bw_' . str_replace('course_', '', $taxonomy);
-                $value = $selected[$taxonomy] ?? '';
-            ?>
-                <label class="bw-course-filter__field">
-                    <span><?php echo esc_html($data['label']); ?></span>
-                    <select name="<?php echo esc_attr($param); ?>">
-                        <option value=""><?php echo esc_html(bw_text('course_list.filter.all')); ?></option>
-                        <?php foreach ($data['terms'] as $term) : ?>
-                            <option value="<?php echo esc_attr($term->slug); ?>" <?php selected($value, $term->slug); ?>>
-                                <?php echo esc_html($term->name); ?>
-                            </option>
-                        <?php endforeach; ?>
-                    </select>
-                </label>
-            <?php endforeach; ?>
+        $hidden = [];
+        foreach ($_GET as $key => $value) {
+            $key = sanitize_key($key);
+            if (strpos($key, 'bw_') === 0 || is_array($value)) continue;
+            $hidden[$key] = (string) wp_unslash($value);
+        }
 
-            <button type="submit" class="bw-bwallet-btn"><?php echo esc_html(bw_text('course_list.filter.submit')); ?></button>
-            <?php if ($selected) :
-                // Nur die Filter entfernen — Seiten-Parameter wie page_id bleiben
-                $reset = remove_query_arg(['bw_type', 'bw_level', 'bw_lang']);
-            ?>
-                <a class="bw-course-filter__reset" href="<?php echo esc_url($reset); ?>"><?php echo esc_html(bw_text('course_list.filter.reset')); ?></a>
-            <?php endif; ?>
-        </form>
-        <?php
+        $reset_url = $selected
+            // Nur die Filter entfernen — Seiten-Parameter wie page_id bleiben
+            ? (string) remove_query_arg(['bw_type', 'bw_level', 'bw_lang'])
+            : '';
+
+        bw_get_template('course-list/filter.php', [
+            'available' => $available,
+            'selected'  => $selected,
+            'hidden'    => $hidden,
+            'reset_url' => $reset_url,
+        ]);
     }
 
     /* ---------------------------------------------------------
      * Ausgabe
      * --------------------------------------------------------- */
 
-    private static function render_slots(array $slots, array $atts) {
-        $group        = filter_var($atts['group_by_day'], FILTER_VALIDATE_BOOLEAN);
-        $show_action  = filter_var($atts['show_action'], FILTER_VALIDATE_BOOLEAN);
-        $show_avail   = filter_var($atts['availability'], FILTER_VALIDATE_BOOLEAN);
-        $current_day  = '';
+    private static function render_empty(array $atts) {
+        $message = $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty');
 
-        echo '<ul class="bw-course-slot-list">';
-
-        foreach ($slots as $slot) {
-            $ts = self::slot_timestamp($slot->ID);
-
-            if ($group && $ts) {
-                $day = wp_date('Y-m-d', $ts);
-                if ($day !== $current_day) {
-                    $current_day = $day;
-                    printf(
-                        '<li class="bw-course-slot-day">%s</li>',
-                        esc_html(wp_date('l, j. F', $ts))
-                    );
-                }
-            }
-
-            self::render_slot($slot, $ts, $show_action, $show_avail);
-        }
-
-        echo '</ul>';
+        bw_get_template('course-list/empty.php', [
+            'message' => $message,
+        ]);
     }
 
-    private static function render_slot(WP_Post $slot, ?int $ts, bool $show_action, bool $show_avail) {
-        $terms = [];
-        foreach (array_keys(self::taxonomies()) as $taxonomy) {
-            $name = bw_cs_first_term($slot->ID, $taxonomy);
-            if ($name !== '') $terms[] = $name;
+    private static function render_slots(array $slots, array $atts) {
+        $items = [];
+        foreach ($slots as $slot) {
+            $items[] = ['slot' => $slot, 'ts' => self::slot_timestamp($slot->ID)];
         }
-        ?>
-        <li class="bw-course-slot-item">
-            <div class="bw-course-slot-main">
-                <span class="bw-course-slot-time"><?php echo $ts ? esc_html(wp_date('H:i', $ts)) : '—'; ?></span>
 
-                <a class="bw-course-slot-title" href="<?php echo esc_url(get_permalink($slot)); ?>">
-                    <?php echo esc_html($slot->post_title ?: '#' . $slot->ID); ?>
-                </a>
-
-                <?php if ($terms) : ?>
-                    <span class="bw-course-slot-meta"><?php echo esc_html(implode(' · ', $terms)); ?></span>
-                <?php endif; ?>
-            </div>
-
-            <div class="bw-course-slot-side">
-                <?php
-                // Direkte Aufrufe statt do_shortcode — spart das Parsen je Zeile
-                if ($show_avail) {
-                    echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
-                }
-                if ($show_action) {
-                    echo BW_Credits_Bookings_MVP::sc_slot_action(['slot_id' => $slot->ID]);
-                }
-                ?>
-            </div>
-        </li>
-        <?php
+        bw_get_template('course-list/list.php', [
+            'items'        => $items,
+            'taxonomies'   => self::taxonomies(),
+            'group_by_day' => filter_var($atts['group_by_day'], FILTER_VALIDATE_BOOLEAN),
+            'show_action'  => filter_var($atts['show_action'], FILTER_VALIDATE_BOOLEAN),
+            'show_avail'   => filter_var($atts['availability'], FILTER_VALIDATE_BOOLEAN),
+        ]);
     }
 
     private static function slot_timestamp(int $slot_id): ?int {
