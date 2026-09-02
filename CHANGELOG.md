@@ -4,6 +4,16 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.16.1] – 2026-09-02
+
+Zwei Fehler aus dem Produktions-Log beim Stornieren einer Buchung.
+
+### Behoben
+- **`Duplicate entry '...-0' for key 'uniq_active_user_slot'` beim Stornieren.** Die Spalte `is_active` wurde seit v0.8.0 (DB-Version 3) im Code als nullable definiert, damit stornierte Buchungen (`is_active=NULL`) nie mit dem Unique-Index kollidieren. `dbDelta()` stellt bestehende Spalten aber nicht zuverlässig von `NOT NULL` auf `NULL` um — auf Sites, die vor v0.8.0 installiert und seither nur aktualisiert wurden, blieb die Spalte `NOT NULL`, wodurch ein geschriebenes `NULL` von MySQL im nicht-strict Modus still zu `0` konvertiert wurde und die zweite Stornierung desselben Termins mit einer vorherigen kollidierte. Eine neue Migration (DB-Version 4) stellt die Spalte jetzt per explizitem `ALTER TABLE ... MODIFY is_active TINYINT(1) NULL DEFAULT 1` um (statt über `dbDelta()`) und räumt betroffene Zeilen erneut auf.
+- **Fataler Fehler `Call to undefined method WP_Error::get_message()`** beim Buchen/Stornieren über die REST-API oder die Demo-Shortcodes. Der korrekte Methodenname ist `get_error_message()` — vier Stellen betroffen, die Fehlerantwort kommt jetzt wie vorgesehen als saubere `400`-Antwort statt eines Serverabsturzes zurück.
+
+---
+
 ## [0.16.0] – 2026-09-02
 
 Drei Punkte aus dem Praxistest des Buchungs-Workflows.
