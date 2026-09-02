@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.15.0
+ * Version: 0.16.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.15.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.16.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -58,6 +58,12 @@ class BW_Credits_Bookings_MVP {
         // Rückerstattung/Storno der Bestellung entwertet noch nicht genutzte Credits
         add_action('woocommerce_order_status_refunded',  [__CLASS__, 'handle_order_reversed'], 10, 1);
         add_action('woocommerce_order_status_cancelled', [__CLASS__, 'handle_order_reversed'], 10, 1);
+
+        // Guthaben-Hinweis in der Woo-eigenen "Bestellung abgeschlossen"-Mail
+        add_action('woocommerce_email_order_details', [__CLASS__, 'inject_credits_into_order_email'], 20, 4);
+
+        // My Account statt wp-login.php als Login-Ziel, mit Rücksprung zum Termin
+        add_filter('woocommerce_login_redirect', [__CLASS__, 'filter_login_redirect'], 10, 2);
 
         // Buchungen im WooCommerce-Konto-Dashboard
         add_action('woocommerce_account_dashboard', [__CLASS__, 'render_account_dashboard'], 20);
@@ -254,6 +260,68 @@ class BW_Credits_Bookings_MVP {
 
         $order->update_meta_data('_bw_credits_processed', 'yes');
         $order->save();
+    }
+
+    /** Summe der Credits, die die Positionen dieser Bestellung auflösen. */
+    private static function sum_credit_amount(WC_Order $order): int {
+        $total = 0;
+
+        foreach ($order->get_items() as $item) {
+            $product_id = (int) $item->get_product_id();
+            if ($product_id <= 0) continue;
+
+            $amount = (int) get_post_meta($product_id, self::PM_CREDIT_AMOUNT, true);
+            if ($amount > 0) $total += $amount;
+        }
+
+        return $total;
+    }
+
+    /**
+     * Guthaben-Hinweis in die Woo-eigene "Bestellung abgeschlossen"-Mail
+     * einfügen — kein Eingriff in Woo-Mail-Templates, der Hook ist genau
+     * dafür vorgesehen. Wirkt nur bei der Kunden-Mail, nicht bei der
+     * Admin-Kopie, und nur wenn die Bestellung Credits enthielt. Die Anzahl
+     * wird aus den Bestellpositionen neu berechnet statt gespeichert zu
+     * werden — damit stimmt sie auch wenn Woo die Mail später erneut
+     * versendet.
+     */
+    public static function inject_credits_into_order_email($order, $sent_to_admin, $plain_text, $email) {
+        if ($sent_to_admin || !$order instanceof WC_Order) return;
+        if (!$email || $email->id !== 'customer_completed_order') return;
+
+        $user_id = (int) $order->get_user_id();
+        if ($user_id <= 0) return;
+
+        $added = self::sum_credit_amount($order);
+        if ($added <= 0) return;
+
+        $vars = [
+            'credits_hinzugefuegt' => $added,
+            'credits_verbleibend'  => self::get_available_credits($user_id),
+            'konto_link'           => self::my_account_url(),
+        ];
+
+        if ($plain_text) {
+            echo "\n\n" . bw_text('order_email.heading') . "\n"
+               . bw_text('order_email.body', $vars) . "\n\n";
+            return;
+        }
+
+        $body = nl2br(esc_html(bw_text('order_email.body', $vars)));
+
+        // Konto-Link nach dem Escapen wieder klickbar machen
+        $link = $vars['konto_link'];
+        if ($link !== '' && filter_var($link, FILTER_VALIDATE_URL)) {
+            $body = str_replace(
+                esc_html($link),
+                '<a href="' . esc_url($link) . '">' . esc_html($link) . '</a>',
+                $body
+            );
+        }
+
+        echo '<h2>' . esc_html(bw_text('order_email.heading')) . '</h2>';
+        echo '<p>' . $body . '</p>';
     }
 
     /**
@@ -1169,6 +1237,46 @@ class BW_Credits_Bookings_MVP {
         return ' <a href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
     }
 
+    /** WooCommerce-My-Account-Seite — dort verwalten Kunden Buchungen und Guthaben. */
+    public static function my_account_url(): string {
+        if (!function_exists('wc_get_page_permalink')) return '';
+
+        $url = wc_get_page_permalink('myaccount');
+        return is_string($url) ? $url : '';
+    }
+
+    /**
+     * Login-Ziel für nicht angemeldete Besucher: My Account statt der
+     * nackten wp-login.php, mit Rücksprung zum aktuellen Termin nach dem
+     * Login. Ohne WooCommerce bleibt wp_login_url() als Rückfall.
+     */
+    private static function login_url(): string {
+        $current = get_permalink() ?: '';
+        $account = self::my_account_url();
+
+        if ($account === '') return wp_login_url($current);
+        if ($current === '') return $account;
+
+        return add_query_arg('bw_redirect_to', rawurlencode($current), $account);
+    }
+
+    /**
+     * Bringt Kunden nach dem Login zur Seite zurück, die sie vor dem Login
+     * besucht haben. WooCommerce befolgt redirect_to beim Login über die
+     * eigene My-Account-Seite nicht von selbst — dafür dieser Filter.
+     */
+    public static function filter_login_redirect($redirect, $user) {
+        $target = isset($_REQUEST['bw_redirect_to']) ? esc_url_raw(wp_unslash($_REQUEST['bw_redirect_to'])) : '';
+        if ($target === '') return $redirect;
+
+        // Nur die eigene Domain zulassen, kein offener Redirect
+        if (wp_parse_url($target, PHP_URL_HOST) !== wp_parse_url(home_url(), PHP_URL_HOST)) {
+            return $redirect;
+        }
+
+        return $target;
+    }
+
     /**
      * Slot-ID aus dem Shortcode oder — wenn leer — aus dem aktuellen Beitrag.
      * So funktionieren die Shortcodes auf der Termin-Einzelseite ohne dass
@@ -1254,7 +1362,7 @@ class BW_Credits_Bookings_MVP {
         if (!is_user_logged_in()) {
             if ($past) return self::note(bw_text('booking.note.past'), 'bw-is-past');
 
-            return '<p class="bw-slot-note"><a href="' . esc_url(wp_login_url(get_permalink() ?: '')) . '">'
+            return '<p class="bw-slot-note"><a href="' . esc_url(self::login_url()) . '">'
                  . esc_html(bw_text('booking.note.login')) . '</a></p>';
         }
 

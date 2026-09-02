@@ -73,6 +73,8 @@ class BW_Emails {
                            . "deine Buchung ist bestätigt:\n\n"
                            . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
                            . "Verbleibende Credits: {credits_verbleibend}\n\n"
+                           . "Details zum Kurs: {kurs_link}\n"
+                           . "Deine Buchungen verwaltest du hier: {konto_link}\n\n"
                            . "Bis bald!",
             ],
             'cancellation' => [
@@ -80,13 +82,16 @@ class BW_Emails {
                 'body'    => "Hallo {kundenname},\n\n"
                            . "deine Buchung wurde storniert:\n\n"
                            . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
-                           . "Verbleibende Credits: {credits_verbleibend}",
+                           . "Verbleibende Credits: {credits_verbleibend}\n\n"
+                           . "Deine Buchungen verwaltest du hier: {konto_link}",
             ],
             'reminder' => [
                 'subject' => 'Erinnerung: {kurs_titel} am {datum}',
                 'body'    => "Hallo {kundenname},\n\n"
                            . "dein Kurs steht an:\n\n"
                            . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
+                           . "Details zum Kurs: {kurs_link}\n"
+                           . "Deine Buchungen verwaltest du hier: {konto_link}\n\n"
                            . "Wir freuen uns auf dich!",
             ],
             'access' => [
@@ -122,6 +127,8 @@ class BW_Emails {
             '{credits_verbleibend}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
             '{meeting_link}'        => $link,
             '{zugangsdaten}'        => (string) get_post_meta($slot_id, BW_Metaboxes::META_ACCESS_INFO, true),
+            '{kurs_link}'           => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
+            '{konto_link}'          => BW_Credits_Bookings_MVP::my_account_url(),
         ];
     }
 
@@ -160,11 +167,14 @@ class BW_Emails {
         $escaped = array_map('esc_html', $placeholders);
         $body    = nl2br(strtr(esc_html($body_tpl), $escaped));
 
-        $link = $placeholders['{meeting_link}'];
-        if ($link !== '' && filter_var($link, FILTER_VALIDATE_URL)) {
+        // Jeder URL-förmige Platzhalterwert wird klickbar — betrifft
+        // meeting_link, kurs_link und konto_link gleichermaßen
+        foreach ($placeholders as $value) {
+            if ($value === '' || !filter_var($value, FILTER_VALIDATE_URL)) continue;
+
             $body = str_replace(
-                esc_html($link),
-                '<a href="' . esc_url($link) . '">' . esc_html($link) . '</a>',
+                esc_html($value),
+                '<a href="' . esc_url($value) . '">' . esc_html($value) . '</a>',
                 $body
             );
         }

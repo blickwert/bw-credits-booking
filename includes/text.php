@@ -32,6 +32,7 @@ class BW_Text {
         'access'       => 'Zugangsdaten',
         'overview'     => 'Konto-Übersicht',
         'error'        => 'Fehlermeldungen',
+        'order_email'  => 'E-Mail nach Bestellung',
     ];
 
     /**
@@ -226,6 +227,15 @@ class BW_Text {
             ],
             'error.generic' => [
                 'Die Aktion konnte nicht ausgeführt werden.', 'Unerwarteter Fehler beim Buchen oder Stornieren', 'error',
+            ],
+
+            /* --- E-Mail nach Bestellung --- */
+            'order_email.heading' => [
+                'Dein Guthaben wurde aufgeladen', 'Überschrift in der Woo-Bestell-E-Mail, wenn Credits gutgeschrieben wurden', 'order_email',
+            ],
+            'order_email.body' => [
+                "{credits_hinzugefuegt} Credits wurden deinem Konto gutgeschrieben. Aktuelles Guthaben: {credits_verbleibend}.\n\nHier verwaltest du dein Guthaben und deine Buchungen: {konto_link}",
+                'Text in der Woo-Bestell-E-Mail direkt nach der Bestellübersicht', 'order_email',
             ],
         ];
     }

@@ -4,6 +4,20 @@ Alle relevanten Änderungen werden in dieser Datei dokumentiert.
 
 ---
 
+## [0.16.0] – 2026-09-02
+
+Drei Punkte aus dem Praxistest des Buchungs-Workflows.
+
+### Neu
+- **Login-Link führt zu My Account statt `wp-login.php`.** „Bitte einloggen um zu buchen" auf der Terminliste verlinkt jetzt auf die WooCommerce-My-Account-Seite, mit Rücksprung zum ursprünglichen Termin nach dem Login (über einen neuen `woocommerce_login_redirect`-Filter, der das Ziel gegen die eigene Domain prüft). Ohne WooCommerce bleibt `wp_login_url()` als Rückfall.
+- **`{kurs_link}` und `{konto_link}`** in Buchungsbestätigung, Stornierung und Erinnerung — Link zum Termin bzw. zur My-Account-Seite, wo Kunden ihre Buchungen selbst verwalten. Beide Mails existierten bereits seit v0.8.0; ihnen fehlte nur der Weg zurück ins Konto.
+- **Guthaben-Hinweis in der WooCommerce-Bestell-Mail.** Nach einem Credit-Kauf zeigt die Woo-eigene „Bestellung abgeschlossen"-Mail jetzt einen Abschnitt mit der Anzahl neu gutgeschriebener Credits, dem aktuellen Gesamtguthaben und einem Link zu My Account — über `woocommerce_email_order_details`, ohne Eingriff in Woo-Mail-Templates. Kein zusätzlicher Mail-Typ, funktioniert für HTML- und Klartext-Mails gleichermaßen.
+
+### Hinweis
+`[bw_credits_user_balance]` zeigt weiterhin absichtlich nichts an, wenn kein Credit-Produkt im Warenkorb liegt (seit v0.15.0) — kein Bug.
+
+---
+
 ## [0.15.0] – 2026-09-02
 
 ### Neu
