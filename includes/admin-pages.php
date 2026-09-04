@@ -37,12 +37,12 @@ class BW_Admin_Pages {
         $parent = BW_Settings::MENU_SLUG;
         $cap    = self::cap();
 
-        add_submenu_page($parent, 'Termine',   'Termine',   $cap, self::PAGE_SLOTS,    [__CLASS__, 'render_slots']);
-        add_submenu_page($parent, 'Buchungen', 'Buchungen', $cap, self::PAGE_BOOKINGS, [__CLASS__, 'render_bookings']);
-        add_submenu_page($parent, 'Credits',   'Credits',   $cap, self::PAGE_CREDITS,  [__CLASS__, 'render_credits']);
-        add_submenu_page($parent, 'Shortcodes', 'Shortcodes', $cap, self::PAGE_SHORTCODES, [__CLASS__, 'render_shortcodes']);
-        add_submenu_page($parent, 'Texte', 'Texte', $cap, self::PAGE_TEXTS, [__CLASS__, 'render_texts']);
-        add_submenu_page($parent, 'Templates', 'Templates', $cap, self::PAGE_TEMPLATES, [__CLASS__, 'render_templates']);
+        add_submenu_page($parent, __('Sessions', 'bw-credits-booking'), __('Sessions', 'bw-credits-booking'), $cap, self::PAGE_SLOTS, [__CLASS__, 'render_slots']);
+        add_submenu_page($parent, __('Bookings', 'bw-credits-booking'), __('Bookings', 'bw-credits-booking'), $cap, self::PAGE_BOOKINGS, [__CLASS__, 'render_bookings']);
+        add_submenu_page($parent, __('Credits', 'bw-credits-booking'), __('Credits', 'bw-credits-booking'), $cap, self::PAGE_CREDITS, [__CLASS__, 'render_credits']);
+        add_submenu_page($parent, __('Shortcodes', 'bw-credits-booking'), __('Shortcodes', 'bw-credits-booking'), $cap, self::PAGE_SHORTCODES, [__CLASS__, 'render_shortcodes']);
+        add_submenu_page($parent, __('Texts', 'bw-credits-booking'), __('Texts', 'bw-credits-booking'), $cap, self::PAGE_TEXTS, [__CLASS__, 'render_texts']);
+        add_submenu_page($parent, __('Templates', 'bw-credits-booking'), __('Templates', 'bw-credits-booking'), $cap, self::PAGE_TEMPLATES, [__CLASS__, 'render_templates']);
     }
 
     /* =========================================================
@@ -51,7 +51,7 @@ class BW_Admin_Pages {
 
     private static function guard() {
         if (!current_user_can(self::cap())) {
-            wp_die('Keine Berechtigung.');
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
         }
     }
 
@@ -129,10 +129,14 @@ class BW_Admin_Pages {
             'meta_query'  => $meta_query,
         ]);
 
-        echo '<div class="wrap"><h1>Termine</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Sessions', 'bw-credits-booking') . '</h1>';
         self::notice();
 
-        $tabs = ['upcoming' => 'Kommende', 'past' => 'Vergangene', 'all' => 'Alle'];
+        $tabs = [
+            'upcoming' => __('Upcoming', 'bw-credits-booking'),
+            'past'     => __('Past', 'bw-credits-booking'),
+            'all'      => __('All', 'bw-credits-booking'),
+        ];
         echo '<ul class="subsubsub">';
         $i = 0;
         foreach ($tabs as $key => $label) {
@@ -148,13 +152,20 @@ class BW_Admin_Pages {
         echo '</ul><div style="clear:both"></div>';
 
         if (empty($slots)) {
-            echo '<p>Keine Termine gefunden.</p></div>';
+            echo '<p>' . esc_html__('No sessions found.', 'bw-credits-booking') . '</p></div>';
             return;
         }
 
-        echo '<table class="wp-list-table widefat fixed striped"><thead><tr>
-                <th>Termin</th><th>Titel</th><th>Belegung</th><th>Auslastung</th><th>Aktionen</th>
-              </tr></thead><tbody>';
+        printf(
+            '<table class="wp-list-table widefat fixed striped"><thead><tr>
+                <th>%s</th><th>%s</th><th>%s</th><th>%s</th><th>%s</th>
+              </tr></thead><tbody>',
+            esc_html__('Session', 'bw-credits-booking'),
+            esc_html__('Title', 'bw-credits-booking'),
+            esc_html__('Occupancy', 'bw-credits-booking'),
+            esc_html__('Utilization', 'bw-credits-booking'),
+            esc_html__('Actions', 'bw-credits-booking')
+        );
 
         foreach ($slots as $slot) {
             $booked   = (int) get_post_meta($slot->ID, BW_Credits_Bookings_MVP::META_BOOKED_CNT, true);
@@ -174,7 +185,7 @@ class BW_Admin_Pages {
                 <td>
                     <?php echo esc_html($booked . ' / ' . $capacity); ?>
                     <?php if ($over) : ?>
-                        <strong style="color:#b32d2e">(überbucht)</strong>
+                        <strong style="color:#b32d2e">(<?php echo esc_html__('overbooked', 'bw-credits-booking'); ?>)</strong>
                     <?php endif; ?>
                 </td>
                 <td>
@@ -184,8 +195,8 @@ class BW_Admin_Pages {
                     <small><?php echo esc_html($pct); ?>%</small>
                 </td>
                 <td>
-                    <a class="button button-small" href="<?php echo esc_url(self::page_url(self::PAGE_BOOKINGS, ['slot_id' => $slot->ID])); ?>">Teilnehmer</a>
-                    <a class="button button-small" href="<?php echo esc_url(get_edit_post_link($slot->ID)); ?>">Bearbeiten</a>
+                    <a class="button button-small" href="<?php echo esc_url(self::page_url(self::PAGE_BOOKINGS, ['slot_id' => $slot->ID])); ?>"><?php esc_html_e('Participants', 'bw-credits-booking'); ?></a>
+                    <a class="button button-small" href="<?php echo esc_url(get_edit_post_link($slot->ID)); ?>"><?php esc_html_e('Edit', 'bw-credits-booking'); ?></a>
                 </td>
             </tr>
             <?php
@@ -216,7 +227,7 @@ class BW_Admin_Pages {
 
         $labels = BW_Credits_Bookings_MVP::status_labels();
 
-        echo '<div class="wrap"><h1>Buchungen</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Bookings', 'bw-credits-booking') . '</h1>';
         self::notice();
 
         /* --- Filter --- */
@@ -225,7 +236,7 @@ class BW_Admin_Pages {
             <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_BOOKINGS); ?>">
 
             <select name="slot_id">
-                <option value="">Alle Termine</option>
+                <option value=""><?php esc_html_e('All sessions', 'bw-credits-booking'); ?></option>
                 <?php foreach (self::slot_options() as $id => $title) : ?>
                     <option value="<?php echo esc_attr($id); ?>" <?php selected($slot_id, $id); ?>>
                         <?php echo esc_html($title); ?>
@@ -234,7 +245,7 @@ class BW_Admin_Pages {
             </select>
 
             <select name="status">
-                <option value="">Alle Status</option>
+                <option value=""><?php esc_html_e('All statuses', 'bw-credits-booking'); ?></option>
                 <?php foreach ($labels as $key => $label) : ?>
                     <option value="<?php echo esc_attr($key); ?>" <?php selected($status, $key); ?>>
                         <?php echo esc_html($label); ?>
@@ -242,23 +253,31 @@ class BW_Admin_Pages {
                 <?php endforeach; ?>
             </select>
 
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="Name oder E-Mail">
-            <?php submit_button('Filtern', 'secondary', '', false); ?>
-            <a class="button" href="<?php echo esc_url(self::page_url(self::PAGE_BOOKINGS)); ?>">Zurücksetzen</a>
+            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Name or email', 'bw-credits-booking'); ?>">
+            <?php submit_button(__('Filter', 'bw-credits-booking'), 'secondary', '', false); ?>
+            <a class="button" href="<?php echo esc_url(self::page_url(self::PAGE_BOOKINGS)); ?>"><?php esc_html_e('Reset', 'bw-credits-booking'); ?></a>
         </form>
         <?php
 
         self::render_add_booking_form($slot_id);
 
         if (empty($result['rows'])) {
-            echo '<p>Keine Buchungen gefunden.</p></div>';
+            echo '<p>' . esc_html__('No bookings found.', 'bw-credits-booking') . '</p></div>';
             return;
         }
 
-        echo '<table class="wp-list-table widefat fixed striped"><thead><tr>
-                <th>#</th><th>Kunde</th><th>Termin</th><th>Gebucht am</th>
-                <th>Status</th><th>Credit</th><th>Aktion</th>
-              </tr></thead><tbody>';
+        printf(
+            '<table class="wp-list-table widefat fixed striped"><thead><tr>
+                <th>#</th><th>%s</th><th>%s</th><th>%s</th>
+                <th>%s</th><th>%s</th><th>%s</th>
+              </tr></thead><tbody>',
+            esc_html__('Customer', 'bw-credits-booking'),
+            esc_html__('Session', 'bw-credits-booking'),
+            esc_html__('Booked on', 'bw-credits-booking'),
+            esc_html__('Status', 'bw-credits-booking'),
+            esc_html__('Credit', 'bw-credits-booking'),
+            esc_html__('Action', 'bw-credits-booking')
+        );
 
         foreach ($result['rows'] as $b) {
             $active = ((int) $b['is_active'] === 1);
@@ -280,7 +299,7 @@ class BW_Admin_Pages {
                 </td>
                 <td><?php echo esc_html(mysql2date('d.m.Y H:i', $b['created_at'])); ?></td>
                 <td><?php echo esc_html($labels[$b['status']] ?? $b['status']); ?></td>
-                <td><?php echo $b['credit_id'] ? '#' . (int) $b['credit_id'] : '<em>Freiplatz</em>'; ?></td>
+                <td><?php echo $b['credit_id'] ? '#' . (int) $b['credit_id'] : '<em>' . esc_html__('Free spot', 'bw-credits-booking') . '</em>'; ?></td>
                 <td>
                     <?php if ($active) : ?>
                         <a class="button button-small"
@@ -288,7 +307,7 @@ class BW_Admin_Pages {
                                admin_url('admin-post.php?action=bw_cancel_booking&booking_id=' . (int) $b['id']),
                                'bw_cancel_booking_' . (int) $b['id']
                            )); ?>"
-                           onclick="return confirm('Buchung stornieren?');">Stornieren</a>
+                           onclick="return confirm('<?php echo esc_js(__('Cancel booking?', 'bw-credits-booking')); ?>');"><?php esc_html_e('Cancel', 'bw-credits-booking'); ?></a>
                     <?php else : ?>
                         —
                     <?php endif; ?>
@@ -314,29 +333,32 @@ class BW_Admin_Pages {
             echo '</div></div>';
         }
 
-        printf('<p><em>%d Buchungen gesamt.</em></p>', (int) $result['total']);
+        printf('<p><em>%s</em></p>', esc_html(sprintf(
+            /* translators: %d: total number of bookings */
+            __('%d bookings total.', 'bw-credits-booking'),
+            (int) $result['total']
+        )));
         echo '</div>';
     }
 
     private static function render_add_booking_form(int $preselect_slot) {
         ?>
         <div class="card" style="max-width:none;margin-bottom:1.5em">
-            <h2 style="margin-top:0">Buchung hinzufügen</h2>
+            <h2 style="margin-top:0"><?php esc_html_e('Add booking', 'bw-credits-booking'); ?></h2>
             <p class="description">
-                Trägt einen bestehenden Benutzer in einen Termin ein — auch wenn der Termin
-                bereits begonnen hat. Als Freiplatz wird kein Credit abgezogen.
+                <?php esc_html_e('Enrolls an existing user into a session — even if the session has already started. As a free spot, no credit is deducted.', 'bw-credits-booking'); ?>
             </p>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="bw_add_booking">
                 <?php wp_nonce_field('bw_add_booking'); ?>
 
                 <p>
-                    <label>Benutzer<br>
+                    <label><?php esc_html_e('User', 'bw-credits-booking'); ?><br>
                         <?php
                         wp_dropdown_users([
                             'name'              => 'user_id',
                             'show'              => 'display_name_with_login',
-                            'show_option_none'  => '— Benutzer wählen —',
+                            'show_option_none'  => __('— Select user —', 'bw-credits-booking'),
                             'option_none_value' => 0,
                             'number'            => 500,
                         ]);
@@ -345,9 +367,9 @@ class BW_Admin_Pages {
                 </p>
 
                 <p>
-                    <label>Termin<br>
+                    <label><?php esc_html_e('Session', 'bw-credits-booking'); ?><br>
                         <select name="slot_id">
-                            <option value="0">— Termin wählen —</option>
+                            <option value="0"><?php esc_html_e('— Select session —', 'bw-credits-booking'); ?></option>
                             <?php foreach (self::slot_options() as $id => $title) : ?>
                                 <option value="<?php echo esc_attr($id); ?>" <?php selected($preselect_slot, $id); ?>>
                                     <?php echo esc_html($title); ?>
@@ -360,11 +382,11 @@ class BW_Admin_Pages {
                 <p>
                     <label>
                         <input type="checkbox" name="free_spot" value="1">
-                        Freiplatz — ohne Credit-Abzug
+                        <?php esc_html_e('Free spot — no credit deducted', 'bw-credits-booking'); ?>
                     </label>
                 </p>
 
-                <?php submit_button('Buchung anlegen', 'primary', '', false); ?>
+                <?php submit_button(__('Create booking', 'bw-credits-booking'), 'primary', '', false); ?>
             </form>
         </div>
         <?php
@@ -379,7 +401,7 @@ class BW_Admin_Pages {
 
         $user_id = isset($_GET['user_id']) ? (int) $_GET['user_id'] : 0;
 
-        echo '<div class="wrap"><h1>Credits</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Credits', 'bw-credits-booking') . '</h1>';
         self::notice();
 
         if ($user_id > 0 && get_userdata($user_id)) {
@@ -396,13 +418,13 @@ class BW_Admin_Pages {
         ?>
         <form method="get" style="margin:1em 0">
             <input type="hidden" name="page" value="<?php echo esc_attr(self::PAGE_CREDITS); ?>">
-            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="Name, E-Mail oder Login">
-            <?php submit_button('Benutzer suchen', 'secondary', '', false); ?>
+            <input type="search" name="s" value="<?php echo esc_attr($search); ?>" placeholder="<?php echo esc_attr__('Name, email, or login', 'bw-credits-booking'); ?>">
+            <?php submit_button(__('Search users', 'bw-credits-booking'), 'secondary', '', false); ?>
         </form>
         <?php
 
         if ($search === '') {
-            echo '<p>Benutzer suchen um dessen Credits zu sehen und zu verwalten.</p>';
+            echo '<p>' . esc_html__('Search for a user to view and manage their credits.', 'bw-credits-booking') . '</p>';
             return;
         }
 
@@ -413,22 +435,28 @@ class BW_Admin_Pages {
         ]);
 
         if (empty($users)) {
-            echo '<p>Keine Benutzer gefunden.</p>';
+            echo '<p>' . esc_html__('No users found.', 'bw-credits-booking') . '</p>';
             return;
         }
 
-        echo '<table class="wp-list-table widefat striped"><thead><tr>
-                <th>Name</th><th>E-Mail</th><th>Verfügbar</th><th></th>
-              </tr></thead><tbody>';
+        printf(
+            '<table class="wp-list-table widefat striped"><thead><tr>
+                <th>%s</th><th>%s</th><th>%s</th><th></th>
+              </tr></thead><tbody>',
+            esc_html__('Name', 'bw-credits-booking'),
+            esc_html__('Email', 'bw-credits-booking'),
+            esc_html__('Available', 'bw-credits-booking')
+        );
 
         foreach ($users as $u) {
             $summary = BW_Credits_Bookings_MVP::get_credit_summary($u->ID);
             printf(
-                '<tr><td>%s</td><td>%s</td><td><strong>%d</strong></td><td><a class="button button-small" href="%s">Verwalten</a></td></tr>',
+                '<tr><td>%s</td><td>%s</td><td><strong>%d</strong></td><td><a class="button button-small" href="%s">%s</a></td></tr>',
                 esc_html($u->display_name),
                 esc_html($u->user_email),
                 $summary['available'],
-                esc_url(self::page_url(self::PAGE_CREDITS, ['user_id' => $u->ID]))
+                esc_url(self::page_url(self::PAGE_CREDITS, ['user_id' => $u->ID])),
+                esc_html__('Manage', 'bw-credits-booking')
             );
         }
 
@@ -441,58 +469,68 @@ class BW_Admin_Pages {
         $credits = BW_Credits_Bookings_MVP::get_user_credits($user_id);
 
         $source_labels = [
-            'purchase'   => 'Kauf',
-            'membership' => 'Mitgliedschaft',
-            'manual'     => 'Manuell',
+            'purchase'   => __('Purchase', 'bw-credits-booking'),
+            'membership' => __('Membership', 'bw-credits-booking'),
+            'manual'     => __('Manual credit', 'bw-credits-booking'),
         ];
         $status_labels = [
-            'available' => 'Verfügbar',
-            'used'      => 'Verbraucht',
-            'expired'   => 'Abgelaufen',
+            'available' => __('Available', 'bw-credits-booking'),
+            'used'      => __('Used', 'bw-credits-booking'),
+            'expired'   => __('Expired', 'bw-credits-booking'),
         ];
         ?>
-        <p><a href="<?php echo esc_url(self::page_url(self::PAGE_CREDITS)); ?>">&larr; Zurück zur Suche</a></p>
+        <p><a href="<?php echo esc_url(self::page_url(self::PAGE_CREDITS)); ?>">&larr; <?php esc_html_e('Back to search', 'bw-credits-booking'); ?></a></p>
 
         <h2><?php echo esc_html($user->display_name); ?> <small>(<?php echo esc_html($user->user_email); ?>)</small></h2>
 
         <p>
-            <strong><?php echo (int) $summary['available']; ?></strong> verfügbar ·
-            <?php echo (int) $summary['used']; ?> verbraucht ·
-            <?php echo (int) $summary['expired']; ?> abgelaufen ·
-            <?php echo (int) $summary['total']; ?> gesamt
+            <strong><?php echo (int) $summary['available']; ?></strong> <?php esc_html_e('available', 'bw-credits-booking'); ?> ·
+            <?php echo (int) $summary['used']; ?> <?php esc_html_e('used', 'bw-credits-booking'); ?> ·
+            <?php echo (int) $summary['expired']; ?> <?php esc_html_e('expired', 'bw-credits-booking'); ?> ·
+            <?php echo (int) $summary['total']; ?> <?php esc_html_e('total', 'bw-credits-booking'); ?>
         </p>
 
         <div class="card" style="max-width:none;margin:1.5em 0">
-            <h3 style="margin-top:0">Credits gutschreiben</h3>
+            <h3 style="margin-top:0"><?php esc_html_e('Grant credits', 'bw-credits-booking'); ?></h3>
             <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
                 <input type="hidden" name="action" value="bw_grant_credits">
                 <input type="hidden" name="user_id" value="<?php echo (int) $user_id; ?>">
                 <?php wp_nonce_field('bw_grant_credits_' . $user_id); ?>
 
                 <p>
-                    <label>Anzahl
+                    <label><?php esc_html_e('Amount', 'bw-credits-booking'); ?>
                         <input type="number" name="amount" min="1" max="500" value="1" class="small-text" required>
                     </label>
                     &nbsp;
-                    <label>Gültig bis
+                    <label><?php esc_html_e('Valid until', 'bw-credits-booking'); ?>
                         <input type="date" name="expires_at">
-                        <span class="description">leer = unbegrenzt</span>
+                        <span class="description"><?php esc_html_e('empty = unlimited', 'bw-credits-booking'); ?></span>
                     </label>
                 </p>
 
-                <?php submit_button('Gutschreiben', 'primary', '', false); ?>
+                <?php submit_button(__('Grant', 'bw-credits-booking'), 'primary', '', false); ?>
             </form>
         </div>
 
         <?php if (empty($credits)) : ?>
-            <p>Keine Credits vorhanden.</p>
+            <p><?php esc_html_e('No credits yet.', 'bw-credits-booking'); ?></p>
         <?php else : ?>
-            <table class="wp-list-table widefat fixed striped">
+            <?php
+            printf(
+                '<table class="wp-list-table widefat fixed striped">
                 <thead><tr>
-                    <th>#</th><th>Status</th><th>Herkunft</th><th>Erstellt</th>
-                    <th>Gültig bis</th><th>Buchung</th><th>Aktion</th>
+                    <th>#</th><th>%s</th><th>%s</th><th>%s</th>
+                    <th>%s</th><th>%s</th><th>%s</th>
                 </tr></thead>
-                <tbody>
+                <tbody>',
+                esc_html__('Status', 'bw-credits-booking'),
+                esc_html__('Source', 'bw-credits-booking'),
+                esc_html__('Created', 'bw-credits-booking'),
+                esc_html__('Valid until', 'bw-credits-booking'),
+                esc_html__('Booking', 'bw-credits-booking'),
+                esc_html__('Action', 'bw-credits-booking')
+            );
+            ?>
                 <?php foreach ($credits as $c) :
                     $is_available = ($c['status'] === 'available');
                     $expired      = $c['expires_at'] && strtotime($c['expires_at']) <= time();
@@ -502,12 +540,12 @@ class BW_Admin_Pages {
                         <td>
                             <?php echo esc_html($status_labels[$c['status']] ?? $c['status']); ?>
                             <?php if ($is_available && $expired) : ?>
-                                <br><small style="color:#b32d2e">Frist abgelaufen</small>
+                                <br><small style="color:#b32d2e"><?php esc_html_e('Past expiry date', 'bw-credits-booking'); ?></small>
                             <?php endif; ?>
                         </td>
                         <td><?php echo esc_html($source_labels[$c['source']] ?? $c['source']); ?></td>
                         <td><?php echo esc_html(mysql2date('d.m.Y', $c['created_at'])); ?></td>
-                        <td><?php echo $c['expires_at'] ? esc_html(mysql2date('d.m.Y', $c['expires_at'])) : '<em>unbegrenzt</em>'; ?></td>
+                        <td><?php echo $c['expires_at'] ? esc_html(mysql2date('d.m.Y', $c['expires_at'])) : '<em>' . esc_html__('unlimited', 'bw-credits-booking') . '</em>'; ?></td>
                         <td><?php echo $c['booking_id'] ? '#' . (int) $c['booking_id'] : '—'; ?></td>
                         <td>
                             <?php if ($is_available) : ?>
@@ -516,7 +554,7 @@ class BW_Admin_Pages {
                                        admin_url('admin-post.php?action=bw_revoke_credit&credit_id=' . (int) $c['id'] . '&user_id=' . $user_id),
                                        'bw_revoke_credit_' . (int) $c['id']
                                    )); ?>"
-                                   onclick="return confirm('Diesen Credit entwerten?');">Entwerten</a>
+                                   onclick="return confirm('<?php echo esc_js(__('Revoke this credit?', 'bw-credits-booking')); ?>');"><?php esc_html_e('Revoke', 'bw-credits-booking'); ?></a>
                             <?php else : ?>
                                 —
                             <?php endif; ?>
@@ -541,7 +579,7 @@ class BW_Admin_Pages {
         $free    = !empty($_POST['free_spot']);
 
         if ($user_id <= 0 || $slot_id <= 0) {
-            self::redirect(self::PAGE_BOOKINGS, [], 'err:Benutzer und Termin auswählen.');
+            self::redirect(self::PAGE_BOOKINGS, [], 'err:' . __('Select a user and a session.', 'bw-credits-booking'));
         }
 
         $res = BW_Credits_Bookings_MVP::admin_book_slot($user_id, $slot_id, !$free);
@@ -551,7 +589,9 @@ class BW_Admin_Pages {
             ['slot_id' => $slot_id],
             is_wp_error($res)
                 ? 'err:' . $res->get_error_message()
-                : 'ok:Buchung angelegt' . ($free ? ' (Freiplatz).' : '.')
+                : 'ok:' . ($free
+                    ? __('Booking created (free spot).', 'bw-credits-booking')
+                    : __('Booking created.', 'bw-credits-booking'))
         );
     }
 
@@ -566,7 +606,7 @@ class BW_Admin_Pages {
         self::redirect(
             self::PAGE_BOOKINGS,
             [],
-            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:Buchung storniert.'
+            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:' . __('Booking cancelled.', 'bw-credits-booking')
         );
     }
 
@@ -592,7 +632,13 @@ class BW_Admin_Pages {
             ['user_id' => $user_id],
             is_wp_error($res)
                 ? 'err:' . $res->get_error_message()
-                : 'ok:' . $amount . ' Credit(s) gutgeschrieben.'
+                : 'ok:' . ($amount === 1
+                    ? __('1 credit granted.', 'bw-credits-booking')
+                    : sprintf(
+                        /* translators: %d: number of credits granted */
+                        __('%d credits granted.', 'bw-credits-booking'),
+                        $amount
+                    ))
         );
     }
 
@@ -637,20 +683,34 @@ class BW_Admin_Pages {
     public static function render_templates() {
         self::guard();
 
-        echo '<div class="wrap"><h1>Templates</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Templates', 'bw-credits-booking') . '</h1>';
 
         self::notice();
 
-        echo '<p>Jedes Template kann im aktiven Theme unter '
-           . '<code>bw-credits-booking/&lt;pfad&gt;</code> überschrieben werden — '
-           . 'z.&nbsp;B. <code>yourtheme/bw-credits-booking/course_list/course_list.php</code>. '
-           . '„In Theme kopieren" legt die Datei dort direkt an. Wortlaut gehört nicht in '
-           . 'die Templates, der wird unter '
-           . '<a href="' . esc_url(self::page_url(self::PAGE_TEXTS)) . '">Texte</a> gepflegt.</p>';
+        $copy_button_label = __('Copy to theme', 'bw-credits-booking');
+        $texts_link = '<a href="' . esc_url(self::page_url(self::PAGE_TEXTS)) . '">'
+            . esc_html__('Texts', 'bw-credits-booking') . '</a>';
 
-        echo '<table class="wp-list-table widefat striped"><thead><tr>'
-           . '<th>Template</th><th>Beschreibung</th><th>Status</th><th>Version</th><th></th>'
-           . '</tr></thead><tbody>';
+        printf(
+            '<p>' . __(
+                'Each template can be overridden in the active theme under %1$s — e.g.&nbsp;%2$s. "%3$s" creates the file there directly. Wording doesn\'t belong in the templates — that\'s maintained under %4$s.',
+                'bw-credits-booking'
+            ) . '</p>',
+            '<code>bw-credits-booking/&lt;path&gt;</code>',
+            '<code>yourtheme/bw-credits-booking/course_list/course_list.php</code>',
+            esc_html($copy_button_label),
+            $texts_link
+        );
+
+        printf(
+            '<table class="wp-list-table widefat striped"><thead><tr>'
+            . '<th>%s</th><th>%s</th><th>%s</th><th>%s</th><th></th>'
+            . '</tr></thead><tbody>',
+            esc_html__('Template', 'bw-credits-booking'),
+            esc_html__('Description', 'bw-credits-booking'),
+            esc_html__('Status', 'bw-credits-booking'),
+            esc_html__('Version', 'bw-credits-booking')
+        );
 
         foreach (BW_Templates::registry() as $path => $description) {
             $plugin_file = BW_Templates::plugin_path($path);
@@ -666,11 +726,11 @@ class BW_Admin_Pages {
                 && version_compare($active_version, $plugin_version, '<');
 
             if (!$overridden) {
-                $status = '<span style="color:#116611">Plugin-Standard</span>';
+                $status = '<span style="color:#116611">' . esc_html__('Plugin default', 'bw-credits-booking') . '</span>';
             } elseif ($outdated) {
-                $status = '<span style="color:#b32d2e"><strong>Im Theme überschrieben — veraltet</strong></span>';
+                $status = '<span style="color:#b32d2e"><strong>' . esc_html__('Overridden in theme — outdated', 'bw-credits-booking') . '</strong></span>';
             } else {
-                $status = '<span style="color:#2271b1">Im Theme überschrieben</span>';
+                $status = '<span style="color:#2271b1">' . esc_html__('Overridden in theme', 'bw-credits-booking') . '</span>';
             }
             ?>
             <tr>
@@ -680,13 +740,13 @@ class BW_Admin_Pages {
                 <td>
                     <?php echo esc_html($active_version ?? '—'); ?>
                     <?php if ($outdated) : ?>
-                        <br><small>Plugin: <?php echo esc_html($plugin_version); ?></small>
+                        <br><small><?php esc_html_e('Plugin:', 'bw-credits-booking'); ?> <?php echo esc_html($plugin_version); ?></small>
                     <?php endif; ?>
                 </td>
                 <td>
                     <?php if (!$overridden) : ?>
                         <a class="button button-small" href="<?php echo esc_url(self::copy_template_url($path)); ?>">
-                            In Theme kopieren
+                            <?php echo esc_html($copy_button_label); ?>
                         </a>
                     <?php endif; ?>
                 </td>
@@ -718,23 +778,31 @@ class BW_Admin_Pages {
 
         $registry = BW_Templates::registry();
         if (!isset($registry[$path])) {
-            self::redirect(self::PAGE_TEMPLATES, [], 'err:Unbekanntes Template.');
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:' . __('Unknown template.', 'bw-credits-booking'));
         }
 
         $source = BW_Templates::plugin_path($path);
         $target = get_stylesheet_directory() . '/bw-credits-booking/' . $path;
 
         if (!is_readable($source)) {
-            self::redirect(self::PAGE_TEMPLATES, [], 'err:Quelldatei nicht lesbar.');
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:' . __('Source file is not readable.', 'bw-credits-booking'));
         }
 
         wp_mkdir_p(dirname($target));
 
         if (!copy($source, $target)) {
-            self::redirect(self::PAGE_TEMPLATES, [], 'err:Kopieren fehlgeschlagen — Schreibrechte im Theme prüfen.');
+            self::redirect(self::PAGE_TEMPLATES, [], 'err:' . __('Copy failed — check write permissions in the theme.', 'bw-credits-booking'));
         }
 
-        self::redirect(self::PAGE_TEMPLATES, [], 'ok:' . $path . ' ins Theme kopiert.');
+        self::redirect(
+            self::PAGE_TEMPLATES,
+            [],
+            'ok:' . sprintf(
+                /* translators: %s: template file path */
+                __('%s copied to theme.', 'bw-credits-booking'),
+                $path
+            )
+        );
     }
 
     public static function render_texts() {
@@ -748,17 +816,21 @@ class BW_Admin_Pages {
             $by_group[$group][$key] = [$default, $description];
         }
 
-        echo '<div class="wrap"><h1>Texte</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Texts', 'bw-credits-booking') . '</h1>';
         self::notice();
 
         printf(
-            '<p>%d Texte, davon %d angepasst. Ein leeres Feld nutzt den Standardtext.</p>',
+            '<p>' . esc_html__('%1$d texts, %2$d customized. An empty field uses the default text.', 'bw-credits-booking') . '</p>',
             count($catalogue),
             count($overrides)
         );
 
-        echo '<p class="description">Platzhalter in geschweiften Klammern bleiben erhalten, '
-           . 'z.&nbsp;B. <code>{free}</code> oder <code>{date}</code>.</p>';
+        echo '<p class="description">' . sprintf(
+            /* translators: %1$s, %2$s: example placeholder tokens, e.g. {free} and {date} */
+            esc_html__('Placeholders in curly braces are preserved, e.g.&nbsp;%1$s or %2$s.', 'bw-credits-booking'),
+            '<code>{free}</code>',
+            '<code>{date}</code>'
+        ) . '</p>';
 
         echo '<form method="post" action="options.php">';
         settings_fields('bw_credits_texts');
@@ -786,7 +858,7 @@ class BW_Admin_Pages {
                                placeholder="<?php echo esc_attr($default); ?>">
                         <p class="description">
                             <code><?php echo esc_html($key); ?></code>
-                            &nbsp;·&nbsp; Standard: <em><?php echo esc_html($default); ?></em>
+                            &nbsp;·&nbsp; <?php esc_html_e('Default:', 'bw-credits-booking'); ?> <em><?php echo esc_html($default); ?></em>
                         </p>
                     </td>
                 </tr>
@@ -804,47 +876,47 @@ class BW_Admin_Pages {
      * Seite: Shortcodes
      * ========================================================= */
 
-    /** Referenz: Name => [Gruppe, Beschreibung, Parameter] */
+    /** Reference: name => [group, description, parameters] */
     private static function shortcode_reference(): array {
         return [
             'bw_credits_course_list' => [
-                'Kurs',
-                'Terminliste, nach Tagen gruppiert, mit Verfügbarkeit und Buchen-Button.',
+                __('Course', 'bw-credits-booking'),
+                __('Session list, grouped by day, with availability and a book button.', 'bw-credits-booking'),
                 'limit, days, type, level, lang, show_filter, show_action, availability, group_by_day, empty',
             ],
             'bw_credits_course_booking' => [
-                'Kurs',
-                'Ein Button der je nach Zustand bucht oder storniert.',
+                __('Course', 'bw-credits-booking'),
+                __('A button that books or cancels depending on state.', 'bw-credits-booking'),
                 'course_id, label_book, label_cancel, class',
             ],
             'bw_credits_course_availability' => [
-                'Kurs',
-                'Freie Plätze. Auch ohne Login sichtbar.',
+                __('Course', 'bw-credits-booking'),
+                __('Available spots. Visible even without login.', 'bw-credits-booking'),
                 'course_id, format, full',
             ],
             'bw_credits_course_access' => [
-                'Kurs',
-                'Zugangsdaten zum Online-Kurs. Nur für Teilnehmer mit aktiver Buchung.',
+                __('Course', 'bw-credits-booking'),
+                __('Access details for the online session. Only for participants with an active booking.', 'bw-credits-booking'),
                 'course_id, title',
             ],
             'bw_credits_user_balance' => [
-                'Kunde',
-                'Verfügbares Guthaben. Mit mode="empty_only" nur sichtbar wenn der Kunde schon einmal Guthaben hatte und jetzt keines mehr hat.',
+                __('Customer', 'bw-credits-booking'),
+                __('Available credit balance. With mode="empty_only", only visible if the customer has had credits before and now has none.', 'bw-credits-booking'),
                 'mode (always|empty_only), format (inline|block), label, empty_text, empty_link, logged_out',
             ],
             'bw_credits_user_credits' => [
-                'Kunde',
-                'Guthaben im Detail: Herkunft und Ablaufdatum.',
+                __('Customer', 'bw-credits-booking'),
+                __('Credit balance in detail: origin and expiry date.', 'bw-credits-booking'),
                 'show_expired, empty',
             ],
             'bw_credits_user_bookings' => [
-                'Kunde',
-                'Buchungen des Kunden mit Storno-Möglichkeit.',
+                __('Customer', 'bw-credits-booking'),
+                __("The customer's bookings, with the option to cancel.", 'bw-credits-booking'),
                 'limit, show_access',
             ],
             'bw_credits_view_overview' => [
-                'Ansicht',
-                'Guthaben, nächster Termin und Links. Steht automatisch im Konto-Dashboard.',
+                __('View', 'bw-credits-booking'),
+                __('Credit balance, next session, and links. Appears automatically in the account dashboard.', 'bw-credits-booking'),
                 'show_balance, show_next, show_links, list_url',
             ],
         ];
@@ -853,15 +925,24 @@ class BW_Admin_Pages {
     public static function render_shortcodes() {
         self::guard();
 
-        echo '<div class="wrap"><h1>Shortcodes</h1>';
+        echo '<div class="wrap"><h1>' . esc_html__('Shortcodes', 'bw-credits-booking') . '</h1>';
         self::notice();
 
-        echo '<p>Auf einer Termin-Einzelseite kann <code>course_id</code> entfallen — '
-           . 'dann greift der aktuelle Beitrag.</p>';
+        echo '<p>' . sprintf(
+            /* translators: %s: the course_id shortcode attribute name */
+            esc_html__('On a single session page, %s can be omitted — the current post is used instead.', 'bw-credits-booking'),
+            '<code>course_id</code>'
+        ) . '</p>';
 
-        echo '<table class="wp-list-table widefat striped"><thead><tr>'
-           . '<th style="width:6em">Gruppe</th><th style="width:22em">Shortcode</th>'
-           . '<th>Beschreibung</th><th>Parameter</th></tr></thead><tbody>';
+        printf(
+            '<table class="wp-list-table widefat striped"><thead><tr>'
+            . '<th style="width:6em">%s</th><th style="width:22em">%s</th>'
+            . '<th>%s</th><th>%s</th></tr></thead><tbody>',
+            esc_html__('Group', 'bw-credits-booking'),
+            esc_html__('Shortcode', 'bw-credits-booking'),
+            esc_html__('Description', 'bw-credits-booking'),
+            esc_html__('Parameters', 'bw-credits-booking')
+        );
 
         foreach (self::shortcode_reference() as $tag => [$group, $description, $params]) {
             printf(
@@ -889,7 +970,7 @@ class BW_Admin_Pages {
         self::redirect(
             self::PAGE_CREDITS,
             ['user_id' => $user_id],
-            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:Credit entwertet.'
+            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:' . __('Credit revoked.', 'bw-credits-booking')
         );
     }
 }

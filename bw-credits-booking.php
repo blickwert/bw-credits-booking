@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.18.0
+ * Version: 0.19.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.18.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.19.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -202,6 +202,15 @@ class BW_Credits_Bookings_MVP {
             'ajaxUrl'        => esc_url_raw(admin_url('admin-ajax.php')),
             'nonce'          => wp_create_nonce('wp_rest'),
             'availabilityCap' => BW_Settings::get_availability_cap(),
+            'i18n'           => [
+                'booked'           => __('Booked', 'bw-credits-booking'),
+                'cancelled'        => __('Cancelled', 'bw-credits-booking'),
+                'bookingIdMissing' => __('booking_id missing (button needs data-booking-id)', 'bw-credits-booking'),
+                'cancel'           => __('Cancel', 'bw-credits-booking'),
+                'book'             => __('Book', 'bw-credits-booking'),
+                /* translators: %d: HTTP status code */
+                'requestFailed'    => __('Request failed (%d)', 'bw-credits-booking'),
+            ],
         ]);
     }
 

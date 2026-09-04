@@ -5,6 +5,22 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.19.0] – 2026-09-04
+
+Phase 2b of the English-source migration: the admin screens and the frontend booking/cancel JS messages are now English source, with German covered by the same translation pipeline.
+
+### Changed
+- **~160 previously hardcoded German strings** across `includes/admin-pages.php`, `includes/metaboxes.php`, and `includes/settings.php` — page headings, table columns, form labels, button text, confirmation dialogs, admin notices, and the shortcode reference table — are now English source, wrapped with the appropriate WordPress i18n function (`esc_html__()`, `esc_attr__()`, `_e()`, or plain `__()` depending on context) and covered by the German `.po`/`.mo`.
+- **`includes/admin.php`**: the remaining ACF/WooCommerce product-field descriptions and labels are now wrapped and translated.
+- **CSV attendee export** (*BW Credits → [a session] → Export*) headers are translated the same way as the on-screen table they mirror.
+- **Frontend booking/cancel JS messages** (`assets/bwallet-frontend.js`) are now sourced from PHP via a new `i18n` key on the existing `BW_BWALLET` script-localization object, instead of being hardcoded in the JS file — so they're translated exactly like everything else.
+- `tools/scan-source-strings.php` (added in 0.18.0) now covers all five files above; `tools/make-de-po.php`'s validation continues to fail loudly on anything left untranslated.
+
+### Note
+Still to come in a later release: translating the remaining code comments to English, and an English README (the CHANGELOG stays German for historical entries, English going forward, as already noted in 0.17.0).
+
+---
+
 ## [0.18.0] – 2026-09-04
 
 Phase 2a of the English-source migration: build tooling to cover the remaining hardcoded strings in the admin screens, plus two fixes surfaced along the way.

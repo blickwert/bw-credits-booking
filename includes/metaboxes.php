@@ -42,9 +42,9 @@ class BW_Metaboxes {
     public static function register() {
         $pt = self::post_type();
 
-        add_meta_box('bw_slot_capacity', 'Kapazität', [__CLASS__, 'render_capacity'], $pt, 'side', 'high');
-        add_meta_box('bw_slot_access', 'Online-Zugang', [__CLASS__, 'render_access'], $pt, 'normal', 'high');
-        add_meta_box('bw_slot_participants', 'Teilnehmer', [__CLASS__, 'render_participants'], $pt, 'normal', 'high');
+        add_meta_box('bw_slot_capacity', __('Capacity', 'bw-credits-booking'), [__CLASS__, 'render_capacity'], $pt, 'side', 'high');
+        add_meta_box('bw_slot_access', __('Online Access', 'bw-credits-booking'), [__CLASS__, 'render_access'], $pt, 'normal', 'high');
+        add_meta_box('bw_slot_participants', __('Participants', 'bw-credits-booking'), [__CLASS__, 'render_participants'], $pt, 'normal', 'high');
     }
 
     /* ---------------------------------------------------------
@@ -63,22 +63,26 @@ class BW_Metaboxes {
         $effective    = ($capacity_raw === '' || $capacity_raw === null) ? $default : (int) $capacity_raw;
         ?>
         <p>
-            <label for="bw_capacity"><strong>Maximale Teilnehmer</strong></label><br>
+            <label for="bw_capacity"><strong><?php esc_html_e('Maximum participants', 'bw-credits-booking'); ?></strong></label><br>
             <input type="number" min="0" step="1" id="bw_capacity" name="bw_capacity"
                    value="<?php echo esc_attr($capacity_raw); ?>" class="widefat"
                    placeholder="<?php echo esc_attr($default); ?>">
             <span class="description">
-                Leer lassen für den Standardwert (<?php echo esc_html($default); ?>) aus den Einstellungen.
+                <?php echo esc_html(sprintf(
+                    /* translators: %s: the default capacity from settings */
+                    __('Leave empty to use the default (%s) from settings.', 'bw-credits-booking'),
+                    $default
+                )); ?>
             </span>
         </p>
 
         <p>
-            <strong>Belegt:</strong>
+            <strong><?php esc_html_e('Booked:', 'bw-credits-booking'); ?></strong>
             <?php echo esc_html($booked . ' / ' . $effective); ?>
             <?php if ($effective > 0 && $booked > $effective) : ?>
-                <br><span style="color:#b32d2e"><strong>Überbucht</strong> – die Kapazität liegt unter der Zahl bestehender Buchungen.</span>
+                <br><span style="color:#b32d2e"><strong><?php esc_html_e('Overbooked', 'bw-credits-booking'); ?></strong> – <?php esc_html_e('capacity is below the number of existing bookings.', 'bw-credits-booking'); ?></span>
             <?php endif; ?>
-            <br><span class="description">Wird automatisch berechnet und kann nicht direkt bearbeitet werden.</span>
+            <br><span class="description"><?php esc_html_e('Calculated automatically and cannot be edited directly.', 'bw-credits-booking'); ?></span>
         </p>
         <?php
     }
@@ -92,22 +96,20 @@ class BW_Metaboxes {
         $info = get_post_meta($post->ID, self::META_ACCESS_INFO, true);
         ?>
         <p>
-            <label for="bw_meeting_link"><strong>Meeting-Link</strong></label><br>
+            <label for="bw_meeting_link"><strong><?php esc_html_e('Meeting link', 'bw-credits-booking'); ?></strong></label><br>
             <input type="url" id="bw_meeting_link" name="bw_meeting_link"
                    value="<?php echo esc_attr($link); ?>" class="widefat"
                    placeholder="https://zoom.us/j/...">
         </p>
 
         <p>
-            <label for="bw_access_info"><strong>Zugangsdaten / Hinweise</strong></label><br>
+            <label for="bw_access_info"><strong><?php esc_html_e('Access details / notes', 'bw-credits-booking'); ?></strong></label><br>
             <textarea id="bw_access_info" name="bw_access_info" rows="4" class="widefat"
-                      placeholder="Meeting-ID, Passwort, Einwahlnummern …"><?php echo esc_textarea($info); ?></textarea>
+                      placeholder="<?php echo esc_attr__('Meeting ID, password, dial-in numbers …', 'bw-credits-booking'); ?>"><?php echo esc_textarea($info); ?></textarea>
         </p>
 
         <p class="description">
-            Sobald hier zum ersten Mal ein Link gespeichert wird, gehen die Zugangsdaten
-            automatisch an alle Teilnehmer. Wer danach noch bucht, bekommt sie direkt
-            mit der Buchungsbestätigung.
+            <?php esc_html_e('As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation.', 'bw-credits-booking'); ?>
         </p>
 
         <?php if ($link) : ?>
@@ -117,10 +119,10 @@ class BW_Metaboxes {
                        admin_url('admin-post.php?action=bw_resend_access&slot_id=' . $post->ID),
                        'bw_resend_access_' . $post->ID
                    )); ?>"
-                   onclick="return confirm('Zugangsdaten an alle Teilnehmer erneut senden?');">
-                    Zugangsdaten erneut senden
+                   onclick="return confirm('<?php echo esc_js(__('Resend access details to all participants?', 'bw-credits-booking')); ?>');">
+                    <?php esc_html_e('Resend access details', 'bw-credits-booking'); ?>
                 </a>
-                <span class="description">Nur nötig wenn sich der Link nachträglich geändert hat.</span>
+                <span class="description"><?php esc_html_e('Only necessary if the link has changed since.', 'bw-credits-booking'); ?></span>
             </p>
         <?php endif; ?>
         <?php
@@ -135,7 +137,7 @@ class BW_Metaboxes {
         $labels   = BW_Credits_Bookings_MVP::status_labels();
 
         if (empty($bookings)) {
-            echo '<p>Noch keine Buchungen für diesen Termin.</p>';
+            echo '<p>' . esc_html__('No bookings for this session yet.', 'bw-credits-booking') . '</p>';
             return;
         }
 
@@ -147,12 +149,12 @@ class BW_Metaboxes {
         <table class="widefat striped">
             <thead>
                 <tr>
-                    <th style="width:3em">Nr.</th>
-                    <th>Name</th>
-                    <th>E-Mail</th>
-                    <th>Angemeldet</th>
-                    <th>Status</th>
-                    <th style="width:16em">Aktionen</th>
+                    <th style="width:3em"><?php esc_html_e('No.', 'bw-credits-booking'); ?></th>
+                    <th><?php esc_html_e('Name', 'bw-credits-booking'); ?></th>
+                    <th><?php esc_html_e('Email', 'bw-credits-booking'); ?></th>
+                    <th><?php esc_html_e('Booked on', 'bw-credits-booking'); ?></th>
+                    <th><?php esc_html_e('Status', 'bw-credits-booking'); ?></th>
+                    <th style="width:16em"><?php esc_html_e('Actions', 'bw-credits-booking'); ?></th>
                 </tr>
             </thead>
             <tbody>
@@ -180,18 +182,18 @@ class BW_Metaboxes {
                         <?php if ($active) : ?>
                             <a class="button button-small"
                                href="<?php echo esc_url(self::action_url('bw_admin_cancel_booking', (int) $b['id'], $post->ID)); ?>"
-                               onclick="return confirm('Buchung stornieren? Ein verbrauchter Credit wird zurückgegeben.');">
-                                Stornieren
+                               onclick="return confirm('<?php echo esc_js(__('Cancel booking? A consumed credit will be refunded.', 'bw-credits-booking')); ?>');">
+                                <?php esc_html_e('Cancel', 'bw-credits-booking'); ?>
                             </a>
                             <?php if ($status === 'booked') : ?>
                                 <a class="button button-small"
                                    href="<?php echo esc_url(self::action_url('bw_toggle_no_show', (int) $b['id'], $post->ID, ['no_show' => 1])); ?>">
-                                    Nicht erschienen
+                                    <?php esc_html_e('No-show', 'bw-credits-booking'); ?>
                                 </a>
                             <?php elseif ($status === 'no_show') : ?>
                                 <a class="button button-small"
                                    href="<?php echo esc_url(self::action_url('bw_toggle_no_show', (int) $b['id'], $post->ID, ['no_show' => 0])); ?>">
-                                    Zurücksetzen
+                                    <?php esc_html_e('Reset', 'bw-credits-booking'); ?>
                                 </a>
                             <?php endif; ?>
                         <?php else : ?>
@@ -204,7 +206,7 @@ class BW_Metaboxes {
         </table>
 
         <p style="margin-top:1em">
-            <a class="button" href="<?php echo esc_url($export_url); ?>">Anwesenheitsliste als CSV</a>
+            <a class="button" href="<?php echo esc_url($export_url); ?>"><?php esc_html_e('Attendance list as CSV', 'bw-credits-booking'); ?></a>
         </p>
         <?php
     }
@@ -282,7 +284,7 @@ class BW_Metaboxes {
 
     private static function verify_action(string $action): array {
         if (!current_user_can(BW_Settings::CAPABILITY)) {
-            wp_die('Keine Berechtigung.');
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
         }
 
         $booking_id = isset($_GET['booking_id']) ? (int) $_GET['booking_id'] : 0;
@@ -305,7 +307,7 @@ class BW_Metaboxes {
         $res = BW_Credits_Bookings_MVP::admin_cancel_booking($booking_id);
         self::redirect_back(
             $slot_id,
-            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:Buchung storniert.'
+            is_wp_error($res) ? 'err:' . $res->get_error_message() : 'ok:' . __('Booking cancelled.', 'bw-credits-booking')
         );
     }
 
@@ -319,13 +321,15 @@ class BW_Metaboxes {
             $slot_id,
             is_wp_error($res)
                 ? 'err:' . $res->get_error_message()
-                : 'ok:' . ($no_show ? 'Als nicht erschienen markiert.' : 'Markierung zurückgenommen.')
+                : 'ok:' . ($no_show
+                    ? __('Marked as no-show.', 'bw-credits-booking')
+                    : __('No-show mark removed.', 'bw-credits-booking'))
         );
     }
 
     public static function handle_export() {
         if (!current_user_can(BW_Settings::CAPABILITY)) {
-            wp_die('Keine Berechtigung.');
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
         }
 
         $slot_id = isset($_GET['slot_id']) ? (int) $_GET['slot_id'] : 0;
@@ -334,7 +338,7 @@ class BW_Metaboxes {
         $bookings = BW_Credits_Bookings_MVP::get_slot_bookings($slot_id);
         $labels   = BW_Credits_Bookings_MVP::status_labels();
         $title    = get_the_title($slot_id) ?: ('slot-' . $slot_id);
-        $filename = sanitize_file_name('teilnehmer-' . $title . '.csv');
+        $filename = sanitize_file_name('participants-' . $title . '.csv');
 
         nocache_headers();
         header('Content-Type: text/csv; charset=utf-8');
@@ -342,7 +346,13 @@ class BW_Metaboxes {
 
         $out = fopen('php://output', 'w');
         fwrite($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM für Excel
-        fputcsv($out, ['Nr.', 'Name', 'E-Mail', 'Angemeldet', 'Status']);
+        fputcsv($out, [
+            __('No.', 'bw-credits-booking'),
+            __('Name', 'bw-credits-booking'),
+            __('Email', 'bw-credits-booking'),
+            __('Booked on', 'bw-credits-booking'),
+            __('Status', 'bw-credits-booking'),
+        ]);
 
         $nr = 0;
         foreach ($bookings as $b) {
