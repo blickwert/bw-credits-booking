@@ -64,7 +64,7 @@ class BW_View_Credits {
             } elseif (!$expires_t) {
                 $expiry_text = bw_text('credits.unlimited');
             } else {
-                $expiry_text = bw_text('credits.valid_until', ['datum' => wp_date('d.m.Y', $expires_t)]);
+                $expiry_text = bw_text('credits.valid_until', ['date' => wp_date('d.m.Y', $expires_t)]);
             }
 
             $items[] = [

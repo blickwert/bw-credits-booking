@@ -2,18 +2,18 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Zentraler Text-Katalog.
+ * Central text catalogue.
  *
- * Trennt drei Ebenen die sonst gern vermischt werden:
- *   Struktur  → Template-Datei (folgt in v0.13.0)
- *   Wortlaut  → dieser Katalog, im Admin überschreibbar
- *   Sprache   → gettext und WPML
+ * Separates three layers that otherwise tend to get mixed together:
+ *   Structure → template file (added in v0.13.0)
+ *   Wording   → this catalogue, overridable in the admin
+ *   Language  → gettext and WPML
  *
- * Auflösung: Shortcode-Attribut → Admin-Override → übersetzter Standard.
+ * Resolution order: shortcode attribute → admin override → translated default.
  *
- * Ein neuer Text braucht nur einen Eintrag in catalogue(). Er erscheint
- * dadurch automatisch auf der Einstellungsseite, in der WPML-Registrierung
- * und in der erzeugten .pot-Datei.
+ * A new text only needs one entry in catalogue(). It then automatically
+ * appears on the settings page, in the WPML registration, and in the
+ * generated .pot file.
  */
 
 class BW_Text {
@@ -21,242 +21,242 @@ class BW_Text {
     const DOMAIN        = 'bw-credits-booking';
     const OPT_OVERRIDES = 'bw_texts';
 
-    /** Gruppe => Überschrift auf der Einstellungsseite */
+    /** Group => heading on the settings page */
     const GROUPS = [
-        'booking'      => 'Buchen und Stornieren',
-        'availability' => 'Verfügbarkeit',
-        'balance'      => 'Guthaben',
-        'credits'      => 'Guthaben im Detail',
-        'bookings'     => 'Buchungsliste',
-        'course_list'  => 'Terminliste',
-        'access'       => 'Zugangsdaten',
-        'overview'     => 'Konto-Übersicht',
-        'error'        => 'Fehlermeldungen',
-        'order_email'  => 'E-Mail nach Bestellung',
+        'booking'      => 'Booking and Cancelling',
+        'availability' => 'Availability',
+        'balance'      => 'Credit Balance',
+        'credits'      => 'Credit Balance Details',
+        'bookings'     => 'Booking List',
+        'course_list'  => 'Session List',
+        'access'       => 'Access Details',
+        'overview'     => 'Account Overview',
+        'error'        => 'Error Messages',
+        'order_email'  => 'Order Confirmation Email',
     ];
 
     /**
-     * Schlüssel => [Standardtext, Beschreibung, Gruppe]
+     * Key => [default text, description, group]
      *
-     * Platzhalter in geschweiften Klammern, damit eine fehlerhafte Eingabe
-     * im Admin keinen Fehler auslöst — anders als bei printf-Formaten.
+     * Placeholders use curly braces so a malformed admin edit can't
+     * trigger an error — unlike printf-style formats.
      */
     public static function catalogue(): array {
         return [
-            /* --- Buchen und Stornieren --- */
+            /* --- Booking and Cancelling --- */
             'booking.button.book' => [
-                'Kurs buchen (1 Credit)', 'Beschriftung des Buchen-Buttons', 'booking',
+                'Book course (1 credit)', 'Label of the booking button', 'booking',
             ],
             'booking.button.cancel' => [
-                'Buchung stornieren', 'Beschriftung wenn der Termin gebucht ist', 'booking',
+                'Cancel booking', 'Label shown when the session is booked', 'booking',
             ],
             'booking.button.cancel_short' => [
-                'Stornieren', 'Kurze Beschriftung in der Buchungsliste', 'booking',
+                'Cancel', 'Short label in the booking list', 'booking',
             ],
             'booking.note.login' => [
-                'Bitte einloggen um zu buchen.', 'Hinweis für nicht angemeldete Besucher', 'booking',
+                'Please log in to book.', 'Note for visitors who are not logged in', 'booking',
             ],
             'booking.note.past' => [
-                'Dieser Termin ist vorbei.', 'Der Termin liegt in der Vergangenheit', 'booking',
+                'This session is over.', 'The session is in the past', 'booking',
             ],
             'booking.note.full' => [
-                'Dieser Termin ist ausgebucht.', 'Kein Platz mehr frei', 'booking',
+                'This session is fully booked.', 'No spots left', 'booking',
             ],
             'booking.note.booked' => [
-                'Du bist für diesen Termin angemeldet.', 'Gebucht, aber Stornofrist abgelaufen', 'booking',
+                'You are booked for this session.', 'Booked, but the cancellation deadline has passed', 'booking',
             ],
             'booking.note.no_credits' => [
-                'Du hast keine Credits.', 'Guthaben aufgebraucht, vor dem Aufladen-Link — passt auch für Kunden ohne bisherige Buchung', 'booking',
+                'You have no credits.', 'Credit balance used up, shown before the top-up link — also fits customers with no prior booking', 'booking',
             ],
             'booking.link.topup' => [
-                'Jetzt aufladen', 'Beschriftung des Links zur Shop-Seite', 'booking',
+                'Top up now', 'Label of the link to the shop page', 'booking',
             ],
 
-            /* --- Verfügbarkeit --- */
+            /* --- Availability --- */
             'availability.free' => [
-                '{frei} freie Plätze', 'Platzhalter {frei} wird durch die Zahl ersetzt — bis zur Schwelle aus den Einstellungen', 'availability',
+                '{free} spots available', 'Placeholder {free} is replaced with the number — up to the threshold from the settings', 'availability',
             ],
             'availability.more_than' => [
-                'mehr als {n} Plätze frei', 'Ab der Schwelle aus den Einstellungen statt der exakten Zahl', 'availability',
+                'more than {n} spots available', 'Used from the settings threshold onward instead of the exact number', 'availability',
             ],
             'availability.full' => [
-                'Ausgebucht', 'Wenn kein Platz mehr frei ist', 'availability',
+                'Fully booked', 'When no spots are left', 'availability',
             ],
 
-            /* --- Guthaben --- */
+            /* --- Credit Balance --- */
             'balance.label' => [
-                'Verfügbare Credits:', 'Beschriftung vor der Zahl', 'balance',
+                'Available credits:', 'Label before the number', 'balance',
             ],
             'balance.empty' => [
-                'Dein Guthaben ist aufgebraucht.', 'Hinweis bei null Credits', 'balance',
+                'Your credit balance is used up.', 'Note shown at zero credits', 'balance',
             ],
             'balance.count.one' => [
-                'Credit verfügbar', 'Einzahl in der Konto-Übersicht', 'balance',
+                'credit available', 'Singular form in the account overview', 'balance',
             ],
             'balance.count.many' => [
-                'Credits verfügbar', 'Mehrzahl in der Konto-Übersicht', 'balance',
+                'credits available', 'Plural form in the account overview', 'balance',
             ],
 
-            /* --- Guthaben im Detail --- */
+            /* --- Credit Balance Details --- */
             'credits.empty' => [
-                'Du hast aktuell kein Guthaben.', 'Wenn keine Credits vorhanden sind', 'credits',
+                'You currently have no credits.', 'When no credits are available', 'credits',
             ],
             'credits.source.purchase' => [
-                'Kauf', 'Herkunft: über den Shop gekauft', 'credits',
+                'Purchase', 'Origin: bought through the shop', 'credits',
             ],
             'credits.source.membership' => [
-                'Mitgliedschaft', 'Herkunft: aus einer Mitgliedschaft', 'credits',
+                'Membership', 'Origin: from a membership', 'credits',
             ],
             'credits.source.manual' => [
-                'Gutschrift', 'Herkunft: manuell gutgeschrieben', 'credits',
+                'Manual credit', 'Origin: manually credited', 'credits',
             ],
             'credits.expired' => [
-                'abgelaufen', 'Status eines verfallenen Credits', 'credits',
+                'expired', 'Status of an expired credit', 'credits',
             ],
             'credits.unlimited' => [
-                'unbegrenzt gültig', 'Credit ohne Ablaufdatum', 'credits',
+                'valid indefinitely', 'Credit without an expiry date', 'credits',
             ],
             'credits.valid_until' => [
-                'gültig bis {datum}', 'Credit mit Ablaufdatum', 'credits',
+                'valid until {date}', 'Credit with an expiry date', 'credits',
             ],
 
-            /* --- Buchungsliste --- */
+            /* --- Booking List --- */
             'bookings.empty' => [
-                'Noch keine Buchungen vorhanden.', 'Leere Buchungsliste', 'bookings',
+                'No bookings yet.', 'Empty booking list', 'bookings',
             ],
             'bookings.login_required' => [
-                'Bitte einloggen.', 'Buchungsliste für nicht angemeldete Besucher', 'bookings',
+                'Please log in.', 'Booking list for visitors who are not logged in', 'bookings',
             ],
             'bookings.status.booked' => [
-                'Gebucht', 'Status einer aktiven Buchung', 'bookings',
+                'Booked', 'Status of an active booking', 'bookings',
             ],
             'bookings.status.cancelled' => [
-                'Storniert', 'Status einer stornierten Buchung', 'bookings',
+                'Cancelled', 'Status of a cancelled booking', 'bookings',
             ],
             'bookings.status.pending' => [
-                'Ausstehend', 'Zwischenstatus während des Buchens', 'bookings',
+                'Pending', 'Interim status while booking is in progress', 'bookings',
             ],
             'bookings.status.no_show' => [
-                'Nicht erschienen', 'Vom Studio als Nichterscheinen markiert', 'bookings',
+                'No-show', 'Marked by the studio as a no-show', 'bookings',
             ],
 
-            /* --- Terminliste --- */
+            /* --- Session List --- */
             'course_list.empty' => [
-                'Aktuell sind keine Termine geplant.', 'Keine Termine gefunden', 'course_list',
+                'No sessions are currently scheduled.', 'No sessions found', 'course_list',
             ],
             'course_list.filter.all' => [
-                'Alle', 'Erste Option in den Filter-Auswahlfeldern', 'course_list',
+                'All', 'First option in the filter dropdowns', 'course_list',
             ],
             'course_list.filter.submit' => [
-                'Filtern', 'Schaltfläche im Filterformular', 'course_list',
+                'Filter', 'Button in the filter form', 'course_list',
             ],
             'course_list.filter.reset' => [
-                'Zurücksetzen', 'Link zum Aufheben der Filter', 'course_list',
+                'Reset', 'Link to clear the filters', 'course_list',
             ],
             'course_list.filter.type' => [
-                'Kursart', 'Beschriftung des Filters für course_type', 'course_list',
+                'Course type', 'Label of the filter for course_type', 'course_list',
             ],
             'course_list.filter.level' => [
-                'Level', 'Beschriftung des Filters für course_level', 'course_list',
+                'Level', 'Label of the filter for course_level', 'course_list',
             ],
             'course_list.filter.lang' => [
-                'Sprache', 'Beschriftung des Filters für course_lang', 'course_list',
+                'Language', 'Label of the filter for course_lang', 'course_list',
             ],
 
-            /* --- Zugangsdaten --- */
+            /* --- Access Details --- */
             'access.title' => [
-                'Zugangsdaten', 'Überschrift über Meeting-Link und Hinweisen', 'access',
+                'Access details', 'Heading above the meeting link and notes', 'access',
             ],
             'access.link' => [
-                'Zum Online-Kurs', 'Beschriftung des Meeting-Links', 'access',
+                'Join online session', 'Label of the meeting link', 'access',
             ],
 
-            /* --- Konto-Übersicht --- */
+            /* --- Account Overview --- */
             'overview.heading.courses' => [
-                'Meine Kurse', 'Überschrift über der Buchungsliste im Konto', 'overview',
+                'My courses', 'Heading above the booking list in the account', 'overview',
             ],
             'overview.upcoming.label' => [
-                'Kommende Kurse', 'Überschrift über der Kursliste im Konto', 'overview',
+                'Upcoming courses', 'Heading above the course list in the account', 'overview',
             ],
             'overview.link.courses' => [
-                'Kurstermine ansehen', 'Link zur Terminliste', 'overview',
+                'View course sessions', 'Link to the session list', 'overview',
             ],
             'overview.link.orders' => [
-                'Meine Bestellungen', 'Link zu den WooCommerce-Bestellungen', 'overview',
+                'My orders', 'Link to the WooCommerce orders', 'overview',
             ],
             'overview.link.topup' => [
-                'Guthaben aufladen', 'Link zur Shop-Seite', 'overview',
+                'Top up credits', 'Link to the shop page', 'overview',
             ],
 
-            /* --- Fehlermeldungen ---
-             * Diese landen über die REST-Schnittstelle direkt in der
-             * Meldungszeile beim Kunden.
+            /* --- Error Messages ---
+             * These reach the customer directly in the message line via
+             * the REST API.
              */
             'error.no_credits' => [
-                'Du hast kein Guthaben mehr.', 'Buchung ohne verfügbare Credits', 'error',
+                "You don't have any credits left.", 'Booking attempt with no credits available', 'error',
             ],
             'error.full' => [
-                'Dieser Termin ist ausgebucht.', 'Buchung bei voller Kapazität', 'error',
+                'This session is fully booked.', 'Booking attempt at full capacity', 'error',
             ],
             'error.slot_past' => [
-                'Dieser Termin liegt in der Vergangenheit.', 'Buchung eines vergangenen Termins', 'error',
+                'This session is in the past.', 'Booking attempt for a past session', 'error',
             ],
             'error.already_booked' => [
-                'Du hast diesen Termin bereits gebucht.', 'Doppelbuchung', 'error',
+                'You have already booked this session.', 'Duplicate booking', 'error',
             ],
             'error.booking_not_found' => [
-                'Buchung nicht gefunden.', 'Storno einer unbekannten Buchung', 'error',
+                'Booking not found.', 'Cancellation of an unknown booking', 'error',
             ],
             'error.not_active' => [
-                'Diese Buchung ist bereits storniert.', 'Storno einer stornierten Buchung', 'error',
+                'This booking has already been cancelled.', 'Cancellation of an already-cancelled booking', 'error',
             ],
             'error.cutoff_passed' => [
-                'Die Stornofrist ist abgelaufen.', 'Storno nach Ablauf der Frist', 'error',
+                'The cancellation deadline has passed.', 'Cancellation attempt after the deadline', 'error',
             ],
             'error.slot_invalid' => [
-                'Dieser Termin ist nicht verfügbar.', 'Termin fehlt oder ist nicht veröffentlicht', 'error',
+                'This session is not available.', 'Session is missing or not published', 'error',
             ],
             'error.capacity_missing' => [
-                'Für diesen Termin ist keine Kapazität hinterlegt.', 'Kapazität fehlt oder ist null', 'error',
+                'No capacity is set for this session.', 'Capacity is missing or zero', 'error',
             ],
             'error.slot_time_missing' => [
-                'Für diesen Termin fehlt die Startzeit.', 'start_datetime nicht gesetzt', 'error',
+                'This session is missing a start time.', 'start_datetime not set', 'error',
             ],
             'error.retry' => [
-                'Das hat nicht geklappt. Bitte versuche es noch einmal.', 'Gleichzeitiger Zugriff, Wiederholung nötig', 'error',
+                "That didn't work. Please try again.", 'Concurrent access, retry needed', 'error',
             ],
             'error.generic' => [
-                'Die Aktion konnte nicht ausgeführt werden.', 'Unerwarteter Fehler beim Buchen oder Stornieren', 'error',
+                'The action could not be completed.', 'Unexpected error while booking or cancelling', 'error',
             ],
 
-            /* --- E-Mail nach Bestellung --- */
+            /* --- Order Confirmation Email --- */
             'order_email.heading' => [
-                'Dein Guthaben wurde aufgeladen', 'Überschrift in der Woo-Bestell-E-Mail, wenn Credits gutgeschrieben wurden', 'order_email',
+                'Your credit balance has been topped up', 'Heading in the WooCommerce order email when credits were added', 'order_email',
             ],
             'order_email.body' => [
-                "{credits_hinzugefuegt} Credits wurden deinem Konto gutgeschrieben. Aktuelles Guthaben: {credits_verbleibend}.\n\nHier verwaltest du dein Guthaben und deine Buchungen: {konto_link}",
-                'Text in der Woo-Bestell-E-Mail direkt nach der Bestellübersicht', 'order_email',
+                "{credits_added} credits have been added to your account. Current balance: {credits_remaining}.\n\nManage your credits and bookings here: {account_link}",
+                'Text in the WooCommerce order email, right after the order summary', 'order_email',
             ],
         ];
     }
 
     /* ---------------------------------------------------------
-     * Auflösung
+     * Resolution
      * --------------------------------------------------------- */
 
     public static function get(string $key, array $vars = []): string {
         $entry = self::catalogue()[$key] ?? null;
 
         if ($entry === null) {
-            // Fehlender Schlüssel darf die Seite nicht zerlegen
+            // A missing key must not break the page
             return '';
         }
 
         $overrides = self::overrides();
         $text      = isset($overrides[$key]) && $overrides[$key] !== ''
             ? self::translate_override($key, $overrides[$key])
-            // Lookup zur Laufzeit erfolgt über den Textwert; die .pot wird aus
-            // dem Katalog erzeugt, siehe tools/make-pot.php
+            // Runtime lookup happens via the text value; the .pot is
+            // generated from the catalogue, see tools/make-pot.php
             : __($entry[0], self::DOMAIN);
 
         return $vars ? self::fill($text, $vars) : $text;
@@ -296,7 +296,7 @@ class BW_Text {
         );
     }
 
-    /** Jeder Katalogeintrag wird als WPML-String angeboten. */
+    /** Every catalogue entry is registered as a WPML string. */
     public static function register_wpml_strings() {
         if (!has_action('wpml_register_single_string')) return;
 
@@ -320,10 +320,10 @@ class BW_Text {
 BW_Text::init();
 
 /**
- * Kurzform für den Einsatz im Code und in Templates.
+ * Shorthand for use in code and templates.
  *
  *   bw_text('booking.note.full')
- *   bw_text('credits.valid_until', ['datum' => '31.12.2026'])
+ *   bw_text('credits.valid_until', ['date' => '31.12.2026'])
  */
 function bw_text(string $key, array $vars = []): string {
     return BW_Text::get($key, $vars);

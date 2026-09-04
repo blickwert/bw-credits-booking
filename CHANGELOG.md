@@ -1,6 +1,24 @@
 # Changelog
 
 Alle relevanten Änderungen werden in dieser Datei dokumentiert.
+New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2026-09-04).
+
+---
+
+## [0.17.0] – 2026-09-04
+
+Phase 1 of switching the plugin's source language from German to English: the text catalogue (`includes/text.php`, admin/frontend copy shown to users) now defaults to English, with German delivered as a standard WordPress translation.
+
+### Changed
+- **Text catalogue defaults are now English.** All 57 entries in `includes/text.php` (booking/cancellation labels, error messages, account overview, etc.) — previously German — are now English source text, resolved through the existing `__()`/gettext call that was already in place.
+- **German is now a real WordPress translation**, not the hardcoded default: `languages/bw-credits-booking-de_DE.po`/`.mo` ship in this release with the original German wording for every catalogue text, loaded automatically via the plugin's existing `load_plugin_textdomain()` call on any site running with German as its WordPress language. No admin setup needed. Since this plugin isn't hosted on wordpress.org, there's no separate "update translations" channel — the `.mo` file simply ships with the plugin itself and updates whenever the plugin updates, same as every other file.
+- New build tooling under `tools/`: `make-pot.php` (fixed — a pre-existing bug left multi-line text unescaped in the generated `.pot`), `make-de-po.php` (generates the German `.po` from a maintained translation-memory map, validated against the live catalogue), and `make-mo.php` (a dependency-free PHP `.po`→`.mo` compiler with a built-in self-check, since this environment has no `msgfmt`).
+
+### Breaking change for saved text overrides
+- **Placeholder names inside catalogue texts changed to English** to stay consistent with the flip: `{frei}`→`{free}`, `{datum}`→`{date}`, `{credits_hinzugefuegt}`→`{credits_added}`, `{credits_verbleibend}`→`{credits_remaining}`, `{konto_link}`→`{account_link}`. If you've customized a text under *BW Credits → Texte* that uses one of these placeholders, update it to the new placeholder name — otherwise the substitution silently stops working for that override. (This does **not** affect the separate email-template placeholders under *BW Credits → E-Mails*, e.g. `{datum}`/`{kurs_link}` there — those are a different, untouched system.)
+
+### Note
+This is phase 1 of a larger, multi-release effort. Still to come in later releases: the ~100+ remaining hardcoded strings in the admin screens and the booking/cancel buttons' JS messages, a full translation of code comments, and an English README.
 
 ---
 
