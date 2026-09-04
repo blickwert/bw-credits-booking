@@ -11,7 +11,7 @@ $bw_slot_pt = BW_Settings::get_slot_post_type();
 add_filter('acf/prepare_field/name=booked_count', function ($field) {
     $field['readonly']     = 1;
     $field['disabled']     = 1;
-    $field['instructions'] = ($field['instructions'] ?? '') . ' (Systemfeld – wird automatisch berechnet)';
+    $field['instructions'] = ($field['instructions'] ?? '') . ' ' . __('(system field – calculated automatically)', 'bw-credits-booking');
     return $field;
 });
 
@@ -24,8 +24,8 @@ add_action('woocommerce_product_options_general_product_data', function () {
 
     woocommerce_wp_text_input([
         'id'                => '_bw_credit_amount',
-        'label'             => 'Credit Amount',
-        'description'       => 'Wie viele Credits dieses Produkt auflädt (z.B. 12 für 10er Block).',
+        'label'             => __('Credit Amount', 'bw-credits-booking'),
+        'description'       => __('How many credits this product tops up (e.g. 12 for a 10-pack).', 'bw-credits-booking'),
         'type'              => 'number',
         'custom_attributes' => ['min' => '0', 'step' => '1'],
         'desc_tip'          => true,
@@ -33,8 +33,8 @@ add_action('woocommerce_product_options_general_product_data', function () {
 
     woocommerce_wp_text_input([
         'id'                => '_bw_credit_valid_days',
-        'label'             => 'Valid Days',
-        'description'       => 'Gültigkeit in Tagen (0 oder leer = unlimitiert).',
+        'label'             => __('Valid Days', 'bw-credits-booking'),
+        'description'       => __('Validity in days (0 or empty = unlimited).', 'bw-credits-booking'),
         'type'              => 'number',
         'custom_attributes' => ['min' => '0', 'step' => '1'],
         'desc_tip'          => true,
@@ -42,12 +42,12 @@ add_action('woocommerce_product_options_general_product_data', function () {
 
     woocommerce_wp_select([
         'id'          => '_bw_credit_source',
-        'label'       => 'Credit Source',
-        'description' => 'purchase = Einmalkauf. membership = Membership-Credits (verfallen bei Kündigung).',
+        'label'       => __('Credit Source', 'bw-credits-booking'),
+        'description' => __('purchase = one-time purchase. membership = membership credits (expire on cancellation).', 'bw-credits-booking'),
         'desc_tip'    => true,
         'options'     => [
-            'purchase'   => 'Purchase (Einmalkauf)',
-            'membership' => 'Membership (monatlich)',
+            'purchase'   => __('Purchase (one-time)', 'bw-credits-booking'),
+            'membership' => __('Membership (monthly)', 'bw-credits-booking'),
         ],
     ]);
 
@@ -115,11 +115,11 @@ add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_
 add_filter("manage_edit-{$bw_slot_pt}_columns", function ($columns) {
     $new = [
         'cb'                => $columns['cb'] ?? '',
-        'title'             => __('Title'),
-        'bw_start_datetime' => __('Start'),
-        'bw_course_level'   => __('Level'),
-        'bw_course_type'    => __('Type'),
-        'bw_course_lang'    => __('Language'),
+        'title'             => __('Title', 'bw-credits-booking'),
+        'bw_start_datetime' => __('Start', 'bw-credits-booking'),
+        'bw_course_level'   => __('Level', 'bw-credits-booking'),
+        'bw_course_type'    => __('Type', 'bw-credits-booking'),
+        'bw_course_lang'    => __('Language', 'bw-credits-booking'),
     ];
     foreach ($columns as $key => $label) {
         if (!isset($new[$key]) && $key !== 'cb' && $key !== 'title') {

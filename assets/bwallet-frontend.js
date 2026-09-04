@@ -4,7 +4,14 @@
   function qsa(sel, root) { return Array.prototype.slice.call((root || document).querySelectorAll(sel)); }
 
   function getCfg() {
-    return (typeof BW_BWALLET !== "undefined" && BW_BWALLET) ? BW_BWALLET : { restUrl: "", ajaxUrl: "", nonce: "" };
+    return (typeof BW_BWALLET !== "undefined" && BW_BWALLET) ? BW_BWALLET : {
+      restUrl: "", ajaxUrl: "", nonce: "",
+      i18n: {
+        booked: "Booked", cancelled: "Cancelled",
+        bookingIdMissing: "booking_id missing (button needs data-booking-id)",
+        cancel: "Cancel", book: "Book", requestFailed: "Request failed (%d)"
+      }
+    };
   }
 
   // Ein in gecachtem HTML ausgelieferter Nonce kann abgelaufen sein.
@@ -50,7 +57,9 @@
 
     const json = await res.json().catch(() => ({}));
     if (!res.ok) {
-      const msg = (json && json.error) ? json.error : ("Request failed (" + res.status + ")");
+      const cfg = getCfg();
+      const template = (cfg.i18n && cfg.i18n.requestFailed) || "Request failed (%d)";
+      const msg = (json && json.error) ? json.error : template.replace("%d", res.status);
       throw new Error(msg);
     }
     return json;
@@ -121,10 +130,11 @@
 
   /** Umschaltbaren Button in den jeweils anderen Zustand versetzen. */
   function flipButton(btn, toAction) {
+    const cfg = getCfg();
     btn.dataset.bwAction = toAction; // setzt zugleich data-bw-action für die Delegation
     btn.textContent = toAction === "cancel"
-      ? (btn.dataset.labelCancel || "Stornieren")
-      : (btn.dataset.labelBook || "Buchen");
+      ? (btn.dataset.labelCancel || (cfg.i18n && cfg.i18n.cancel) || "Cancel")
+      : (btn.dataset.labelBook || (cfg.i18n && cfg.i18n.book) || "Book");
 
     btn.classList.toggle("is-booked", toAction === "cancel");
     btn.disabled = false;
@@ -148,7 +158,7 @@
     let json;
     try {
       json = await post("book", { slot_id: slotId });
-      setMsg(msg, "✅ Gebucht", false);
+      setMsg(msg, "✅ " + ((getCfg().i18n && getCfg().i18n.booked) || "Booked"), false);
       btn.dataset.bookingId = json.booking_id;
 
       // Eigenständiger Storno-Button für denselben Termin bekommt die ID
@@ -184,7 +194,7 @@
     if (!bookingId) {
       const wrap0 = btn.closest("[data-bw-wrap]") || btn.parentElement;
       const msg0 = qs("[data-bw-msg]", wrap0);
-      setMsg(msg0, "❌ booking_id fehlt (Button braucht data-booking-id)", true);
+      setMsg(msg0, "❌ " + ((getCfg().i18n && getCfg().i18n.bookingIdMissing) || "booking_id missing (button needs data-booking-id)"), true);
       return;
     }
 
@@ -199,7 +209,7 @@
 
     try {
       await post("cancel", { booking_id: bookingId });
-      setMsg(msg, "✅ Storniert", false);
+      setMsg(msg, "✅ " + ((getCfg().i18n && getCfg().i18n.cancelled) || "Cancelled"), false);
 
       if (slotId) adjustAvailability(slotId, 1);
       await refreshBalance();

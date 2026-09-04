@@ -69,8 +69,8 @@ class BW_Settings {
 
         add_submenu_page(
             self::MENU_SLUG,
-            'Einstellungen',
-            'Einstellungen',
+            __('Settings', 'bw-credits-booking'),
+            __('Settings', 'bw-credits-booking'),
             self::CAPABILITY,
             self::MENU_SLUG,
             [__CLASS__, 'render_page']
@@ -97,15 +97,15 @@ class BW_Settings {
             ]);
         }
 
-        add_settings_section('bw_general', 'Allgemein', function () {
-            echo '<p>Grundeinstellungen für Kurstermine und Buchungen.</p>';
+        add_settings_section('bw_general', __('General', 'bw-credits-booking'), function () {
+            echo '<p>' . esc_html__('General settings for sessions and bookings.', 'bw-credits-booking') . '</p>';
         }, self::MENU_SLUG);
 
-        add_settings_field(self::OPT_POST_TYPE, 'Kurstermin-Inhaltstyp', [__CLASS__, 'field_post_type'], self::MENU_SLUG, 'bw_general');
-        add_settings_field(self::OPT_DEFAULT_CAPACITY, 'Standard-Kapazität', [__CLASS__, 'field_default_capacity'], self::MENU_SLUG, 'bw_general');
-        add_settings_field(self::OPT_CUTOFF_HOURS, 'Storno-Frist (Stunden)', [__CLASS__, 'field_cutoff_hours'], self::MENU_SLUG, 'bw_general');
-        add_settings_field(self::OPT_REMINDER_HOURS, 'Erinnerung (Stunden vorher)', [__CLASS__, 'field_reminder_hours'], self::MENU_SLUG, 'bw_general');
-        add_settings_field(self::OPT_AVAILABILITY_CAP, 'Verfügbarkeits-Schwelle', [__CLASS__, 'field_availability_cap'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_POST_TYPE, __('Course session post type', 'bw-credits-booking'), [__CLASS__, 'field_post_type'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_DEFAULT_CAPACITY, __('Default capacity', 'bw-credits-booking'), [__CLASS__, 'field_default_capacity'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_CUTOFF_HOURS, __('Cancellation deadline (hours)', 'bw-credits-booking'), [__CLASS__, 'field_cutoff_hours'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_REMINDER_HOURS, __('Reminder (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_reminder_hours'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_AVAILABILITY_CAP, __('Availability threshold', 'bw-credits-booking'), [__CLASS__, 'field_availability_cap'], self::MENU_SLUG, 'bw_general');
     }
 
     public static function sanitize_post_type($value): string {
@@ -137,10 +137,18 @@ class BW_Settings {
             );
         }
         echo '</select>';
-        echo '<p class="description">Welcher Inhaltstyp die Kurstermine enthält. Buchungen, Teilnehmerlisten und Kapazität beziehen sich auf diesen Typ.</p>';
+        echo '<p class="description">' . esc_html__('Which post type holds the course sessions. Bookings, participant lists, and capacity all refer to this type.', 'bw-credits-booking') . '</p>';
 
         if (!post_type_exists($current)) {
-            echo '<p style="color:#b32d2e"><strong>Achtung:</strong> Der gespeicherte Typ <code>' . esc_html($current) . '</code> ist aktuell nicht registriert.</p>';
+            printf(
+                '<p style="color:#b32d2e"><strong>%s</strong> %s</p>',
+                esc_html__('Warning:', 'bw-credits-booking'),
+                sprintf(
+                    /* translators: %s: the currently saved (but unregistered) post type slug */
+                    esc_html__('The saved type %s is not currently registered.', 'bw-credits-booking'),
+                    '<code>' . esc_html($current) . '</code>'
+                )
+            );
         }
     }
 
@@ -150,7 +158,7 @@ class BW_Settings {
             esc_attr(self::OPT_DEFAULT_CAPACITY),
             self::get_default_capacity()
         );
-        echo '<p class="description">Wird verwendet wenn beim Termin keine eigene Kapazität eingetragen ist.</p>';
+        echo '<p class="description">' . esc_html__('Used when no capacity is set for the session itself.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_cutoff_hours() {
@@ -159,7 +167,7 @@ class BW_Settings {
             esc_attr(self::OPT_CUTOFF_HOURS),
             self::get_cancel_cutoff_hours()
         );
-        echo '<p class="description">Bis wie viele Stunden vor Kursbeginn Kunden selbst stornieren dürfen.</p>';
+        echo '<p class="description">' . esc_html__('How many hours before the session start customers may cancel on their own.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_reminder_hours() {
@@ -168,7 +176,7 @@ class BW_Settings {
             esc_attr(self::OPT_REMINDER_HOURS),
             self::get_reminder_hours()
         );
-        echo '<p class="description">Wann die Erinnerungs-E-Mail verschickt wird. 0 = keine Erinnerung.</p>';
+        echo '<p class="description">' . esc_html__('When the reminder email is sent. 0 = no reminder.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_availability_cap() {
@@ -177,7 +185,7 @@ class BW_Settings {
             esc_attr(self::OPT_AVAILABILITY_CAP),
             self::get_availability_cap()
         );
-        echo '<p class="description">Ab wie vielen freien Plätzen nur noch „mehr als N Plätze frei" statt der genauen Zahl angezeigt wird. 0 = immer die genaue Zahl.</p>';
+        echo '<p class="description">' . esc_html__('From how many free spots onward only "more than N spots available" is shown instead of the exact number. 0 = always show the exact number.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------
@@ -188,7 +196,7 @@ class BW_Settings {
         if (!current_user_can(self::CAPABILITY)) return;
         ?>
         <div class="wrap">
-            <h1>BW Credits – Einstellungen</h1>
+            <h1>BW Credits – <?php esc_html_e('Settings', 'bw-credits-booking'); ?></h1>
             <form method="post" action="options.php">
                 <?php
                 settings_fields('bw_credits_settings');
