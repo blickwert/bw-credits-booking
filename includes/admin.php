@@ -115,11 +115,11 @@ add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_
 add_filter("manage_edit-{$bw_slot_pt}_columns", function ($columns) {
     $new = [
         'cb'                => $columns['cb'] ?? '',
-        'title'             => __('Title'),
-        'bw_start_datetime' => __('Start'),
-        'bw_course_level'   => __('Level'),
-        'bw_course_type'    => __('Type'),
-        'bw_course_lang'    => __('Language'),
+        'title'             => __('Title', 'bw-credits-booking'),
+        'bw_start_datetime' => __('Start', 'bw-credits-booking'),
+        'bw_course_level'   => __('Level', 'bw-credits-booking'),
+        'bw_course_type'    => __('Type', 'bw-credits-booking'),
+        'bw_course_lang'    => __('Language', 'bw-credits-booking'),
     ];
     foreach ($columns as $key => $label) {
         if (!isset($new[$key]) && $key !== 'cb' && $key !== 'title') {

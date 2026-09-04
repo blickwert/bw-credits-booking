@@ -1,14 +1,15 @@
 <?php
 /**
  * Generates languages/bw-credits-booking-de_DE.po — the German
- * translation of the (now English) text catalogue, captured from the
- * original German wording at the moment the catalogue was flipped to
- * English (v0.17.0).
+ * translation of every English string this plugin ships: the text
+ * catalogue (includes/text.php, flipped to English in v0.17.0), its
+ * GROUPS headings, and the literal-string __()-style calls scattered
+ * across the admin-facing PHP files (Phase 2, v0.18.0+).
  *
  * Validates the hand-maintained ENGLISH_TO_GERMAN map below against the
- * live catalogue: every current English default must have a German
- * translation, and vice versa — so the .po can never silently drift out
- * of sync with includes/text.php.
+ * combined set of all three sources: every English string currently in
+ * use must have a German translation, and vice versa — so the .po can
+ * never silently drift out of sync with the source it's meant to cover.
  *
  * Usage:  php tools/make-de-po.php
  *         (run after tools/make-pot.php, before tools/make-mo.php)
@@ -28,6 +29,7 @@ if (!function_exists('load_plugin_textdomain')){ function load_plugin_textdomain
 if (!defined('BW_CREDITS_BOOKING_FILE'))       { define('BW_CREDITS_BOOKING_FILE', __FILE__); }
 
 require __DIR__ . '/po-format.php';
+require __DIR__ . '/scan-source-strings.php';
 require __DIR__ . '/../includes/text.php';
 
 /**
@@ -104,24 +106,58 @@ const ENGLISH_TO_GERMAN = [
     'Your credit balance has been topped up' => 'Dein Guthaben wurde aufgeladen',
     "{credits_added} credits have been added to your account. Current balance: {credits_remaining}.\n\nManage your credits and bookings here: {account_link}" =>
         "{credits_added} Credits wurden deinem Konto gutgeschrieben. Aktuelles Guthaben: {credits_remaining}.\n\nHier verwaltest du dein Guthaben und deine Buchungen: {account_link}",
+
+    /* =====================================================
+     * includes/admin.php — course_slot admin column headers.
+     * 'Level' and 'Language' reuse the identical catalogue texts
+     * from course_list.filter.level / course_list.filter.lang above,
+     * so only the genuinely new headers need an entry here.
+     * ===================================================== */
+    'Title' => 'Titel',
+    'Start' => 'Beginn',
+    'Type' => 'Typ',
+
+    /* =====================================================
+     * includes/text.php — BW_Text::GROUPS headings (10 entries)
+     * ===================================================== */
+    'Booking and Cancelling' => 'Buchen und Stornieren',
+    'Availability' => 'Verfügbarkeit',
+    'Credit Balance' => 'Guthaben',
+    'Credit Balance Details' => 'Guthaben im Detail',
+    'Booking List' => 'Buchungsliste',
+    'Session List' => 'Terminliste',
+    'Access Details' => 'Zugangsdaten',
+    'Account Overview' => 'Konto-Übersicht',
+    'Error Messages' => 'Fehlermeldungen',
+    'Order Confirmation Email' => 'E-Mail nach Bestellung',
 ];
 
-// --- Validate against the live catalogue before writing anything ---
+// --- Validate against the combined live source set before writing anything ---
+
+$live_texts = [];
 
 $entries = BW_Text::catalogue();
-$catalogue_texts = [];
 foreach ($entries as $key => [$default, $description, $group]) {
-    $catalogue_texts[$default] = true;
+    $live_texts[$default] = true;
+}
+
+foreach (BW_Text::GROUPS as $heading) {
+    $live_texts[$heading] = true;
+}
+
+$scanned = bw_scan_source_strings(bw_scan_default_files());
+foreach (array_keys($scanned) as $text) {
+    $live_texts[$text] = true;
 }
 
 $missing = [];
-foreach (array_keys($catalogue_texts) as $text) {
+foreach (array_keys($live_texts) as $text) {
     if (!array_key_exists($text, ENGLISH_TO_GERMAN)) $missing[] = $text;
 }
 
 $extra = [];
 foreach (array_keys(ENGLISH_TO_GERMAN) as $text) {
-    if (!isset($catalogue_texts[$text])) $extra[] = $text;
+    if (!isset($live_texts[$text])) $extra[] = $text;
 }
 
 if ($missing || $extra) {

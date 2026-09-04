@@ -5,6 +5,24 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.18.0] – 2026-09-04
+
+Phase 2a of the English-source migration: build tooling to cover the remaining hardcoded strings in the admin screens, plus two fixes surfaced along the way.
+
+### Added
+- **`tools/scan-source-strings.php`**: a dependency-free PHP scanner (using `token_get_all()`, since neither `xgettext` nor `msgfmt` exist in the build environment) that finds literal-string calls to `__()`/`esc_html__()`/`esc_html_e()`/`esc_attr__()`/`esc_attr_e()`/`_e()` using the `bw-credits-booking` text domain across the admin-facing PHP files. Unlike the text catalogue's runtime-variable strings, these are genuine literals a scanner can see safely.
+- **`tools/make-pot.php`** now merges three sources into one `.pot`: the text catalogue (unchanged), `BW_Text::GROUPS` headings (new), and the scanner's output (new) — deduplicated by text across all three.
+- **`tools/make-de-po.php`**'s `MISSING:`/`EXTRA:` validation now checks the combined set from all three sources, so a newly-wrapped string can never silently ship without a German translation.
+
+### Fixed
+- **`includes/text.php`'s `GROUPS` headings and the Text-Katalog admin screen's per-entry descriptions are now translatable.** Phase 1 left these two spots unwrapped because the fix could only happen at their `admin-pages.php` render call sites, not in `text.php` itself (PHP forbids function calls in `const` initializers) — done now.
+- **A pre-existing bug in `includes/admin.php`**: the `course_slot` admin list's column headers (`Title`, `Start`, `Level`, `Type`, `Language`) called `__()` with no text domain, so they silently fell back to WordPress core's own translation instead of this plugin's — never actually translatable by this plugin's `.mo`, even though the text was already English. Fixed by adding the domain argument.
+
+### Note
+This is phase 2a — the actual ~190 hardcoded strings across `admin-pages.php`, `metaboxes.php`, `settings.php` and the JS booking/cancel messages are still German-only, and are covered in the next release (2b), which builds on this tooling.
+
+---
+
 ## [0.17.0] – 2026-09-04
 
 Phase 1 of switching the plugin's source language from German to English: the text catalogue (`includes/text.php`, admin/frontend copy shown to users) now defaults to English, with German delivered as a standard WordPress translation.

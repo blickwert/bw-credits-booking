@@ -290,3 +290,65 @@ msgstr "Dein Guthaben wurde aufgeladen"
 msgid "{credits_added} credits have been added to your account. Current balance: {credits_remaining}.\n\nManage your credits and bookings here: {account_link}"
 msgstr "{credits_added} Credits wurden deinem Konto gutgeschrieben. Aktuelles Guthaben: {credits_remaining}.\n\nHier verwaltest du dein Guthaben und deine Buchungen: {account_link}"
 
+#: includes/admin.php:118
+msgid "Title"
+msgstr "Titel"
+
+#: includes/admin.php:119
+msgid "Start"
+msgstr "Beginn"
+
+#: includes/admin.php:121
+msgid "Type"
+msgstr "Typ"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.booking
+msgid "Booking and Cancelling"
+msgstr "Buchen und Stornieren"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.availability
+msgid "Availability"
+msgstr "Verfügbarkeit"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.balance
+msgid "Credit Balance"
+msgstr "Guthaben"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.credits
+msgid "Credit Balance Details"
+msgstr "Guthaben im Detail"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.bookings
+msgid "Booking List"
+msgstr "Buchungsliste"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.course_list
+msgid "Session List"
+msgstr "Terminliste"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.access
+msgid "Access Details"
+msgstr "Zugangsdaten"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.overview
+msgid "Account Overview"
+msgstr "Konto-Übersicht"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.error
+msgid "Error Messages"
+msgstr "Fehlermeldungen"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.order_email
+msgid "Order Confirmation Email"
+msgstr "E-Mail nach Bestellung"
+

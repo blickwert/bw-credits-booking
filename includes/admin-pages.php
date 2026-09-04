@@ -766,7 +766,7 @@ class BW_Admin_Pages {
         foreach (BW_Text::GROUPS as $group => $heading) {
             if (empty($by_group[$group])) continue;
 
-            printf('<h2>%s</h2>', esc_html($heading));
+            printf('<h2>%s</h2>', esc_html__($heading, 'bw-credits-booking'));
             echo '<table class="form-table"><tbody>';
 
             foreach ($by_group[$group] as $key => [$default, $description]) {
@@ -775,7 +775,7 @@ class BW_Admin_Pages {
                 <tr>
                     <th scope="row">
                         <label for="<?php echo esc_attr('bwtxt-' . $key); ?>">
-                            <?php echo esc_html($description); ?>
+                            <?php echo esc_html__($description, 'bw-credits-booking'); ?>
                         </label>
                     </th>
                     <td>
