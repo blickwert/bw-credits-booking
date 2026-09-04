@@ -2,16 +2,17 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_credits_user_credits] — Guthaben im Detail.
+ * [bw_credits_user_credits] — credit balance in detail.
  *
- * Zeigt was der Kunde hat, woher es stammt und wann es verfällt. Die Zahl
- * allein ("10 Credits") sagt nichts darüber, dass davon fünf zum Monatsende
- * ablaufen — genau das führt sonst zu Rückfragen.
+ * Shows what the customer has, where it came from, and when it expires.
+ * The number alone ("10 credits") doesn't reveal that five of them
+ * expire at month's end — which is exactly what otherwise leads to
+ * support questions.
  */
 
 class BW_View_Credits {
 
-    /** Ab wann ein Ablaufdatum hervorgehoben wird */
+    /** From how many days out an expiry date gets highlighted */
     const SOON_DAYS = 30;
 
     private static function source_labels(): array {
@@ -25,7 +26,7 @@ class BW_View_Credits {
     public static function render($atts) {
         $atts = shortcode_atts([
             'show_expired' => 'false',
-            'empty'        => '',   // leer = Text aus dem Katalog
+            'empty'        => '',   // empty = text from the catalogue
         ], $atts, 'bw_credits_user_credits');
 
         if (!is_user_logged_in()) return '';
@@ -85,8 +86,8 @@ class BW_View_Credits {
     }
 
     /**
-     * Credits nach Herkunft und Ablaufdatum bündeln — zehn einzelne Zeilen
-     * für einen 10er-Block wären für den Kunden nur Rauschen.
+     * Groups credits by origin and expiry date — ten separate rows for
+     * a 10-pack would just be noise for the customer.
      */
     private static function group(array $credits, bool $show_expired): array {
         $now    = time();
@@ -115,7 +116,7 @@ class BW_View_Credits {
             $groups[$key]['count']++;
         }
 
-        // Bald ablaufende zuerst, unbegrenzte zuletzt
+        // Soon-to-expire first, unlimited last
         uasort($groups, static function ($a, $b) {
             if ($a['status'] !== $b['status']) {
                 return $a['status'] === 'available' ? -1 : 1;

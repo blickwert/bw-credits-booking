@@ -1,19 +1,19 @@
 <?php
 /**
- * [bw_credits_view_overview] — Konto-Übersicht
+ * [bw_credits_view_overview] — account overview
  *
- * Guthaben, kommende Kurstermine (mit Verfügbarkeit und Buchen/Stornieren-
- * Button, wiederverwendet aus der Terminliste) und Einstiegslinks in einem
- * Block. Gedacht fürs WooCommerce-Konto-Dashboard.
+ * Credit balance, upcoming sessions (with availability and a
+ * book/cancel button, reused from the session list), and entry-point
+ * links, all in one block. Intended for the WooCommerce account dashboard.
  *
  * Override: yourtheme/bw-credits-booking/view_overview/view_overview.php
  *
  * @var bool   $show_balance
- * @var bool   $show_next       schaltet den Block "Kommende Kurse"
+ * @var bool   $show_next       toggles the "Upcoming courses" block
  * @var bool   $show_links
- * @var int    $available       nur relevant wenn $show_balance
- * @var string $balance_label   nur relevant wenn $show_balance
- * @var int    $next_limit      Anzahl Termine im Block "Kommende Kurse"
+ * @var int    $available       only relevant when $show_balance
+ * @var string $balance_label   only relevant when $show_balance
+ * @var int    $next_limit      number of sessions in the "Upcoming courses" block
  * @var array  $links           [['url' => string, 'label' => string], …]
  * @version 0.15.0
  */

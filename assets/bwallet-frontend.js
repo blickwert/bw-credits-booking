@@ -14,8 +14,8 @@
     };
   }
 
-  // Ein in gecachtem HTML ausgelieferter Nonce kann abgelaufen sein.
-  // admin-ajax wird nie gecacht und liefert einen frischen.
+  // A nonce delivered in cached HTML can be expired.
+  // admin-ajax is never cached and returns a fresh one.
   async function refreshNonce() {
     const cfg = getCfg();
     if (!cfg.ajaxUrl) return false;
@@ -92,19 +92,19 @@
     }
   }
 
-  // Container mit beiden Zuständen umschalten, damit der Hinweis auf leeres
-  // Guthaben schon beim Verbrauch des letzten Credits erscheint statt erst
-  // nach einem Reload.
+  // Toggle the container between both states, so the note about an
+  // empty balance appears right when the last credit is used up instead
+  // of only after a reload.
   function setBalanceState(available) {
     qsa("[data-bw-balance-wrap]").forEach(function (el) {
       el.dataset.bwState = available > 0 ? "has" : "empty";
     });
   }
 
-  // Freie Plätze ohne Neuladen mitführen. Drei Varianten stehen im Markup,
-  // umgeschaltet wird über data-bw-state. Die Zahl in data-bw-free bleibt
-  // auch im "many"-Zustand aktuell, damit ein Wechsel unter die Schwelle
-  // sofort die richtige Zahl zeigt statt einer veralteten.
+  // Keep free spots up to date without a reload. Three variants sit in
+  // the markup, toggled via data-bw-state. The number in data-bw-free
+  // stays current even in the "many" state, so crossing below the
+  // threshold immediately shows the right number instead of a stale one.
   function availabilityState(free, cap) {
     if (free <= 0) return "full";
     if (cap > 0 && free > cap) return "many";
@@ -128,10 +128,10 @@
     return btn.dataset.bwToggle === "1";
   }
 
-  /** Umschaltbaren Button in den jeweils anderen Zustand versetzen. */
+  /** Switches a toggleable button to its other state. */
   function flipButton(btn, toAction) {
     const cfg = getCfg();
-    btn.dataset.bwAction = toAction; // setzt zugleich data-bw-action für die Delegation
+    btn.dataset.bwAction = toAction; // also sets data-bw-action for the delegation
     btn.textContent = toAction === "cancel"
       ? (btn.dataset.labelCancel || (cfg.i18n && cfg.i18n.cancel) || "Cancel")
       : (btn.dataset.labelBook || (cfg.i18n && cfg.i18n.book) || "Book");
@@ -161,7 +161,7 @@
       setMsg(msg, "✅ " + ((getCfg().i18n && getCfg().i18n.booked) || "Booked"), false);
       btn.dataset.bookingId = json.booking_id;
 
-      // Eigenständiger Storno-Button für denselben Termin bekommt die ID
+      // A standalone cancel button for the same session gets the ID
       const cancelBtn = qs('[data-bw-action="cancel"][data-slot-id="' + slotId + '"]');
       if (cancelBtn) cancelBtn.dataset.bookingId = json.booking_id;
 

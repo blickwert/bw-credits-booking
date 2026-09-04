@@ -2,16 +2,17 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_credits_course_list] — Terminliste mit optionalen Filtern.
+ * [bw_credits_course_list] — session list with optional filters.
  *
- * Reine Logik hier — das Markup liegt in templates/course_list/course_list.php,
- * überschreibbar im Theme unter bw-credits-booking/course_list/. Wortlaut
- * kommt über bw_text(), nicht aus dieser Datei oder dem Template.
+ * Pure logic here — the markup lives in
+ * templates/course_list/course_list.php, overridable in the theme under
+ * bw-credits-booking/course_list/. Wording comes via bw_text(), not from
+ * this file or the template.
  */
 
 class BW_Course_List {
 
-    /** Taxonomien für Anzeige und Filter — fehlende werden übersprungen. */
+    /** Taxonomies for display and filtering — missing ones are skipped. */
     private static function taxonomies(): array {
         return [
             'course_type'  => bw_text('course_list.filter.type'),
@@ -31,7 +32,7 @@ class BW_Course_List {
             'show_action'  => 'true',
             'availability' => 'true',
             'group_by_day' => 'true',
-            'empty'        => '',   // leer = Text aus dem Katalog
+            'empty'        => '',   // empty = text from the catalogue
         ], $atts, 'bw_credits_course_list');
 
         $show_filter = filter_var($atts['show_filter'], FILTER_VALIDATE_BOOLEAN);
@@ -65,8 +66,8 @@ class BW_Course_List {
     }
 
     /* ---------------------------------------------------------
-     * Auswahl: Shortcode-Attribute, bei aktivem Filter vom Formular
-     * überschrieben
+     * Selection: shortcode attributes, overridden by the form when the
+     * filter is active
      * --------------------------------------------------------- */
 
     private static function selected_terms(array $atts, bool $show_filter): array {
@@ -89,7 +90,7 @@ class BW_Course_List {
     }
 
     /* ---------------------------------------------------------
-     * Abfrage
+     * Query
      * --------------------------------------------------------- */
 
     private static function query_slots(array $atts, array $selected): array {
@@ -143,15 +144,15 @@ class BW_Course_List {
             $args['tax_query'] = $tax_query;
         }
 
-        // Erlaubt Sortierung, Ausschlüsse oder zusätzliche Filter ohne
-        // Template-Kopie — z. B. um bereits gebuchte Termine auszublenden
+        // Allows sorting, exclusions, or additional filters without a
+        // template copy — e.g. to hide sessions already booked
         $args = apply_filters('bw_course_list_query_args', $args, $atts, $selected);
 
         return get_posts($args);
     }
 
     /* ---------------------------------------------------------
-     * Filterformular — Daten fürs Template, kein Markup hier
+     * Filter form — data for the template, no markup here
      * --------------------------------------------------------- */
 
     private static function build_filter_data(array $selected): array {
@@ -174,7 +175,7 @@ class BW_Course_List {
         }
 
         $reset_url = $selected
-            // Nur die Filter entfernen — Seiten-Parameter wie page_id bleiben
+            // Only remove the filters — page parameters like page_id stay
             ? (string) remove_query_arg(['bw_type', 'bw_level', 'bw_lang'])
             : '';
 

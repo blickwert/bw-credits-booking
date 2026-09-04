@@ -1,16 +1,16 @@
 <?php
 /**
- * [bw_credits_user_bookings] — Buchungsliste
+ * [bw_credits_user_bookings] — booking list
  *
  * Override: yourtheme/bw-credits-booking/user_bookings/user_bookings.php
  *
- * @var array  $items    leer = $empty_message wird gezeigt
+ * @var array  $items    empty = $empty_message is shown
  * @var string $empty_message
  *
- * Je Eintrag in $items:
+ * Per entry in $items:
  *   'slot_id', 'booking_id', 'status', 'is_active', 'slot_title',
- *   'permalink' (leer = kein Permalink), 'start_str', 'status_label',
- *   'meta_bits' (Kursart/Level/Sprache, gefiltert), 'can_cancel', 'show_access'
+ *   'permalink' (empty = no permalink), 'start_str', 'status_label',
+ *   'meta_bits' (course type/level/language, filtered), 'can_cancel', 'show_access'
  *
  * @version 0.15.0
  */

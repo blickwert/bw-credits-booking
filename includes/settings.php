@@ -2,9 +2,9 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Settings-Infrastruktur + Admin-Menü
+ * Settings infrastructure + admin menu
  *
- * Andere Plugin-Teile hängen ihre Unterseiten via BW_Settings::MENU_SLUG ein.
+ * Other plugin parts hook in their subpages via BW_Settings::MENU_SLUG.
  */
 
 class BW_Settings {
@@ -24,7 +24,7 @@ class BW_Settings {
     }
 
     /* ---------------------------------------------------------
-     * Getter — überall im Plugin statt hartkodierter Werte nutzen
+     * Getters — use these everywhere in the plugin instead of hardcoded values
      * --------------------------------------------------------- */
 
     public static function get_slot_post_type(): string {
@@ -45,15 +45,15 @@ class BW_Settings {
     }
 
     /**
-     * Ab wie vielen freien Plätzen "mehr als N Plätze frei" statt der
-     * exakten Zahl angezeigt wird.
+     * From how many free spots onward "more than N spots available" is
+     * shown instead of the exact number.
      */
     public static function get_availability_cap(): int {
         return max(0, (int) get_option(self::OPT_AVAILABILITY_CAP, 5));
     }
 
     /* ---------------------------------------------------------
-     * Menü
+     * Menu
      * --------------------------------------------------------- */
 
     public static function register_menu() {

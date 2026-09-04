@@ -166,6 +166,9 @@ function bw_scan_default_files(): array {
         'includes/metaboxes.php',
         'includes/settings.php',
         'includes/admin.php',
+        'includes/emails.php',
+        'includes/templates.php',
+        'includes/updater.php',
         'bw-credits-booking.php',
     ];
 }

@@ -5,6 +5,26 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.20.0] – 2026-09-04
+
+Phase 3 of the English-source migration: all code comments across the plugin are now English, plus a few genuinely user-facing strings that earlier phases missed.
+
+### Changed
+- **All PHP/JS/CSS code comments** across the plugin — `bw-credits-booking.php`, every file under `includes/`, all eight `templates/*/*.php` files, and `assets/bwallet-frontend.js`/`.css` — are now written in English. Comments were previously out of scope for the English-source migration; the codebase is now consistently English apart from one deliberate exception (see below).
+- **The Templates admin page's descriptions** (`includes/templates.php`'s template registry, shown under *BW Credits → Templates*) are now English by default, translated the same way as everything else — this mirrors the `GROUPS`/description fix from 0.18.0, since the value has to be wrapped at its source in `templates.php`, not at the display call site.
+- **The Emails settings page** (`includes/emails.php`) — its email-type labels/descriptions and the settings-page chrome (headings, field labels) are now English by default, translated via the standard pipeline. This page was out of scope for phases 1–2 (a separate subsystem) but was clearly the same kind of admin-facing string, so it's fixed now rather than left inconsistent.
+- **The GitHub-updater's "View Details" text** (`includes/updater.php`) — the plugin description and the changelog fallback message shown in WordPress's plugin-update modal are now translated.
+
+### Fixed
+- **Five genuine user-facing strings** that earlier phases missed, found during the comment sweep — all in `bw-credits-booking.php`: the `set_no_show()` error, three `WP_Error` messages in `grant_credits()`/`revoke_credit()`/`admin_book_slot()`, and the two `[bw_demo_book_slot]`/`[bw_demo_cancel_booking]` demo shortcodes' output text. These were plain hardcoded German strings with no translation wrapper at all; they're now `__()`-wrapped and translated like everything else.
+
+### Note
+**Deliberately left untouched**: the actual default email subject/body content in `BW_Emails::defaults()` (the customer-facing wording of the booking confirmation, cancellation, reminder, access-details, and admin-copy emails) is a separate, WPML-driven subsystem with its own placeholder syntax (`{kundenname}`, `{kurs_titel}`, etc.) — translating the business copy itself is a bigger content decision than a comment sweep, and is left for a future release if wanted.
+
+Still to come: an English README (the CHANGELOG stays German for historical entries, English going forward, as already noted in 0.17.0).
+
+---
+
 ## [0.19.0] – 2026-09-04
 
 Phase 2b of the English-source migration: the admin screens and the frontend booking/cancel JS messages are now English source, with German covered by the same translation pipeline.

@@ -1,26 +1,26 @@
 <?php
 /**
- * [bw_credits_course_list] — Terminliste
+ * [bw_credits_course_list] — session list
  *
- * Rahmen, optionales Filterformular, Tagesgruppierung und die einzelnen
- * Terminzeilen in einer Datei.
+ * Frame, optional filter form, day grouping, and the individual session
+ * rows all in one file.
  *
  * Override: yourtheme/bw-credits-booking/course_list/course_list.php
  *
- * @var array  $items         [['slot' => WP_Post, 'ts' => int|null], …], leer = $empty_message
+ * @var array  $items         [['slot' => WP_Post, 'ts' => int|null], …], empty = $empty_message
  * @var string $empty_message
- * @var array  $taxonomies    taxonomy => Label, für die Meta-Zeile je Termin
+ * @var array  $taxonomies    taxonomy => label, for the meta line per session
  * @var bool   $group_by_day
  * @var bool   $show_action
  * @var bool   $show_avail
  * @var bool   $show_filter
- * @var array  $filter        nur relevant wenn $show_filter — siehe unten
+ * @var array  $filter        only relevant when $show_filter — see below
  *
- * $filter, wenn $show_filter true ist:
+ * $filter, when $show_filter is true:
  *   'available' taxonomy => ['label' => string, 'terms' => WP_Term[]]
- *   'selected'  taxonomy => gewählter Term-Slug
- *   'hidden'    Query-Parameter => Wert, als hidden fields erhalten
- *   'reset_url' leer wenn kein Filter aktiv ist
+ *   'selected'  taxonomy => the selected term slug
+ *   'hidden'    query parameter => value, kept as hidden fields
+ *   'reset_url' empty if no filter is active
  *
  * @version 0.15.0
  */
@@ -103,7 +103,7 @@ if (!defined('ABSPATH')) exit;
 
                     <div class="bw-course-slot-side">
                         <?php
-                        // Direkte Aufrufe statt do_shortcode — spart das Parsen je Zeile
+                        // Direct calls instead of do_shortcode — saves parsing per row
                         if ($show_avail) {
                             echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
                         }

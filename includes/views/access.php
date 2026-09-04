@@ -2,11 +2,11 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_credits_course_access] — Zugangsdaten zum Online-Kurs.
+ * [bw_credits_course_access] — access details for the online session.
  *
- * Sichtbar ausschließlich für eingeloggte Nutzer mit aktiver Buchung für
- * genau diesen Termin. Ohne Buchung wird nichts ausgegeben — auch kein
- * Hinweis, der verraten würde dass es überhaupt Zugangsdaten gibt.
+ * Visible only to logged-in users with an active booking for exactly
+ * this session. Without a booking, nothing is output — not even a note
+ * that would reveal that access details exist at all.
  */
 
 class BW_View_Access {
@@ -14,7 +14,7 @@ class BW_View_Access {
     public static function render($atts) {
         $atts = shortcode_atts([
             'course_id' => 0,
-            'title'     => '',   // leer = Text aus dem Katalog
+            'title'     => '',   // empty = text from the catalogue
         ], $atts, 'bw_credits_course_access');
 
         if (!is_user_logged_in()) return '';

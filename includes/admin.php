@@ -1,11 +1,11 @@
 <?php
 if (!defined('ABSPATH')) exit;
 
-// Inhaltstyp der Kurstermine — konfigurierbar unter BW Credits → Einstellungen
+// Post type of the course sessions — configurable under BW Credits → Settings
 $bw_slot_pt = BW_Settings::get_slot_post_type();
 
 /* =========================================================
- * ACF: booked_count – readonly + disabled im Admin
+ * ACF: booked_count – readonly + disabled in the admin
  * ========================================================= */
 
 add_filter('acf/prepare_field/name=booked_count', function ($field) {
@@ -16,7 +16,7 @@ add_filter('acf/prepare_field/name=booked_count', function ($field) {
 });
 
 /* =========================================================
- * WooCommerce: Credit Amount + Valid Days Produktfelder
+ * WooCommerce: Credit Amount + Valid Days product fields
  * ========================================================= */
 
 add_action('woocommerce_product_options_general_product_data', function () {
@@ -70,11 +70,11 @@ add_action('woocommerce_admin_process_product_object', function ($product) {
 });
 
 /* =========================================================
- * Kurstermin: Auto-Titel beim Speichern
- * post_title = Name der Kursart, z. B. "Hatha Yoga"
+ * Course session: auto-title on save
+ * post_title = the course type's name, e.g. "Hatha Yoga"
  *
- * Kein Datum im Titel — die Startzeit wird in Terminliste und
- * Buchungsliste bereits separat angezeigt, im Titel war sie redundant.
+ * No date in the title — the start time is already shown separately in
+ * the session list and booking list, so it was redundant in the title.
  * ========================================================= */
 
 add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
@@ -99,9 +99,9 @@ add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
 }, 20);
 
 /* =========================================================
- * Kurstermine im Classic Editor bearbeiten
- * Die Metaboxen (Kapazität, Teilnehmer, Online-Zugang) sind darauf
- * ausgelegt; im Block-Editor landen sie in der unteren Leiste.
+ * Edit course sessions in the Classic Editor
+ * The meta boxes (capacity, participants, online access) are designed
+ * for it; in the block editor they end up in the bottom panel.
  * ========================================================= */
 
 add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_type) use ($bw_slot_pt) {
@@ -109,7 +109,7 @@ add_filter('use_block_editor_for_post_type', function ($use_block_editor, $post_
 }, 10, 2);
 
 /* =========================================================
- * Kurstermin: Admin-Columns definieren
+ * Course session: define admin columns
  * ========================================================= */
 
 add_filter("manage_edit-{$bw_slot_pt}_columns", function ($columns) {
@@ -147,7 +147,7 @@ add_action("manage_{$bw_slot_pt}_posts_custom_column", function ($column, $post_
 }, 10, 2);
 
 /* =========================================================
- * Kurstermin: Columns sortierbar machen
+ * Course session: make columns sortable
  * ========================================================= */
 
 add_filter("manage_edit-{$bw_slot_pt}_sortable_columns", function ($sortable) {
@@ -159,7 +159,7 @@ add_filter("manage_edit-{$bw_slot_pt}_sortable_columns", function ($sortable) {
     return $sortable;
 });
 
-// Meta sort für start_datetime
+// Meta sort for start_datetime
 add_action('pre_get_posts', function ($query) use ($bw_slot_pt) {
     if (!is_admin() || !$query->is_main_query()) return;
     if ($query->get('post_type') !== $bw_slot_pt) return;

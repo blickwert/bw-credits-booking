@@ -2,12 +2,13 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_credits_view_overview] — Konto-Übersicht.
+ * [bw_credits_view_overview] — account overview.
  *
- * Guthaben, kommende Kurstermine (wiederverwendet aus der Terminliste, samt
- * Verfügbarkeit und Buchen/Stornieren-Button) und Einstiegslinks in einem
- * Block. Gedacht fürs WooCommerce-Konto-Dashboard. Markup liegt in
- * templates/view_overview/view_overview.php, überschreibbar im Theme.
+ * Credit balance, upcoming sessions (reused from the session list,
+ * including availability and a book/cancel button), and entry-point
+ * links, all in one block. Intended for the WooCommerce account
+ * dashboard. Markup lives in
+ * templates/view_overview/view_overview.php, overridable in the theme.
  */
 
 class BW_View_Overview {
@@ -23,7 +24,7 @@ class BW_View_Overview {
 
         if (!is_user_logged_in()) return '';
 
-        // data-bw-balance wird vom JS aktualisiert — Skript und Styles nötig
+        // data-bw-balance is updated by the JS — script and styles are needed
         BW_Credits_Bookings_MVP::ensure_assets();
 
         $user_id       = get_current_user_id();

@@ -1,20 +1,20 @@
 <?php
 /**
- * Verfügbarkeit — freie Plätze eines Termins
+ * Availability — a session's free spots
  *
  * Override: yourtheme/bw-credits-booking/course_availability/course_availability.php
  *
- * Drei Zustände stehen gleichzeitig im Markup und werden über data-bw-state
- * umgeschaltet, damit das JS nach Buchung/Storno live wechseln kann — auch
- * über die Schwelle hinweg (exakte Zahl ↔ "mehr als N").
+ * All three states sit in the markup at once and are toggled via
+ * data-bw-state, so the JS can switch live after a booking/cancellation
+ * — even across the threshold (exact number ↔ "more than N").
  *
  * @var int    $slot_id
- * @var int    $free        aktuelle Anzahl freier Plätze
- * @var int    $cap         Schwelle aus den Einstellungen, 0 = immer exakt
+ * @var int    $free        current number of free spots
+ * @var int    $cap         threshold from the settings, 0 = always exact
  * @var string $state       'free' | 'many' | 'full'
- * @var string $free_before Text vor der Zahl (aus dem {free}-Format)
- * @var string $free_after  Text nach der Zahl
- * @var string $more_text   fertig zusammengesetzter "mehr als N"-Text
+ * @var string $free_before text before the number (from the {free} format)
+ * @var string $free_after  text after the number
+ * @var string $more_text   fully assembled "more than N" text
  * @var string $full_text
  * @version 0.15.0
  */

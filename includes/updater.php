@@ -4,11 +4,11 @@ if (!defined('ABSPATH')) exit;
 /**
  * GitHub Releases Updater
  *
- * Wie es funktioniert:
- *  1. Neuen Code committen + pushen
+ * How it works:
+ *  1. Commit + push the new code
  *  2. git tag v0.5.0 && git push origin v0.5.0
- *  3. Auf GitHub: Releases → "Draft a new release" → Tag auswählen → Changelog eintragen → Publish
- *  4. WordPress zeigt das Update automatisch in "Plugins → Updates" an (Cache: 12h)
+ *  3. On GitHub: Releases → "Draft a new release" → select the tag → enter the changelog → Publish
+ *  4. WordPress shows the update automatically under "Plugins → Updates" (cache: 12h)
  */
 
 class BW_GitHub_Updater {
@@ -26,8 +26,8 @@ class BW_GitHub_Updater {
         $this->slug   = plugin_basename($plugin_file);
         $this->folder = dirname($this->slug);
 
-        // Update-Hooks nur im Admin registrieren — verhindert Konflikte
-        // mit WooCommerce Helper der denselben Transient im Admin verarbeitet
+        // Only register the update hooks in the admin — prevents conflicts
+        // with WooCommerce Helper, which processes the same transient in the admin
         if (!is_admin()) return;
 
         add_filter('pre_set_site_transient_update_plugins', [$this, 'inject_update']);
@@ -37,7 +37,7 @@ class BW_GitHub_Updater {
     }
 
     /* ---------------------------------------------------------
-     * GitHub API: neueste Release holen (gecacht 12h)
+     * GitHub API: fetch the latest release (cached for 12h)
      * --------------------------------------------------------- */
 
     private function fetch_release(): ?array {
@@ -67,11 +67,11 @@ class BW_GitHub_Updater {
     }
 
     /* ---------------------------------------------------------
-     * Update-Info in WP-Transient injizieren
+     * Inject update info into the WP transient
      *
-     * WooCommerce Helper iteriert über denselben Transient und erwartet
-     * vollständige Objekte mit allen Standard-WP-Feldern. Plugins müssen
-     * entweder in response[] ODER no_update[] stehen — nie in keinem.
+     * WooCommerce Helper iterates over the same transient and expects
+     * complete objects with all standard WP fields. Plugins must be
+     * listed in either response[] OR no_update[] — never in neither.
      * --------------------------------------------------------- */
 
     public function inject_update($transient) {
@@ -85,7 +85,7 @@ class BW_GitHub_Updater {
         $remote  = ltrim($release['tag_name'], 'v');
         $current = $transient->checked[$this->slug];
 
-        // Vollständiges Update-Objekt mit allen Standard-WP-Feldern
+        // A complete update object with all standard WP fields
         $obj = (object) [
             'id'           => 'github.com/' . self::REPO,
             'slug'         => $this->folder,
@@ -105,8 +105,8 @@ class BW_GitHub_Updater {
             $transient->response[$this->slug] = $obj;
             unset($transient->no_update[$this->slug]);
         } else {
-            // Kein Update verfügbar — Plugin trotzdem in no_update eintragen
-            // damit WooCommerce Helper den Eintrag findet und nicht abbricht
+            // No update available — list the plugin in no_update anyway
+            // so WooCommerce Helper finds the entry and doesn't bail out
             $transient->no_update[$this->slug] = $obj;
             unset($transient->response[$this->slug]);
         }
@@ -115,7 +115,7 @@ class BW_GitHub_Updater {
     }
 
     /* ---------------------------------------------------------
-     * Plugin-Info für das WP Update-Modal ("View Details")
+     * Plugin info for the WP update modal ("View Details")
      * --------------------------------------------------------- */
 
     public function plugin_info($result, $action, $args) {
@@ -136,17 +136,17 @@ class BW_GitHub_Updater {
             'requires_php'  => '7.4',
             'last_updated'  => $release['published_at'] ?? '',
             'sections'      => [
-                'description' => 'BW Credits + Bookings – WooCommerce Credit-Buchungssystem für Kurse.',
-                'changelog'   => nl2br(esc_html($release['body'] ?? 'Keine Changelog-Info vorhanden.')),
+                'description' => __('BW Credits + Bookings – a WooCommerce credit-based booking system for courses.', 'bw-credits-booking'),
+                'changelog'   => nl2br(esc_html($release['body'] ?? __('No changelog information available.', 'bw-credits-booking'))),
             ],
             'download_link' => $release['zipball_url'],
         ];
     }
 
     /* ---------------------------------------------------------
-     * Nach dem Update: Ordner umbenennen
-     * GitHub-ZIPs entpacken als "blickwert-bw-credits-booking-{hash}/"
-     * → muss zu "bw-credits-booking/" umbenannt werden
+     * After the update: rename the folder
+     * GitHub ZIPs extract as "blickwert-bw-credits-booking-{hash}/"
+     * → must be renamed to "bw-credits-booking/"
      * --------------------------------------------------------- */
 
     public function fix_folder($response, $hook_extra, $result) {
@@ -162,7 +162,7 @@ class BW_GitHub_Updater {
     }
 
     /* ---------------------------------------------------------
-     * Cache löschen nach erfolgreichem Update
+     * Clear the cache after a successful update
      * --------------------------------------------------------- */
 
     public function clear_cache($upgrader, $options) {
