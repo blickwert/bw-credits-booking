@@ -5,6 +5,24 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.21.0] – 2026-09-04
+
+Phase 4 of the English-source migration, and the last one in this series: `README.md` is now fully English.
+
+### Changed
+- **`README.md`** is now entirely in English — installation, database schema, WooCommerce product configuration, ACF dependency, the full shortcode reference, template customization, text customization, booking logic, REST API, PMPro integration, admin, emails, and the auto-update workflow. All 15 sections translated, no content dropped or restructured.
+- Two illustrative shortcode-attribute examples (`format="..."` on `[bw_credits_course_availability]`, `empty_text`/`empty_link` on `[bw_credits_user_balance]`) now show English example text, matching the rest of the document — these are just examples of custom text you can put there, not the plugin's own defaults.
+- The auto-title example date (`"Monday, June 2, 10:00 – Hatha Yoga"`) now uses English weekday/month names, matching what an English-locale WordPress site actually produces — the German original showed a German-locale example (`"Montag, 2. Juni …"`).
+
+### Note
+Intentionally left as-is: the literal email placeholder tokens (`{kundenname}`, `{kurs_titel}`, `{datum}`, etc.) and the WPML String Translation context name `BW Credits Texte` — both are exact strings from the (deliberately untouched) email subsystem's actual code, not prose to translate.
+
+`CHANGELOG.md` itself keeps its existing German entries as historical record, unchanged — only new entries are written in English, as established starting with 0.17.0.
+
+This completes the four-phase English-source migration: source code, comments, and documentation are now English throughout, with German available as a standard WordPress translation shipped alongside every plugin update.
+
+---
+
 ## [0.20.0] – 2026-09-04
 
 Phase 3 of the English-source migration: all code comments across the plugin are now English, plus a few genuinely user-facing strings that earlier phases missed.
