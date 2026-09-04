@@ -1,99 +1,100 @@
 # BW Credits + Bookings
 
-WordPress-Plugin für Yogastudios: WooCommerce-Kreditguthaben + Kurs-Buchungssystem auf Basis von ACF-verwalteten `course_slot`-Posts.
+WordPress plugin for yoga studios: WooCommerce credit balances + a course booking system based on ACF-managed `course_slot` posts.
 
-## Was das Plugin macht
+## What the plugin does
 
-Kunden kaufen Kreditpakete (z. B. 10er-Block) über WooCommerce. Jeder Credit ist eine eigene DB-Zeile. Beim Buchen eines Kursplatzes werden Credits FIFO (älteste zuerst) verbraucht. Stornierungen erstatten den Credit zurück.
+Customers buy credit packages (e.g. a 10-pack) through WooCommerce. Each credit is its own DB row. Booking a course spot consumes credits FIFO (oldest first). Cancellations refund the credit.
 
-## Voraussetzungen
+## Requirements
 
-| Abhängigkeit | Version |
+| Dependency | Version |
 |---|---|
 | WordPress | ≥ 6.0 |
 | PHP | ≥ 7.4 |
 | WooCommerce | ≥ 7.0 |
-| Advanced Custom Fields (ACF) | beliebig |
-| Paid Memberships Pro *(optional)* | beliebig |
+| Advanced Custom Fields (ACF) | any |
+| Paid Memberships Pro *(optional)* | any |
 
 ## Installation
 
-1. ZIP herunterladen (GitHub → Releases → Assets → `Source code (zip)`)
-2. WordPress Admin → Plugins → Installieren → ZIP hochladen
-3. Plugin aktivieren — DB-Tabellen werden automatisch angelegt
+1. Download the ZIP (GitHub → Releases → Assets → `Source code (zip)`)
+2. WordPress Admin → Plugins → Add New → Upload ZIP
+3. Activate the plugin — DB tables are created automatically
 
-**Auto-Update:** Das Plugin meldet sich direkt bei WordPress als Update-Quelle. Neue Releases erscheinen unter *Plugins → Updates* (Cache: 12 h).
+**Auto-update:** The plugin registers itself with WordPress as an update source. New releases appear under *Plugins → Updates* (cache: 12 h).
 
-## Datenbank
+## Database
 
-Das Plugin erstellt zwei Tabellen:
+The plugin creates two tables:
 
 ### `wp_bwallet_credits`
 
-Jede Zeile = 1 Credit.
+Each row = 1 credit.
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |---|---|---|
-| `id` | BIGINT | Primary Key |
-| `user_id` | BIGINT | WP User |
-| `order_id` | BIGINT | WooCommerce Order |
-| `order_item_id` | BIGINT | Order Line Item |
-| `product_id` | BIGINT | WC-Produkt |
-| `expires_at` | DATETIME | Ablaufdatum (NULL = unlimitiert) |
+| `id` | BIGINT | Primary key |
+| `user_id` | BIGINT | WP user |
+| `order_id` | BIGINT | WooCommerce order |
+| `order_item_id` | BIGINT | Order line item |
+| `product_id` | BIGINT | WC product |
+| `expires_at` | DATETIME | Expiry date (NULL = unlimited) |
 | `status` | VARCHAR(16) | `available` / `used` / `expired` |
 | `source` | VARCHAR(20) | `purchase` / `membership` |
-| `booking_id` | BIGINT | Verknüpfte Buchung (wenn `used`) |
-| `created_at` | DATETIME | Erstellungszeitpunkt |
+| `booking_id` | BIGINT | Linked booking (when `used`) |
+| `created_at` | DATETIME | Creation time |
 
 ### `wp_bwallet_bookings`
 
-| Spalte | Typ | Beschreibung |
+| Column | Type | Description |
 |---|---|---|
-| `id` | BIGINT | Primary Key |
-| `user_id` | BIGINT | WP User |
-| `course_slot_id` | BIGINT | Post-ID des `course_slot` |
+| `id` | BIGINT | Primary key |
+| `user_id` | BIGINT | WP user |
+| `course_slot_id` | BIGINT | Post ID of the `course_slot` |
 | `status` | VARCHAR(16) | `booked` / `cancelled` |
-| `created_at` | DATETIME | Buchungszeitpunkt |
-| `cancelled_at` | DATETIME | Stornierungszeitpunkt |
+| `created_at` | DATETIME | Booking time |
+| `cancelled_at` | DATETIME | Cancellation time |
 
-## WooCommerce Produkt-Konfiguration
+## WooCommerce product configuration
 
-Jedes Kreditpaket ist ein einfaches WC-Produkt mit drei Zusatzfeldern (Tab *Allgemein*):
+Each credit package is a simple WC product with three extra fields (*General* tab):
 
-| Feld | Meta-Key | Beschreibung |
+| Field | Meta key | Description |
 |---|---|---|
-| Credit Amount | `_bw_credit_amount` | Anzahl Credits die gutgeschrieben werden |
-| Valid Days | `_bw_credit_valid_days` | Gültigkeit ab Kauf (0 / leer = unlimitiert) |
-| Credit Source | `_bw_credit_source` | `purchase` (Standard) oder `membership` |
+| Credit Amount | `_bw_credit_amount` | Number of credits granted |
+| Valid Days | `_bw_credit_valid_days` | Validity from purchase (0 / empty = unlimited) |
+| Credit Source | `_bw_credit_source` | `purchase` (default) or `membership` |
 
-Credits werden automatisch beim Status `completed` der Bestellung gutgeschrieben.
+Credits are granted automatically when the order status becomes `completed`.
 
-## ACF-Abhängigkeit
+## ACF dependency
 
-Das Plugin braucht ACF nur noch für **ein** Feld am gewählten Inhaltstyp
-(*BW Credits → Einstellungen → Kurstermin-Inhaltstyp*):
+The plugin only needs ACF for **one** field on the chosen post type
+(*BW Credits → Settings → Course session post type*):
 
-| Feldname | Typ | Beschreibung |
+| Field name | Type | Description |
 |---|---|---|
-| `start_datetime` | Date Time Picker | Kursbeginn, Rückgabeformat `Y-m-d H:i:s` |
+| `start_datetime` | Date Time Picker | Session start, return format `Y-m-d H:i:s` |
 
-`capacity` und `booked_count` sind seit v0.8.0 plugin-eigene Metaboxen
-(`includes/metaboxes.php`) — **keine** ACF-Felder mehr. Falls sie noch in
-einer ACF-Feldgruppe liegen, dort entfernen, sonst erscheinen sie doppelt.
+`capacity` and `booked_count` have been the plugin's own meta boxes since
+v0.8.0 (`includes/metaboxes.php`) — **no longer** ACF fields. If they're
+still in an ACF field group, remove them there, otherwise they'll appear
+twice.
 
-Taxonomien (`course_type`, `course_level`, `course_lang`) bleiben unabhängig
-von ACF extern gepflegt.
+Taxonomies (`course_type`, `course_level`, `course_lang`) continue to be
+maintained externally, independent of ACF.
 
 ## Shortcodes
 
-Schema: `bw_credits_{gruppe}_{name}` — **course** spricht über einen Termin, **user** über den eingeloggten Kunden, **view** ist eine zusammengesetzte Ansicht.
+Scheme: `bw_credits_{group}_{name}` — **course** refers to a session, **user** to the logged-in customer, **view** is a composite view.
 
-Auf einer Termin-Einzelseite kann `course_id` entfallen — dann greift der aktuelle Beitrag. Damit lassen sich die Shortcodes einmal in ein Elementor-Template legen.
+On a single session page, `course_id` can be omitted — the current post is used instead. This lets you drop the shortcodes into an Elementor template once.
 
-### Kurs
+### Course
 
 #### `[bw_credits_course_list]`
-Terminliste, nach Tagen gruppiert, mit freien Plätzen und Buchen-Button.
+Session list, grouped by day, with free spots and a book button.
 
 ```
 [bw_credits_course_list]
@@ -101,88 +102,88 @@ Terminliste, nach Tagen gruppiert, mit freien Plätzen und Buchen-Button.
 [bw_credits_course_list type="hatha-yoga" limit="5" availability="false"]
 ```
 
-| Attribut | Standard | Bedeutung |
+| Attribute | Default | Meaning |
 |---|---|---|
-| `limit` | 20 | maximale Anzahl Termine |
-| `days` | 0 | nur die nächsten N Tage (0 = ohne Begrenzung) |
-| `type` / `level` / `lang` | – | Term-Slug zum Vorfiltern |
-| `show_filter` | false | Auswahlfelder für Kursart, Level und Sprache |
-| `show_action` | true | Buchen-Button je Termin |
-| `availability` | true | freie Plätze je Termin |
-| `group_by_day` | true | Überschrift je Tag |
-| `empty` | *(Text)* | Meldung wenn keine Termine vorhanden sind |
+| `limit` | 20 | maximum number of sessions |
+| `days` | 0 | only the next N days (0 = no limit) |
+| `type` / `level` / `lang` | – | term slug to pre-filter by |
+| `show_filter` | false | select fields for course type, level, and language |
+| `show_action` | true | book button per session |
+| `availability` | true | free spots per session |
+| `group_by_day` | true | a heading per day |
+| `empty` | *(text)* | message when there are no sessions |
 
-Bei `show_filter="true"` schreibt das Formular `bw_type`, `bw_level` und `bw_lang` in die URL; gesetzte Attribute werden davon überschrieben.
+With `show_filter="true"`, the form writes `bw_type`, `bw_level`, and `bw_lang` into the URL; attributes you set explicitly override these.
 
 #### `[bw_credits_course_booking]`
-Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neuladen umschaltet. Zeigt stattdessen einen Hinweis bei: nicht eingeloggt, Termin vorbei, ausgebucht, keine Credits, Stornofrist abgelaufen.
+A button that books or cancels depending on state and switches after the click without a reload. Shows a note instead when: not logged in, session over, fully booked, no credits, cancellation deadline passed.
 
 `course_id`, `label_book`, `label_cancel`, `class`
 
 #### `[bw_credits_course_availability]`
-Freie Plätze — **auch ohne Login sichtbar**. Aktualisiert sich nach Buchung und Storno.
+Free spots — **visible even without login**. Updates after booking and cancelling.
 
 ```
-[bw_credits_course_availability format="Noch {free} Plätze frei" full="Leider ausgebucht"]
+[bw_credits_course_availability format="Only {free} spots left" full="Sorry, fully booked"]
 ```
 
 `course_id`, `format`, `full`
 
 #### `[bw_credits_course_access]`
-Meeting-Link und Zugangsdaten. **Sichtbar ausschließlich für eingeloggte Nutzer mit aktiver Buchung für diesen Termin** — ohne Buchung wird nichts ausgegeben, auch kein Hinweis auf die Existenz des Links.
+Meeting link and access details. **Visible only to logged-in users with an active booking for this session** — without a booking, nothing is output, not even a hint that the link exists.
 
 `course_id`, `title`
 
-### Kunde
+### Customer
 
 #### `[bw_credits_user_balance]`
-Verfügbares Guthaben. `format="inline"` (Standard) gibt nur die Zahl aus, `format="block"` einen beschrifteten Absatz. Wird per JavaScript aktualisiert.
+Available credit balance. `format="inline"` (default) outputs just the number, `format="block"` a labeled paragraph. Updated via JavaScript.
 
-**Erscheint nur wenn ein Credit-Paket im Warenkorb liegt** — ein gezielter Hinweis während des Kaufs statt eines allgegenwärtigen Zählers, z. B. auf der Warenkorb- oder Checkout-Seite. Ohne passendes Produkt im Warenkorb (oder ohne Login) gibt der Shortcode nichts aus, unabhängig vom `mode`.
+**Only appears when a credit package is in the cart** — a targeted note during checkout instead of an ever-present counter, e.g. on the cart or checkout page. Without a matching product in the cart (or without login), the shortcode outputs nothing, regardless of `mode`.
 
-Mit **`mode="empty_only"`** wird daraus eine Aufforderung zum Nachkaufen: sichtbar nur, wenn der Kunde eingeloggt ist, **schon einmal Guthaben hatte** und jetzt keines mehr hat. Wer nie Credits hatte, sieht nichts — der soll über den Shop einsteigen.
+With **`mode="empty_only"`**, it becomes a prompt to top up: visible only if the customer is logged in, **has had a credit balance before**, and now has none. Anyone who never had credits sees nothing — they're meant to enter through the shop.
 
-„Schon einmal Guthaben gehabt" zählt jede Herkunft mit, auch manuelle Gutschriften aus Willkommensaktionen (Newsletter-Anmeldung, Aktionszeitraum).
+"Had a credit balance before" counts every origin, including manual grants from welcome promotions (newsletter signup, promotional periods).
 
 ```
 [bw_credits_user_balance mode="empty_only"]
-[bw_credits_user_balance mode="empty_only" empty_text="Keine Credits übrig." empty_link="Block kaufen"]
+[bw_credits_user_balance mode="empty_only" empty_text="No credits left." empty_link="Buy a pack"]
 ```
 
-Der Hinweis erscheint sofort, sobald der Kunde seinen letzten Credit verbucht — ohne Neuladen.
+The note appears immediately as soon as the customer uses their last credit — without a reload.
 
-| Attribut | Standard | Bedeutung |
+| Attribute | Default | Meaning |
 |---|---|---|
-| `mode` | always | `always` oder `empty_only` |
-| `format` | inline | `inline` oder `block` (nur bei `mode="always"`) |
-| `label` | Verfügbare Credits: | Beschriftung vor der Zahl |
-| `empty_text` | Dein Guthaben ist aufgebraucht. | Text bei leerem Guthaben |
-| `empty_link` | Jetzt aufladen | Beschriftung des Shop-Links |
-| `shop_url` | – | überschreibt die Einstellung *Shop-Seite* |
-| `logged_out` | – | Text für nicht eingeloggte Besucher |
+| `mode` | always | `always` or `empty_only` |
+| `format` | inline | `inline` or `block` (only with `mode="always"`) |
+| `label` | Available credits: | Label before the number |
+| `empty_text` | Your credit balance is used up. | Text when the balance is empty |
+| `empty_link` | Top up now | Label of the shop link |
+| `shop_url` | – | overrides the *Shop page* setting |
+| `logged_out` | – | Text for visitors who aren't logged in |
 
-Das Ziel des Links kommt aus *BW Credits → Einstellungen → Shop-Seite*; ist dort nichts hinterlegt, wird die WooCommerce-Shopseite verwendet. Findet sich keine, erscheint der Hinweis ohne Link.
+The link's target comes from *BW Credits → Settings → Shop page*; if nothing is set there, the WooCommerce shop page is used. If none is found, the note appears without a link.
 
 #### `[bw_credits_user_credits]`
-Guthaben im Detail: Anzahl, Herkunft (Kauf / Mitgliedschaft / Gutschrift) und Ablaufdatum, gebündelt statt einzeln. Was in den nächsten 30 Tagen verfällt, wird hervorgehoben.
+Credit balance in detail: count, origin (purchase / membership / manual credit), and expiry date, grouped rather than shown individually. Anything expiring within the next 30 days is highlighted.
 
 `show_expired`, `empty`
 
 #### `[bw_credits_user_bookings]`
-Buchungen des Kunden mit Status, Kurstyp/Level/Sprache, Stornieren-Button und — sofern vorhanden — den Zugangsdaten.
+The customer's bookings with status, course type/level/language, a cancel button, and — if available — the access details.
 
 `limit`, `show_access`
 
-### Ansicht
+### View
 
 #### `[bw_credits_view_overview]`
-Guthaben, eine kurze Liste kommender Kurstermine (mit Verfügbarkeit und Buchen/Stornieren-Button, wie in der Terminliste) und Einstiegslinks. Steht automatisch im WooCommerce-Konto-Dashboard.
+Credit balance, a short list of upcoming sessions (with availability and a book/cancel button, as in the session list), and entry-point links. Appears automatically in the WooCommerce account dashboard.
 
-`show_balance`, `show_next`, `next_limit` (Standard 5), `show_links`, `list_url`
+`show_balance`, `show_next`, `next_limit` (default 5), `show_links`, `list_url`
 
-## Templates anpassen
+## Customizing templates
 
-Jeder Shortcode hat genau eine Template-Datei, benannt nach dem Shortcode selbst — überschreibbar im Theme, nach demselben Muster wie WooCommerce:
+Every shortcode has exactly one template file, named after the shortcode itself — overridable in the theme, following the same pattern as WooCommerce:
 
 ```
 wp-content/plugins/bw-credits-booking/templates/
@@ -196,154 +197,154 @@ wp-content/plugins/bw-credits-booking/templates/
   view_overview/view_overview.php           [bw_credits_view_overview]
 ```
 
-**Überschreiben:** Auf *BW Credits → Templates* neben der gewünschten Zeile auf **„In Theme kopieren"** klicken — legt die Datei automatisch unter `wp-content/themes/<dein-theme>/bw-credits-booking/<pfad>.php` an. Alternativ von Hand kopieren. WordPress findet die Kopie automatisch — zuerst im Child-Theme, dann im Parent-Theme, sonst die Plugin-Version.
+**Overriding:** On *BW Credits → Templates*, click **"Copy to theme"** next to the row you want — this creates the file automatically under `wp-content/themes/<your-theme>/bw-credits-booking/<path>.php`. Or copy it by hand. WordPress finds the copy automatically — first in the child theme, then the parent theme, otherwise the plugin's own version.
 
-Die Templates enthalten **keinen Wortlaut** — jeder Text kommt über `bw_text()` aus dem [Text-Katalog](#texte-anpassen). Eine Theme-Kopie legt also nur das Layout fest, nie die Formulierung.
+The templates contain **no wording** — every text comes via `bw_text()` from the [text catalogue](#customizing-texts). A theme copy only sets the layout, never the wording.
 
-**Status behalten:** *BW Credits → Templates* listet alle acht Templates, zeigt welche im Theme überschrieben sind, und markiert eine Kopie als veraltet, sobald ihr `@version`-Header hinter der Plugin-Version zurückliegt.
+**Keeping track of status:** *BW Credits → Templates* lists all eight templates, shows which are overridden in the theme, and flags a copy as outdated as soon as its `@version` header falls behind the plugin's version.
 
-### Für kleine Eingriffe ohne Theme-Kopie
+### For small tweaks without a theme copy
 
-| Hook | Zweck |
+| Hook | Purpose |
 |---|---|
-| `bw_before_course_list` / `bw_after_course_list` *(Action)* | um die Terminliste herum |
-| `bw_before_slot_item` / `bw_after_slot_item` *(Action, `$slot`)* | vor bzw. nach jeder Terminzeile |
-| `bw_course_list_query_args` *(Filter)* | die `WP_Query`-Argumente der Terminliste anpassen — z. B. Sortierung ändern oder Termine ausschließen |
-| `bw_before_bookings_item` / `bw_after_bookings_item` *(Action, `$booking_id`, `$slot_id`)* | vor bzw. nach jeder Zeile der Buchungsliste |
-| `bw_before_credits_item` / `bw_after_credits_item` *(Action, `$group`)* | vor bzw. nach jeder Zeile der Guthaben-Details |
+| `bw_before_course_list` / `bw_after_course_list` *(action)* | around the session list |
+| `bw_before_slot_item` / `bw_after_slot_item` *(action, `$slot`)* | before/after each session row |
+| `bw_course_list_query_args` *(filter)* | adjust the session list's `WP_Query` arguments — e.g. change sorting or exclude sessions |
+| `bw_before_bookings_item` / `bw_after_bookings_item` *(action, `$booking_id`, `$slot_id`)* | before/after each booking-list row |
+| `bw_before_credits_item` / `bw_after_credits_item` *(action, `$group`)* | before/after each credit-details row |
 
 ```php
-// Bereits gebuchte Termine aus der Liste ausblenden
+// Hide already-booked sessions from the list
 add_filter('bw_course_list_query_args', function ($args, $atts, $selected) {
-    // eigene Logik
+    // your own logic
     return $args;
 }, 10, 3);
 ```
 
-## Texte anpassen
+## Customizing texts
 
-Alle 57 Texte, die Kunden im Frontend sehen, liegen in einem zentralen Katalog und lassen sich unter *BW Credits → Texte* ändern — ohne Code anzufassen. Dazu zählen auch die Fehlermeldungen, die beim Buchen und Stornieren erscheinen.
+All 57 texts customers see in the frontend live in a central catalogue and can be changed under *BW Credits → Texts* — no code required. This includes the error messages shown when booking and cancelling.
 
-Ein leeres Feld nutzt den Standardtext. Platzhalter in geschweiften Klammern bleiben erhalten, etwa `{free}` in „{free} spots available" oder `{date}` in „valid until {date}".
+An empty field uses the default text. Placeholders in curly braces are preserved, e.g. `{free}` in "{free} spots available" or `{date}` in "valid until {date}".
 
-### Drei Ebenen
+### Three layers
 
-| Ebene | Womit |
+| Layer | How |
 |---|---|
-| Einzelne Platzierung | Shortcode-Attribut, z. B. `label_book="Platz reservieren"` |
-| Ganze Seite | *BW Credits → Texte* |
-| Andere Sprache | WPML String Translation oder eine `.po`-Datei |
+| A single placement | Shortcode attribute, e.g. `label_book="Reserve a spot"` |
+| The whole site | *BW Credits → Texts* |
+| Another language | WPML String Translation, or a `.po` file |
 
-Die Auflösung läuft von oben nach unten: Ein gesetztes Shortcode-Attribut gewinnt, sonst greift der Admin-Text, sonst der übersetzte Standard.
+Resolution runs top to bottom: a set shortcode attribute wins, otherwise the admin text applies, otherwise the translated default.
 
-### Übersetzung
+### Translation
 
-Das Plugin nutzt die Textdomain `bw-credits-booking`. Die Vorlage liegt unter `languages/bw-credits-booking.pot` und wird aus dem Katalog erzeugt:
+The plugin uses the text domain `bw-credits-booking`. The template lives under `languages/bw-credits-booking.pot` and is generated from the catalogue:
 
 ```
 php tools/make-pot.php
 ```
 
-Bei aktivem WPML erscheinen alle Texte zusätzlich unter *String Translation* im Kontext **BW Credits Texte**.
+With WPML active, all texts also appear under *String Translation* in the context **BW Credits Texte**.
 
-## Buchungslogik
+## Booking logic
 
-- **Race Conditions**: Buchung läuft in einer DB-Transaktion mit `SELECT … FOR UPDATE` auf der Kapazitätsprüfung
-- **Vergangenheitssperre**: Buchungen für bereits begonnene/vergangene Slots werden abgelehnt
-- **FIFO Credit-Verbrauch**: Credits mit früherem `expires_at` werden zuerst verbraucht
-- **Stornofenster**: Konfigurierbar in Stunden vor Kursbeginn (`bw_booking_cancel_cutoff_hours`, Standard: 2)
-- **Credit-Rückgabe**: Bei Stornierung wird der `used` Credit automatisch auf `available` zurückgesetzt
+- **Race conditions**: booking runs in a DB transaction with `SELECT … FOR UPDATE` on the capacity check
+- **Past-session lock**: bookings for sessions that have already started/passed are rejected
+- **FIFO credit consumption**: credits with an earlier `expires_at` are consumed first
+- **Cancellation window**: configurable in hours before the session start (`bw_booking_cancel_cutoff_hours`, default: 2)
+- **Credit refund**: on cancellation, the `used` credit is automatically reset to `available`
 
 ## REST API
 
-Alle Endpunkte unter `/wp-json/bw-credits/v1/`:
+All endpoints under `/wp-json/bw-credits/v1/`:
 
-| Methode | Pfad | Beschreibung |
+| Method | Path | Description |
 |---|---|---|
-| POST | `/book` | Slot buchen (`slot_id`) |
-| POST | `/cancel` | Buchung stornieren (`booking_id`) |
-| GET | `/balance` | Credit-Guthaben des eingeloggten Nutzers |
+| POST | `/book` | Book a slot (`slot_id`) |
+| POST | `/cancel` | Cancel a booking (`booking_id`) |
+| GET | `/balance` | Credit balance of the logged-in user |
 
-Alle Endpunkte erfordern `nonce`-Header (`X-WP-Nonce`).
+All endpoints require a `nonce` header (`X-WP-Nonce`).
 
 ## PMPro Membership Integration (optional)
 
-Wenn Paid Memberships Pro aktiv ist:
+If Paid Memberships Pro is active:
 
-- Membership-Produkte können `Credit Source: Membership` gesetzt bekommen
-- Credits mit `source = membership` laufen automatisch ab wenn die Mitgliedschaft gekündigt wird (`pmpro_after_change_membership_level` → Level 0)
-- `purchase`-Credits (Einzelkäufe, Blöcke) bleiben davon unberührt
-- Rollover: bei monatlicher Verlängerung werden neue Credits gutgeschrieben, bestehende bleiben erhalten
+- Membership products can be set to `Credit Source: Membership`
+- Credits with `source = membership` expire automatically when the membership is cancelled (`pmpro_after_change_membership_level` → level 0)
+- `purchase` credits (one-time purchases, packs) are unaffected
+- Rollover: on monthly renewal, new credits are granted, existing ones are kept
 
-**Ohne PMPro**: Kein Fehler — der Membership-Code ist vollständig in `function_exists()` gekapselt.
+**Without PMPro**: no error — the membership code is fully wrapped in `function_exists()`.
 
 ## Admin
 
-Menü **BW Credits** (Berechtigung `manage_options`):
+Menu **BW Credits** (capability `manage_options`):
 
-| Seite | Inhalt |
+| Page | Content |
 |---|---|
-| Einstellungen | Inhaltstyp der Termine, Standard-Kapazität, Storno-Frist, Erinnerungs-Vorlauf, Shop-Seite |
-| Termine | Alle Termine mit Belegung und Auslastung, Filter kommend/vergangen |
-| Buchungen | Gefilterte Liste, Storno, Formular für Walk-in-Buchungen |
-| Credits | Benutzersuche, Guthaben einsehen, manuell gutschreiben und entwerten |
-| E-Mails | Betreff und Text aller Benachrichtigungen |
+| Settings | Session post type, default capacity, cancellation deadline, reminder lead time, shop page |
+| Sessions | All sessions with occupancy and utilization, upcoming/past filter |
+| Bookings | Filtered list, cancellation, form for walk-in bookings |
+| Credits | User search, view credit balance, grant and revoke manually |
+| Emails | Subject and body of all notifications |
 
-**Am Kurstermin** (Metaboxen):
-- **Kapazität** — leer lassen nutzt den Standardwert; Belegung readonly daneben, Warnung bei Überbuchung
-- **Online-Zugang** — Meeting-Link und Zugangsdaten, mit Knopf zum erneuten Senden
-- **Teilnehmer** — Liste mit Stornieren, „Nicht erschienen" und CSV-Export der Anwesenheitsliste
+**On the course session** (meta boxes):
+- **Capacity** — leave empty to use the default; occupancy shown read-only next to it, warning on overbooking
+- **Online Access** — meeting link and access details, with a button to resend
+- **Participants** — list with cancel, "No-show", and CSV export of the attendance list
 
-**Listenansicht**: Spalten Start, Level, Type, Language — alle sortierbar.
+**List view**: columns Start, Level, Type, Language — all sortable.
 
-**Auto-Titel**: Beim Speichern wird der Titel erzeugt als `"Montag, 2. Juni 10:00 – Hatha Yoga"`. Wochentag und Monat kommen aus der WordPress-Locale. Das Format lässt sich über den Filter `bw_slot_title_format` ändern:
+**Auto-title**: on save, the title is generated as `"Monday, June 2, 10:00 – Hatha Yoga"`. Weekday and month come from the WordPress locale. The format can be changed via the `bw_slot_title_format` filter:
 
 ```php
 add_filter('bw_slot_title_format', fn() => 'D, j.n. H:i');
 ```
 
-**Editor**: Kurstermine werden im Classic Editor bearbeitet, damit die Metaboxen an der gewohnten Stelle stehen.
+**Editor**: course sessions are edited in the Classic Editor, so the meta boxes stay in their usual place.
 
-## E-Mails
+## Emails
 
-Fünf Typen, jeweils mit eigenem Schalter, Betreff und Text unter *BW Credits → E-Mails*:
+Five types, each with its own toggle, subject, and body under *BW Credits → Emails*:
 
-| Typ | Auslöser |
+| Type | Trigger |
 |---|---|
-| Buchungsbestätigung | nach erfolgreicher Buchung |
-| Stornobestätigung | nach Storno |
-| Erinnerung | X Stunden vor Kursbeginn (stündlicher Cron) |
-| Zugangsdaten | siehe unten |
-| Admin-Kopie | jede neue Buchung (standardmäßig aus) |
+| Booking confirmation | after a successful booking |
+| Cancellation confirmation | after a cancellation |
+| Reminder | X hours before the session starts (hourly cron) |
+| Access details | see below |
+| Admin copy | every new booking (off by default) |
 
-Platzhalter: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}` `{kurs_link}` `{konto_link}`
+Placeholders: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}` `{kurs_link}` `{konto_link}`
 
-`{kurs_link}` und `{konto_link}` verlinken den Termin bzw. die WooCommerce-My-Account-Seite, wo Kunden ihre Buchungen selbst einsehen und stornieren. Beide stehen automatisch in Buchungsbestätigung, Stornierung und Erinnerung; ein URL-förmiger Platzhalterwert wird in der Mail immer automatisch klickbar, unabhängig davon welcher es ist.
+`{kurs_link}` and `{konto_link}` link to the session and the WooCommerce My Account page respectively, where customers can view and cancel their own bookings. Both are automatically present in the booking confirmation, cancellation, and reminder emails; a URL-shaped placeholder value always becomes clickable in the email automatically, regardless of which one it is.
 
-Wer einen dieser drei Texte bereits unter *BW Credits → E-Mails* individuell angepasst hat, sieht die neuen Platzhalter nicht automatisch im eigenen Text — nur der Standardtext wurde erweitert. Zum Ergänzen einfach `{kurs_link}`/`{konto_link}` in den eigenen Text einfügen.
+If you've already customized one of these three texts under *BW Credits → Emails*, you won't automatically see the new placeholders in your own text — only the default text was extended. To add them, just insert `{kurs_link}`/`{konto_link}` into your own text.
 
-### Guthaben-Hinweis in der WooCommerce-Bestell-Mail
+### Credit-balance note in the WooCommerce order email
 
-Nach einem Credit-Kauf bekommt der Kunde **keine zusätzliche Mail**, sondern einen Abschnitt direkt in der WooCommerce-eigenen „Bestellung abgeschlossen"-Mail — wie viele Credits neu hinzugekommen sind, das aktuelle Gesamtguthaben, und ein Link zu My Account. Läuft über den Hook `woocommerce_email_order_details`, kein Eingriff in Woo-Mail-Templates. Wortlaut unter *BW Credits → Texte*, Gruppe „E-Mail nach Bestellung".
+After a credit purchase, the customer gets **no additional email**, but a section directly in WooCommerce's own "order completed" email — how many credits were newly added, the current total balance, and a link to My Account. Runs via the `woocommerce_email_order_details` hook, no interference with Woo mail templates. Wording under *BW Credits → Texts*, group "Order Confirmation Email".
 
-### Zugangsdaten für Online-Kurse
+### Access details for online sessions
 
-Der Versand ist ereignisgesteuert:
+Delivery is event-driven:
 
-1. Kursleiter trägt den Meeting-Link am Termin ein und speichert → alle bestehenden Teilnehmer erhalten die Zugangsdaten
-2. Wer **danach** noch bucht, bekommt sie sofort mit der Buchungsbestätigung
-3. `access_sent_at` pro Buchung verhindert Doppelversand
-4. Knopf **Zugangsdaten erneut senden**, falls sich der Link nachträglich ändert
+1. The instructor enters the meeting link on the session and saves → all existing participants receive the access details
+2. Anyone who books **afterwards** gets them right away with the booking confirmation
+3. `access_sent_at` per booking prevents duplicate sends
+4. **Resend access details** button, in case the link changes later
 
 ### WPML
 
-Betreff und Text werden bei aktivem WPML String Translation im Kontext *BW Credits* registriert. Die Sprache des Termins bestimmt die Sprache der Mail.
+Subject and body are registered under WPML String Translation, in the context *BW Credits*, when WPML is active. The session's language determines the email's language.
 
 ## Auto-Update Workflow
 
 ```
-1. Code committen + pushen
+1. Commit + push the code
 2. git tag v0.8.0 && git push origin v0.8.0
-3. GitHub: Releases → "Draft a new release" → Tag wählen → Changelog → Publish
-4. WordPress zeigt Update in "Plugins → Updates" (Cache max. 12 h)
+3. GitHub: Releases → "Draft a new release" → select the tag → Changelog → Publish
+4. WordPress shows the update under "Plugins → Updates" (cache up to 12 h)
 ```
