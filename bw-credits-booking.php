@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.16.1
+ * Version: 0.17.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.16.1');
+define('BW_CREDITS_BOOKING_VERSION', '0.17.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -310,9 +310,9 @@ class BW_Credits_Bookings_MVP {
         if ($added <= 0) return;
 
         $vars = [
-            'credits_hinzugefuegt' => $added,
-            'credits_verbleibend'  => self::get_available_credits($user_id),
-            'konto_link'           => self::my_account_url(),
+            'credits_added'     => $added,
+            'credits_remaining' => self::get_available_credits($user_id),
+            'account_link'      => self::my_account_url(),
         ];
 
         if ($plain_text) {
@@ -324,7 +324,7 @@ class BW_Credits_Bookings_MVP {
         $body = nl2br(esc_html(bw_text('order_email.body', $vars)));
 
         // Konto-Link nach dem Escapen wieder klickbar machen
-        $link = $vars['konto_link'];
+        $link = $vars['account_link'];
         if ($link !== '' && filter_var($link, FILTER_VALIDATE_URL)) {
             $body = str_replace(
                 esc_html($link),
@@ -1435,9 +1435,9 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * [bw_availability] — freie Plätze, auch ohne Login sichtbar.
-     * Platzhalter {frei} statt printf-Format, damit eine fehlerhafte Angabe
-     * im Shortcode keinen Fehler auslöst.
+     * [bw_availability] — spots available, visible even without login.
+     * Placeholder {free} instead of a printf format, so a malformed
+     * shortcode attribute can't trigger an error.
      */
     public static function sc_availability($atts) {
         $atts = shortcode_atts([
@@ -1457,7 +1457,7 @@ class BW_Credits_Bookings_MVP {
 
         $free = self::get_free_spots($slot_id);
         $cap  = BW_Settings::get_availability_cap();
-        $parts = explode('{frei}', $atts['format'], 2);
+        $parts = explode('{free}', $atts['format'], 2);
 
         $state = $free <= 0 ? 'full' : (($cap > 0 && $free > $cap) ? 'many' : 'free');
 

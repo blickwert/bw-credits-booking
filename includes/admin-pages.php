@@ -758,7 +758,7 @@ class BW_Admin_Pages {
         );
 
         echo '<p class="description">Platzhalter in geschweiften Klammern bleiben erhalten, '
-           . 'z.&nbsp;B. <code>{frei}</code> oder <code>{datum}</code>.</p>';
+           . 'z.&nbsp;B. <code>{free}</code> oder <code>{date}</code>.</p>';
 
         echo '<form method="post" action="options.php">';
         settings_fields('bw_credits_texts');

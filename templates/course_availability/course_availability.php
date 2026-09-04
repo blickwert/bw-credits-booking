@@ -12,7 +12,7 @@
  * @var int    $free        aktuelle Anzahl freier Plätze
  * @var int    $cap         Schwelle aus den Einstellungen, 0 = immer exakt
  * @var string $state       'free' | 'many' | 'full'
- * @var string $free_before Text vor der Zahl (aus dem {frei}-Format)
+ * @var string $free_before Text vor der Zahl (aus dem {free}-Format)
  * @var string $free_after  Text nach der Zahl
  * @var string $more_text   fertig zusammengesetzter "mehr als N"-Text
  * @var string $full_text

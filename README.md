@@ -123,7 +123,7 @@ Ein Button, der je nach Zustand bucht oder storniert und nach dem Klick ohne Neu
 Freie Plätze — **auch ohne Login sichtbar**. Aktualisiert sich nach Buchung und Storno.
 
 ```
-[bw_credits_course_availability format="Noch {frei} Plätze frei" full="Leider ausgebucht"]
+[bw_credits_course_availability format="Noch {free} Plätze frei" full="Leider ausgebucht"]
 ```
 
 `course_id`, `format`, `full`
@@ -222,9 +222,9 @@ add_filter('bw_course_list_query_args', function ($args, $atts, $selected) {
 
 ## Texte anpassen
 
-Alle 54 Texte, die Kunden im Frontend sehen, liegen in einem zentralen Katalog und lassen sich unter *BW Credits → Texte* ändern — ohne Code anzufassen. Dazu zählen auch die Fehlermeldungen, die beim Buchen und Stornieren erscheinen.
+Alle 57 Texte, die Kunden im Frontend sehen, liegen in einem zentralen Katalog und lassen sich unter *BW Credits → Texte* ändern — ohne Code anzufassen. Dazu zählen auch die Fehlermeldungen, die beim Buchen und Stornieren erscheinen.
 
-Ein leeres Feld nutzt den Standardtext. Platzhalter in geschweiften Klammern bleiben erhalten, etwa `{frei}` in „{frei} freie Plätze" oder `{datum}` in „gültig bis {datum}".
+Ein leeres Feld nutzt den Standardtext. Platzhalter in geschweiften Klammern bleiben erhalten, etwa `{free}` in „{free} spots available" oder `{date}` in „valid until {date}".
 
 ### Drei Ebenen
 
