@@ -1,28 +1,27 @@
 <?php
 /**
- * Guthaben — einfache Anzeige oder Aufforderung zum Nachkaufen
+ * Credit balance — simple display or a prompt to top up
  *
- * Zwei Varianten in einer Datei: 'simple' (mode="always") gibt die Zahl
- * oder einen beschrifteten Absatz aus. 'states' (mode="empty_only") hält
- * beide Zustände gleichzeitig im Markup, umgeschaltet über data-bw-state,
- * damit der Hinweis ohne Reload erscheint sobald der letzte Credit
- * verbraucht wird.
+ * Two variants in one file: 'simple' (mode="always") outputs the number
+ * or a labeled paragraph. 'states' (mode="empty_only") keeps both states
+ * in the markup at once, toggled via data-bw-state, so the note appears
+ * without a reload as soon as the last credit is used.
  *
  * Override: yourtheme/bw-credits-booking/user_balance/user_balance.php
  *
  * @var string $variant  'simple' | 'states'
  *
- * Bei $variant === 'simple':
+ * When $variant === 'simple':
  * @var string $format  'inline' | 'block'
- * @var string $label   nur bei format=block sichtbar
- * @var string $number  fertiges <span data-bw-balance>…</span>-Markup
+ * @var string $label   only visible when format=block
+ * @var string $number  finished <span data-bw-balance>…</span> markup
  *
- * Bei $variant === 'states':
+ * When $variant === 'states':
  * @var string $state           'has' | 'empty'
  * @var string $label
- * @var string $number          fertiges <span data-bw-balance>…</span>-Markup
+ * @var string $number          finished <span data-bw-balance>…</span> markup
  * @var string $empty_text
- * @var string $empty_link_html bereits fertiges HTML (Link) oder leer, unescaped angehängt
+ * @var string $empty_link_html already-finished HTML (link) or empty, appended unescaped
  *
  * @version 0.15.0
  */

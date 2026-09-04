@@ -2,12 +2,12 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * E-Mail-Benachrichtigungen inkl. Erinnerungs-Cron und Zugangsdaten-Versand.
+ * Email notifications, including the reminder cron and access-details delivery.
  *
- * Zugangsdaten laufen ereignisgesteuert, nicht zeitgesteuert:
- *  - Kursleiter trägt den Meeting-Link ein  → alle bestehenden Buchungen
- *  - Jemand bucht danach noch               → nur diese eine Buchung
- * Das Flag access_sent_at verhindert Doppelversand in beiden Richtungen.
+ * Access details are event-driven, not schedule-driven:
+ *  - The instructor enters the meeting link  → all existing bookings
+ *  - Someone books afterwards                → just that one booking
+ * The access_sent_at flag prevents duplicate sends in both directions.
  */
 
 class BW_Emails {
@@ -16,14 +16,14 @@ class BW_Emails {
     const CRON_HOOK     = 'bw_send_reminders';
     const OPT_ADMIN_TO  = 'bw_email_admin_recipient';
 
-    /** Mail-Typen: key => [Bezeichnung, Beschreibung] */
+    /** Email types: key => [label, description] */
     public static function types(): array {
         return [
-            'booking'       => ['Buchungsbestätigung', 'Direkt nach einer erfolgreichen Buchung an den Kunden.'],
-            'cancellation'  => ['Stornobestätigung',   'Nach einer Stornierung an den Kunden.'],
-            'reminder'      => ['Erinnerung',          'Vor Kursbeginn — Zeitpunkt in den Einstellungen.'],
-            'access'        => ['Zugangsdaten',        'Sobald der Meeting-Link am Termin eingetragen wird, und bei späteren Buchungen sofort.'],
-            'admin_booking' => ['Admin-Kopie',         'Bei jeder neuen Buchung an die unten hinterlegte Adresse.'],
+            'booking'       => [__('Booking confirmation', 'bw-credits-booking'), __('Sent to the customer right after a successful booking.', 'bw-credits-booking')],
+            'cancellation'  => [__('Cancellation confirmation', 'bw-credits-booking'), __('Sent to the customer after a cancellation.', 'bw-credits-booking')],
+            'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
+            'access'        => [__('Access details', 'bw-credits-booking'), __('As soon as the meeting link is entered for the session, and immediately for later bookings.', 'bw-credits-booking')],
+            'admin_booking' => [__('Admin copy', 'bw-credits-booking'), __('Sent to the address set below for every new booking.', 'bw-credits-booking')],
         ];
     }
 
@@ -34,7 +34,7 @@ class BW_Emails {
         add_action('bw_booking_created',   [__CLASS__, 'on_booking_created'], 10, 3);
         add_action('bw_booking_cancelled', [__CLASS__, 'on_booking_cancelled'], 10, 3);
 
-        // Meeting-Link wurde ergänzt → Zugangsdaten an alle Teilnehmer
+        // Meeting link was added → access details to all participants
         add_action('bw_meeting_link_added', [__CLASS__, 'send_access_for_slot'], 10, 1);
         add_action('admin_post_bw_resend_access', [__CLASS__, 'handle_resend_access']);
 
@@ -44,7 +44,7 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Optionen
+     * Options
      * ========================================================= */
 
     private static function opt_enabled(string $key): string { return 'bw_email_' . $key . '_enabled'; }
@@ -111,7 +111,7 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Platzhalter
+     * Placeholders
      * ========================================================= */
 
     public static function placeholders(int $user_id, int $slot_id): array {
@@ -144,7 +144,7 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Versand
+     * Sending
      * ========================================================= */
 
     public static function send(string $key, int $user_id, int $slot_id, string $to = ''): bool {
@@ -163,12 +163,12 @@ class BW_Emails {
 
         $subject = strtr($subject_tpl, $placeholders);
 
-        // Werte escapen bevor sie in HTML landen — der Link wird danach klickbar gemacht
+        // Escape values before they land in HTML — the link is made clickable afterwards
         $escaped = array_map('esc_html', $placeholders);
         $body    = nl2br(strtr(esc_html($body_tpl), $escaped));
 
-        // Jeder URL-förmige Platzhalterwert wird klickbar — betrifft
-        // meeting_link, kurs_link und konto_link gleichermaßen
+        // Every URL-shaped placeholder value becomes clickable — applies
+        // to meeting_link, kurs_link, and konto_link alike
         foreach ($placeholders as $value) {
             if ($value === '' || !filter_var($value, FILTER_VALIDATE_URL)) continue;
 
@@ -193,7 +193,7 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Buchungs-Ereignisse
+     * Booking events
      * ========================================================= */
 
     public static function on_booking_created($booking_id, $user_id, $slot_id) {
@@ -204,7 +204,7 @@ class BW_Emails {
             self::send('admin_booking', (int) $user_id, (int) $slot_id, $admin_to);
         }
 
-        // Link liegt schon vor → dieser Kunde bekommt die Zugangsdaten sofort
+        // Link already exists → this customer gets the access details immediately
         $link = (string) get_post_meta((int) $slot_id, BW_Metaboxes::META_MEETING_LINK, true);
         if ($link !== '' && self::send('access', (int) $user_id, (int) $slot_id)) {
             self::mark_access_sent((int) $booking_id);
@@ -216,12 +216,12 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Zugangsdaten
+     * Access details
      * ========================================================= */
 
     /**
-     * Zugangsdaten an alle aktiven Buchungen eines Termins die noch keine
-     * bekommen haben.
+     * Sends access details to all active bookings for a session that
+     * haven't received them yet.
      */
     public static function send_access_for_slot($slot_id): int {
         global $wpdb;
@@ -263,10 +263,10 @@ class BW_Emails {
         );
     }
 
-    /** Erneut senden: Flag zurücksetzen und alle nochmal anschreiben. */
+    /** Resend: reset the flag and email everyone again. */
     public static function handle_resend_access() {
         if (!current_user_can(BW_Settings::CAPABILITY)) {
-            wp_die('Keine Berechtigung.');
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
         }
 
         $slot_id = isset($_GET['slot_id']) ? (int) $_GET['slot_id'] : 0;
@@ -283,15 +283,19 @@ class BW_Emails {
         $sent   = self::send_access_for_slot($slot_id);
         $back   = get_edit_post_link($slot_id, 'raw') ?: admin_url();
         $notice = $sent > 0
-            ? 'ok:Zugangsdaten an ' . $sent . ' Teilnehmer verschickt.'
-            : 'err:Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen.';
+            ? 'ok:' . sprintf(
+                /* translators: %d: number of participants the access details were sent to */
+                __('Access details sent to %d participants.', 'bw-credits-booking'),
+                $sent
+            )
+            : 'err:' . __('Nothing sent — meeting link is missing or there are no active bookings.', 'bw-credits-booking');
 
         wp_safe_redirect(add_query_arg('bw_notice', rawurlencode($notice), $back));
         exit;
     }
 
     /* =========================================================
-     * Erinnerungs-Cron
+     * Reminder cron
      * ========================================================= */
 
     public static function schedule_cron() {
@@ -317,7 +321,7 @@ class BW_Emails {
         $now   = new DateTime('now', wp_timezone());
         $until = (clone $now)->modify('+' . $hours . ' hours');
 
-        // CAST, weil start_datetime je nach Quelle mit oder ohne Sekunden vorliegt
+        // CAST, because start_datetime may or may not include seconds depending on its source
         $rows = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT b.id, b.user_id, b.slot_id
              FROM {$table} b
@@ -360,7 +364,7 @@ class BW_Emails {
         }
     }
 
-    /** Sprache des Termins bestimmt die Sprache der Mail. */
+    /** The session's language determines the email's language. */
     private static function slot_language(int $slot_id): ?string {
         if (!has_filter('wpml_post_language_details')) return null;
 
@@ -376,14 +380,14 @@ class BW_Emails {
     }
 
     /* =========================================================
-     * Einstellungsseite
+     * Settings page
      * ========================================================= */
 
     public static function register_menu() {
         add_submenu_page(
             BW_Settings::MENU_SLUG,
-            'E-Mails',
-            'E-Mails',
+            __('Emails', 'bw-credits-booking'),
+            __('Emails', 'bw-credits-booking'),
             BW_Settings::CAPABILITY,
             self::PAGE,
             [__CLASS__, 'render_page']
@@ -418,10 +422,10 @@ class BW_Emails {
         if (!current_user_can(BW_Settings::CAPABILITY)) return;
         ?>
         <div class="wrap">
-            <h1>E-Mail-Texte</h1>
+            <h1><?php esc_html_e('Email Texts', 'bw-credits-booking'); ?></h1>
 
             <p>
-                Verfügbare Platzhalter:
+                <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
                 <code>{kundenname}</code> <code>{kurs_titel}</code> <code>{datum}</code>
                 <code>{uhrzeit}</code> <code>{credits_verbleibend}</code>
                 <code>{meeting_link}</code> <code>{zugangsdaten}</code>
@@ -432,7 +436,7 @@ class BW_Emails {
 
                 <table class="form-table">
                     <tr>
-                        <th scope="row"><label for="bw_admin_to">Adresse für Admin-Kopien</label></th>
+                        <th scope="row"><label for="bw_admin_to"><?php esc_html_e('Address for admin copies', 'bw-credits-booking'); ?></label></th>
                         <td>
                             <input type="email" id="bw_admin_to" class="regular-text"
                                    name="<?php echo esc_attr(self::OPT_ADMIN_TO); ?>"
@@ -447,18 +451,18 @@ class BW_Emails {
 
                     <table class="form-table">
                         <tr>
-                            <th scope="row">Aktiv</th>
+                            <th scope="row"><?php esc_html_e('Active', 'bw-credits-booking'); ?></th>
                             <td>
                                 <label>
                                     <input type="hidden" name="<?php echo esc_attr(self::opt_enabled($key)); ?>" value="0">
                                     <input type="checkbox" name="<?php echo esc_attr(self::opt_enabled($key)); ?>"
                                            value="1" <?php checked(self::is_enabled($key)); ?>>
-                                    Diese E-Mail verschicken
+                                    <?php esc_html_e('Send this email', 'bw-credits-booking'); ?>
                                 </label>
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Betreff</th>
+                            <th scope="row"><?php esc_html_e('Subject', 'bw-credits-booking'); ?></th>
                             <td>
                                 <input type="text" class="large-text"
                                        name="<?php echo esc_attr(self::opt_subject($key)); ?>"
@@ -466,7 +470,7 @@ class BW_Emails {
                             </td>
                         </tr>
                         <tr>
-                            <th scope="row">Text</th>
+                            <th scope="row"><?php esc_html_e('Body', 'bw-credits-booking'); ?></th>
                             <td>
                                 <textarea rows="8" class="large-text code"
                                           name="<?php echo esc_attr(self::opt_body($key)); ?>"><?php

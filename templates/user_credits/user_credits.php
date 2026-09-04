@@ -1,19 +1,19 @@
 <?php
 /**
- * [bw_credits_user_credits] — Guthaben im Detail
+ * [bw_credits_user_credits] — credit balance in detail
  *
- * Mehrere Credits gleicher Herkunft und gleichen Ablaufdatums stehen
- * gebündelt in einer Zeile, nicht einzeln.
+ * Multiple credits with the same origin and expiry date are grouped
+ * into one row, not shown individually.
  *
  * Override: yourtheme/bw-credits-booking/user_credits/user_credits.php
  *
- * @var array  $items    leer = $empty_message wird gezeigt
+ * @var array  $items    empty = $empty_message is shown
  * @var string $empty_message
  *
- * Je Eintrag in $items:
+ * Per entry in $items:
  *   'group'        ['count','source','expires_at','status']
- *   'is_soon'      läuft innerhalb der Frist aus den Einstellungen ab
- *   'is_gone'      verbraucht/abgelaufen — nicht mehr verfügbar
+ *   'is_soon'      expires within the threshold from the settings
+ *   'is_gone'      used/expired — no longer available
  *   'source_label'
  *   'expiry_text'
  *

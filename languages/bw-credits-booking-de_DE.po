@@ -368,13 +368,14 @@ msgstr "Buchungen"
 #: includes/admin-pages.php:44
 #: includes/admin-pages.php:44
 #: includes/admin-pages.php:692
-#: includes/admin-pages.php:819
+#: includes/admin-pages.php:820
 msgid "Texts"
 msgstr "Texte"
 
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:287
 #: includes/metaboxes.php:332
+#: includes/emails.php:269
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
 
@@ -386,7 +387,7 @@ msgstr "Credits"
 
 #: includes/admin-pages.php:43
 #: includes/admin-pages.php:43
-#: includes/admin-pages.php:928
+#: includes/admin-pages.php:929
 msgid "Shortcodes"
 msgstr "Shortcodes"
 
@@ -457,9 +458,9 @@ msgid "No bookings found."
 msgstr "Keine Buchungen gefunden."
 
 #: includes/admin-pages.php:274
-#: includes/admin-pages.php:903
-#: includes/admin-pages.php:908
-#: includes/admin-pages.php:913
+#: includes/admin-pages.php:904
+#: includes/admin-pages.php:909
+#: includes/admin-pages.php:914
 msgid "Customer"
 msgstr "Kunde"
 
@@ -678,7 +679,7 @@ msgid "Template"
 msgstr "Template"
 
 #: includes/admin-pages.php:710
-#: includes/admin-pages.php:943
+#: includes/admin-pages.php:944
 msgid "Description"
 msgstr "Beschreibung"
 
@@ -702,94 +703,94 @@ msgstr "Im Theme überschrieben"
 msgid "Plugin:"
 msgstr "Plugin:"
 
-#: includes/admin-pages.php:781
+#: includes/admin-pages.php:782
 msgid "Unknown template."
 msgstr "Unbekanntes Template."
 
-#: includes/admin-pages.php:788
+#: includes/admin-pages.php:789
 msgid "Source file is not readable."
 msgstr "Quelldatei nicht lesbar."
 
-#: includes/admin-pages.php:794
+#: includes/admin-pages.php:795
 msgid "Copy failed — check write permissions in the theme."
 msgstr "Kopieren fehlgeschlagen — Schreibrechte im Theme prüfen."
 
-#: includes/admin-pages.php:802
+#: includes/admin-pages.php:803
 msgid "%s copied to theme."
 msgstr "%s ins Theme kopiert."
 
-#: includes/admin-pages.php:823
+#: includes/admin-pages.php:824
 msgid "%1$d texts, %2$d customized. An empty field uses the default text."
 msgstr "%1$d Texte, davon %2$d angepasst. Ein leeres Feld nutzt den Standardtext."
 
-#: includes/admin-pages.php:830
+#: includes/admin-pages.php:831
 msgid "Placeholders in curly braces are preserved, e.g.&nbsp;%1$s or %2$s."
 msgstr "Platzhalter in geschweiften Klammern bleiben erhalten, z.&nbsp;B. %1$s oder %2$s."
 
-#: includes/admin-pages.php:861
+#: includes/admin-pages.php:862
 msgid "Default:"
 msgstr "Standard:"
 
-#: includes/admin-pages.php:883
-#: includes/admin-pages.php:888
-#: includes/admin-pages.php:893
-#: includes/admin-pages.php:898
+#: includes/admin-pages.php:884
+#: includes/admin-pages.php:889
+#: includes/admin-pages.php:894
+#: includes/admin-pages.php:899
 msgid "Course"
 msgstr "Kurs"
 
-#: includes/admin-pages.php:884
+#: includes/admin-pages.php:885
 msgid "Session list, grouped by day, with availability and a book button."
 msgstr "Terminliste, nach Tagen gruppiert, mit Verfügbarkeit und Buchen-Button."
 
-#: includes/admin-pages.php:889
+#: includes/admin-pages.php:890
 msgid "A button that books or cancels depending on state."
 msgstr "Ein Button der je nach Zustand bucht oder storniert."
 
-#: includes/admin-pages.php:894
+#: includes/admin-pages.php:895
 msgid "Available spots. Visible even without login."
 msgstr "Freie Plätze. Auch ohne Login sichtbar."
 
-#: includes/admin-pages.php:899
+#: includes/admin-pages.php:900
 msgid "Access details for the online session. Only for participants with an active booking."
 msgstr "Zugangsdaten zum Online-Kurs. Nur für Teilnehmer mit aktiver Buchung."
 
-#: includes/admin-pages.php:904
+#: includes/admin-pages.php:905
 msgid "Available credit balance. With mode=\"empty_only\", only visible if the customer has had credits before and now has none."
 msgstr "Verfügbares Guthaben. Mit mode=\"empty_only\" nur sichtbar wenn der Kunde schon einmal Guthaben hatte und jetzt keines mehr hat."
 
-#: includes/admin-pages.php:909
+#: includes/admin-pages.php:910
 msgid "Credit balance in detail: origin and expiry date."
 msgstr "Guthaben im Detail: Herkunft und Ablaufdatum."
 
-#: includes/admin-pages.php:914
+#: includes/admin-pages.php:915
 msgid "The customer's bookings, with the option to cancel."
 msgstr "Buchungen des Kunden mit Storno-Möglichkeit."
 
-#: includes/admin-pages.php:918
+#: includes/admin-pages.php:919
 msgid "View"
 msgstr "Ansicht"
 
-#: includes/admin-pages.php:919
+#: includes/admin-pages.php:920
 msgid "Credit balance, next session, and links. Appears automatically in the account dashboard."
 msgstr "Guthaben, nächster Termin und Links. Steht automatisch im Konto-Dashboard."
 
-#: includes/admin-pages.php:933
+#: includes/admin-pages.php:934
 msgid "On a single session page, %s can be omitted — the current post is used instead."
 msgstr "Auf einer Termin-Einzelseite kann %s entfallen — dann greift der aktuelle Beitrag."
 
-#: includes/admin-pages.php:941
+#: includes/admin-pages.php:942
 msgid "Group"
 msgstr "Gruppe"
 
-#: includes/admin-pages.php:942
+#: includes/admin-pages.php:943
 msgid "Shortcode"
 msgstr "Shortcode"
 
-#: includes/admin-pages.php:944
+#: includes/admin-pages.php:945
 msgid "Parameters"
 msgstr "Parameter"
 
-#: includes/admin-pages.php:973
+#: includes/admin-pages.php:974
 msgid "Credit revoked."
 msgstr "Credit entwertet."
 
@@ -987,4 +988,158 @@ msgstr "Buchen"
 #: bw-credits-booking.php:212
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
+
+#: bw-credits-booking.php:470
+#: bw-credits-booking.php:698
+msgid "User not found."
+msgstr "Benutzer nicht gefunden."
+
+#: bw-credits-booking.php:473
+msgid "Amount must be between 1 and 500."
+msgstr "Anzahl muss zwischen 1 und 500 liegen."
+
+#: bw-credits-booking.php:483
+msgid "Credit grant failed."
+msgstr "Gutschrift fehlgeschlagen."
+
+#: bw-credits-booking.php:502
+msgid "Credit not found or already used."
+msgstr "Credit nicht gefunden oder bereits verbraucht."
+
+#: bw-credits-booking.php:1057
+msgid "Status could not be changed."
+msgstr "Status konnte nicht geändert werden."
+
+#: bw-credits-booking.php:1580
+msgid "slot_id is missing."
+msgstr "slot_id fehlt."
+
+#: bw-credits-booking.php:1587
+msgid "Booked."
+msgstr "Gebucht."
+
+#: bw-credits-booking.php:1595
+msgid "booking_id is missing."
+msgstr "booking_id fehlt."
+
+#: bw-credits-booking.php:1602
+msgid "Cancelled."
+msgstr "Storniert."
+
+#: includes/emails.php:22
+msgid "Booking confirmation"
+msgstr "Buchungsbestätigung"
+
+#: includes/emails.php:22
+msgid "Sent to the customer right after a successful booking."
+msgstr "Direkt nach einer erfolgreichen Buchung an den Kunden."
+
+#: includes/emails.php:23
+msgid "Cancellation confirmation"
+msgstr "Stornobestätigung"
+
+#: includes/emails.php:23
+msgid "Sent to the customer after a cancellation."
+msgstr "Nach einer Stornierung an den Kunden."
+
+#: includes/emails.php:24
+msgid "Reminder"
+msgstr "Erinnerung"
+
+#: includes/emails.php:24
+msgid "Before the session starts — timing set in Settings."
+msgstr "Vor Kursbeginn — Zeitpunkt in den Einstellungen."
+
+#: includes/emails.php:25
+msgid "As soon as the meeting link is entered for the session, and immediately for later bookings."
+msgstr "Sobald der Meeting-Link am Termin eingetragen wird, und bei späteren Buchungen sofort."
+
+#: includes/emails.php:26
+msgid "Admin copy"
+msgstr "Admin-Kopie"
+
+#: includes/emails.php:26
+msgid "Sent to the address set below for every new booking."
+msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse."
+
+#: includes/emails.php:288
+msgid "Access details sent to %d participants."
+msgstr "Zugangsdaten an %d Teilnehmer verschickt."
+
+#: includes/emails.php:291
+msgid "Nothing sent — meeting link is missing or there are no active bookings."
+msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
+
+#: includes/emails.php:389
+#: includes/emails.php:390
+msgid "Emails"
+msgstr "E-Mails"
+
+#: includes/emails.php:425
+msgid "Email Texts"
+msgstr "E-Mail-Texte"
+
+#: includes/emails.php:428
+msgid "Available placeholders:"
+msgstr "Verfügbare Platzhalter:"
+
+#: includes/emails.php:439
+msgid "Address for admin copies"
+msgstr "Adresse für Admin-Kopien"
+
+#: includes/emails.php:454
+msgid "Active"
+msgstr "Aktiv"
+
+#: includes/emails.php:460
+msgid "Send this email"
+msgstr "Diese E-Mail verschicken"
+
+#: includes/emails.php:465
+msgid "Subject"
+msgstr "Betreff"
+
+#: includes/emails.php:473
+msgid "Body"
+msgstr "Text"
+
+#: includes/templates.php:20
+msgid "Session list — [bw_credits_course_list]"
+msgstr "Terminliste — [bw_credits_course_list]"
+
+#: includes/templates.php:21
+msgid "Available spots — [bw_credits_course_availability]"
+msgstr "Freie Plätze — [bw_credits_course_availability]"
+
+#: includes/templates.php:22
+msgid "Access details — [bw_credits_course_access]"
+msgstr "Zugangsdaten — [bw_credits_course_access]"
+
+#: includes/templates.php:23
+msgid "Book/Cancel — [bw_credits_course_booking]"
+msgstr "Buchen/Stornieren — [bw_credits_course_booking]"
+
+#: includes/templates.php:24
+msgid "Credit balance — [bw_credits_user_balance]"
+msgstr "Guthaben — [bw_credits_user_balance]"
+
+#: includes/templates.php:25
+msgid "Credit balance in detail — [bw_credits_user_credits]"
+msgstr "Guthaben im Detail — [bw_credits_user_credits]"
+
+#: includes/templates.php:26
+msgid "Booking list — [bw_credits_user_bookings]"
+msgstr "Buchungsliste — [bw_credits_user_bookings]"
+
+#: includes/templates.php:27
+msgid "Account overview — [bw_credits_view_overview]"
+msgstr "Konto-Übersicht — [bw_credits_view_overview]"
+
+#: includes/updater.php:139
+msgid "BW Credits + Bookings – a WooCommerce credit-based booking system for courses."
+msgstr "BW Credits + Bookings – WooCommerce Credit-Buchungssystem für Kurse."
+
+#: includes/updater.php:140
+msgid "No changelog information available."
+msgstr "Keine Changelog-Info vorhanden."
 

@@ -312,6 +312,70 @@ const ENGLISH_TO_GERMAN = [
     'booking_id missing (button needs data-booking-id)' => 'booking_id fehlt (Button braucht data-booking-id)',
     'Book' => 'Buchen',
     'Request failed (%d)' => 'Anfrage fehlgeschlagen (%d)',
+
+    /* =====================================================
+     * bw-credits-booking.php — WP_Error messages and demo
+     * shortcodes found and wrapped during the Phase 3 comment sweep
+     * ===================================================== */
+    'User not found.' => 'Benutzer nicht gefunden.',
+    'Amount must be between 1 and 500.' => 'Anzahl muss zwischen 1 und 500 liegen.',
+    'Credit grant failed.' => 'Gutschrift fehlgeschlagen.',
+    'Credit not found or already used.' => 'Credit nicht gefunden oder bereits verbraucht.',
+    'Status could not be changed.' => 'Status konnte nicht geändert werden.',
+    'slot_id is missing.' => 'slot_id fehlt.',
+    'Booked.' => 'Gebucht.',
+    'booking_id is missing.' => 'booking_id fehlt.',
+    'Cancelled.' => 'Storniert.',
+
+    /* =====================================================
+     * includes/emails.php — email-type labels/descriptions and the
+     * Emails settings page chrome (out of scope for Phase 2, fixed
+     * during the Phase 3 comment sweep). The actual default email
+     * subject/body content (BW_Emails::defaults()) is a separate,
+     * WPML-driven subsystem deliberately left untouched — see the
+     * Phase 3 summary for why.
+     * ===================================================== */
+    'Booking confirmation' => 'Buchungsbestätigung',
+    'Sent to the customer right after a successful booking.' => 'Direkt nach einer erfolgreichen Buchung an den Kunden.',
+    'Cancellation confirmation' => 'Stornobestätigung',
+    'Sent to the customer after a cancellation.' => 'Nach einer Stornierung an den Kunden.',
+    'Reminder' => 'Erinnerung',
+    'Before the session starts — timing set in Settings.' => 'Vor Kursbeginn — Zeitpunkt in den Einstellungen.',
+    'As soon as the meeting link is entered for the session, and immediately for later bookings.' =>
+        'Sobald der Meeting-Link am Termin eingetragen wird, und bei späteren Buchungen sofort.',
+    'Admin copy' => 'Admin-Kopie',
+    'Sent to the address set below for every new booking.' => 'Bei jeder neuen Buchung an die unten hinterlegte Adresse.',
+    'Access details sent to %d participants.' => 'Zugangsdaten an %d Teilnehmer verschickt.',
+    'Nothing sent — meeting link is missing or there are no active bookings.' => 'Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen.',
+    'Emails' => 'E-Mails',
+    'Email Texts' => 'E-Mail-Texte',
+    'Available placeholders:' => 'Verfügbare Platzhalter:',
+    'Address for admin copies' => 'Adresse für Admin-Kopien',
+    'Active' => 'Aktiv',
+    'Send this email' => 'Diese E-Mail verschicken',
+    'Subject' => 'Betreff',
+    'Body' => 'Text',
+
+    /* =====================================================
+     * includes/templates.php — template registry descriptions
+     * (Phase 3): shown on BW Credits → Templates, mirrors the
+     * GROUPS/description pattern — the value must be wrapped at its
+     * source here, not at the esc_html() call site in admin-pages.php.
+     * ===================================================== */
+    'Session list — [bw_credits_course_list]' => 'Terminliste — [bw_credits_course_list]',
+    'Available spots — [bw_credits_course_availability]' => 'Freie Plätze — [bw_credits_course_availability]',
+    'Access details — [bw_credits_course_access]' => 'Zugangsdaten — [bw_credits_course_access]',
+    'Book/Cancel — [bw_credits_course_booking]' => 'Buchen/Stornieren — [bw_credits_course_booking]',
+    'Credit balance — [bw_credits_user_balance]' => 'Guthaben — [bw_credits_user_balance]',
+    'Credit balance in detail — [bw_credits_user_credits]' => 'Guthaben im Detail — [bw_credits_user_credits]',
+    'Booking list — [bw_credits_user_bookings]' => 'Buchungsliste — [bw_credits_user_bookings]',
+    'Account overview — [bw_credits_view_overview]' => 'Konto-Übersicht — [bw_credits_view_overview]',
+
+    /* =====================================================
+     * includes/updater.php (Phase 3)
+     * ===================================================== */
+    'BW Credits + Bookings – a WooCommerce credit-based booking system for courses.' => 'BW Credits + Bookings – WooCommerce Credit-Buchungssystem für Kurse.',
+    'No changelog information available.' => 'Keine Changelog-Info vorhanden.',
 ];
 
 // --- Validate against the combined live source set before writing anything ---

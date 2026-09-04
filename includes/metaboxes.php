@@ -2,11 +2,11 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Metaboxen am Kurstermin: Kapazität, Teilnehmerliste, Online-Zugang.
+ * Meta boxes on the course session: capacity, participant list, online access.
  *
- * Die Felder werden plugin-eigen gespeichert (kein ACF nötig). Falls
- * dieselben Meta-Keys noch in einer ACF-Feldgruppe liegen, sollten sie
- * dort entfernt werden — sonst erscheinen die Felder doppelt.
+ * The fields are stored by the plugin itself (no ACF needed). If the
+ * same meta keys still exist in an ACF field group, they should be
+ * removed there — otherwise the fields appear twice.
  */
 
 class BW_Metaboxes {
@@ -20,8 +20,8 @@ class BW_Metaboxes {
         add_action('add_meta_boxes', [__CLASS__, 'register']);
         add_action('save_post',      [__CLASS__, 'save'], 10, 2);
 
-        // Nonce unabhängig von den Metaboxen ausgeben — sonst geht das
-        // Speichern verloren sobald eine Box über Ansicht anpassen ausgeblendet ist
+        // Print the nonce independently of the meta boxes — otherwise
+        // saving is lost as soon as a box is hidden via Screen Options
         add_action('edit_form_after_title', [__CLASS__, 'print_nonce']);
 
         add_action('admin_post_bw_admin_cancel_booking', [__CLASS__, 'handle_cancel']);
@@ -48,7 +48,7 @@ class BW_Metaboxes {
     }
 
     /* ---------------------------------------------------------
-     * Metabox: Kapazität
+     * Meta box: Capacity
      * --------------------------------------------------------- */
 
     public static function print_nonce($post) {
@@ -88,7 +88,7 @@ class BW_Metaboxes {
     }
 
     /* ---------------------------------------------------------
-     * Metabox: Online-Zugang
+     * Meta box: Online Access
      * --------------------------------------------------------- */
 
     public static function render_access(WP_Post $post) {
@@ -129,7 +129,7 @@ class BW_Metaboxes {
     }
 
     /* ---------------------------------------------------------
-     * Metabox: Teilnehmer
+     * Meta box: Participants
      * --------------------------------------------------------- */
 
     public static function render_participants(WP_Post $post) {
@@ -163,7 +163,7 @@ class BW_Metaboxes {
                 $active  = ((int) $b['is_active'] === 1);
                 $status  = (string) $b['status'];
                 $label   = $labels[$status] ?? $status;
-                // LEFT JOIN: Nutzerdaten fehlen wenn das Konto gelöscht wurde
+                // LEFT JOIN: user data is missing if the account was deleted
                 $name    = $b['display_name'] ?: ('User #' . (int) $b['user_id']);
                 $email   = (string) ($b['user_email'] ?? '');
                 $created = mysql2date('d.m.Y H:i', $b['created_at']);
@@ -271,15 +271,15 @@ class BW_Metaboxes {
             }
         }
 
-        // Erst jetzt feuern — die Zugangsdaten-Mail braucht auch das Hinweisfeld.
-        // Nur beim Übergang leer → gesetzt, sonst würde jedes Speichern erneut versenden.
+        // Fire only now — the access-details email also needs the notes field.
+        // Only on the empty → set transition, otherwise every save would resend it.
         if ($link_before === '' && $link_after !== '') {
             do_action('bw_meeting_link_added', $post_id);
         }
     }
 
     /* ---------------------------------------------------------
-     * Aktionen aus der Teilnehmerliste
+     * Actions from the participant list
      * --------------------------------------------------------- */
 
     private static function verify_action(string $action): array {
@@ -345,7 +345,7 @@ class BW_Metaboxes {
         header('Content-Disposition: attachment; filename="' . $filename . '"');
 
         $out = fopen('php://output', 'w');
-        fwrite($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM für Excel
+        fwrite($out, chr(0xEF) . chr(0xBB) . chr(0xBF)); // BOM for Excel
         fputcsv($out, [
             __('No.', 'bw-credits-booking'),
             __('Name', 'bw-credits-booking'),
@@ -371,8 +371,8 @@ class BW_Metaboxes {
     }
 
     /**
-     * Anzeigenamen stammen vom Nutzer. Tabellenprogramme werten Zellen die mit
-     * = + - @ beginnen als Formel aus — deshalb vorne ein Apostroph setzen.
+     * Display names come from the user. Spreadsheet programs evaluate
+     * cells starting with = + - @ as a formula — hence a leading apostrophe.
      */
     private static function csv_cell($value): string {
         $value = (string) $value;
@@ -383,7 +383,7 @@ class BW_Metaboxes {
     }
 
     /* ---------------------------------------------------------
-     * Rückmeldung nach einer Aktion
+     * Feedback after an action
      * --------------------------------------------------------- */
 
     public static function show_notice() {

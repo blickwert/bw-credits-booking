@@ -2,7 +2,7 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Admin-Unterseiten: Terminübersicht, Buchungen, Credits.
+ * Admin subpages: session overview, bookings, credits.
  */
 
 class BW_Admin_Pages {
@@ -46,7 +46,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Gemeinsame Helfer
+     * Shared helpers
      * ========================================================= */
 
     private static function guard() {
@@ -78,7 +78,7 @@ class BW_Admin_Pages {
         );
     }
 
-    /** Termine für Auswahlfelder — kommende zuerst. */
+    /** Sessions for select fields — upcoming first. */
     private static function slot_options(): array {
         $posts = get_posts([
             'post_type'      => self::post_type(),
@@ -103,7 +103,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Termine
+     * Page: Sessions
      * ========================================================= */
 
     public static function render_slots() {
@@ -206,7 +206,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Buchungen
+     * Page: Bookings
      * ========================================================= */
 
     public static function render_bookings() {
@@ -318,7 +318,7 @@ class BW_Admin_Pages {
 
         echo '</tbody></table>';
 
-        /* --- Blättern --- */
+        /* --- Pagination --- */
         $pages = (int) ceil($result['total'] / $result['per_page']);
         if ($pages > 1) {
             echo '<div class="tablenav"><div class="tablenav-pages">';
@@ -393,7 +393,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Credits
+     * Page: Credits
      * ========================================================= */
 
     public static function render_credits() {
@@ -619,7 +619,7 @@ class BW_Admin_Pages {
         $amount = isset($_POST['amount']) ? (int) $_POST['amount'] : 0;
         $date   = isset($_POST['expires_at']) ? sanitize_text_field(wp_unslash($_POST['expires_at'])) : '';
 
-        // Gültig bis Tagesende, sonst verfällt der Credit am Stichtag um 00:00
+        // Valid until end of day, otherwise the credit would expire at midnight on the day itself
         $expires_at = null;
         if ($date !== '' && preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)) {
             $expires_at = $date . ' 23:59:59';
@@ -643,7 +643,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Texte
+     * Page: Texts
      * ========================================================= */
 
     public static function register_text_settings() {
@@ -654,9 +654,9 @@ class BW_Admin_Pages {
     }
 
     /**
-     * Nur tatsächlich geänderte Texte speichern. Wer ein Feld leert oder auf
-     * den Standard zurücksetzt, bekommt wieder den übersetzbaren Standard —
-     * die Option bleibt so klein wie möglich.
+     * Only saves texts that were actually changed. Clearing a field or
+     * resetting it to the default brings back the translatable default —
+     * this keeps the option as small as possible.
      */
     public static function sanitize_texts($value): array {
         if (!is_array($value)) return [];
@@ -677,7 +677,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Templates
+     * Page: Templates
      * ========================================================= */
 
     public static function render_templates() {
@@ -765,10 +765,11 @@ class BW_Admin_Pages {
     }
 
     /**
-     * Kopiert die Plugin-Vorlage ins aktive Theme. Direkte Dateizugriffe
-     * statt WP_Filesystem — die Aktion ist admin-only und schreibt nur ins
-     * eigene Theme-Unterverzeichnis, keine Notwendigkeit für die
-     * FTP-Credentials-Abstraktion die WP_Filesystem sonst mitbringt.
+     * Copies the plugin template into the active theme. Direct
+     * filesystem access instead of WP_Filesystem — the action is
+     * admin-only and only writes into the theme's own subdirectory, no
+     * need for the FTP-credentials abstraction WP_Filesystem otherwise
+     * brings along.
      */
     public static function handle_copy_template() {
         self::guard();
@@ -873,7 +874,7 @@ class BW_Admin_Pages {
     }
 
     /* =========================================================
-     * Seite: Shortcodes
+     * Page: Shortcodes
      * ========================================================= */
 
     /** Reference: name => [group, description, parameters] */

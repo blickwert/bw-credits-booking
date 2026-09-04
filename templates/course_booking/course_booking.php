@@ -1,28 +1,28 @@
 <?php
 /**
- * Buchen/Stornieren — Button oder Hinweis
+ * Book/Cancel — button or note
  *
- * Zwei Varianten in einer Datei: 'action' der Buchen/Stornieren-Button,
- * 'note' ein Hinweistext statt Button (ausgebucht, kein Guthaben, Stornofrist
- * abgelaufen, nicht eingeloggt).
+ * Two variants in one file: 'action' is the book/cancel button, 'note'
+ * is a note text instead of a button (fully booked, no credits,
+ * cancellation deadline passed, not logged in).
  *
  * Override: yourtheme/bw-credits-booking/course_booking/course_booking.php
  *
  * @var string $variant  'action' | 'note'
  *
- * Bei $variant === 'action':
+ * When $variant === 'action':
  * @var string   $action        'book' | 'cancel'
  * @var int      $slot_id
- * @var int|null $booking_id    nur bei action=cancel gesetzt
- * @var string   $label         aktuell sichtbare Beschriftung
- * @var string   $label_book    für den JS-Wechsel zurück auf Buchen
- * @var string   $label_cancel  für den JS-Wechsel auf Stornieren
+ * @var int|null $booking_id    only set when action=cancel
+ * @var string   $label         the currently visible label
+ * @var string   $label_book    for the JS switch back to "book"
+ * @var string   $label_cancel  for the JS switch to "cancel"
  * @var string   $class
  *
- * Bei $variant === 'note':
- * @var string $text          wird escaped ausgegeben
- * @var string $modifier      zusätzliche CSS-Klasse, z. B. "bw-is-full", leer möglich
- * @var string $suffix_html   bereits fertiges HTML (z. B. ein Link), unescaped angehängt
+ * When $variant === 'note':
+ * @var string $text          output escaped
+ * @var string $modifier      additional CSS class, e.g. "bw-is-full", can be empty
+ * @var string $suffix_html   already-finished HTML (e.g. a link), appended unescaped
  *
  * @version 0.15.0
  */

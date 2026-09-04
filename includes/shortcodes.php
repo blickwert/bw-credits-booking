@@ -2,17 +2,17 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Zentrale Shortcode-Registrierung.
+ * Central shortcode registration.
  *
- * Schema: bw_credits_{gruppe}_{name}
- *   course — spricht über einen Termin  (Parameter course_id)
- *   user   — spricht über den eingeloggten Kunden
- *   view   — zusammengesetzte Ansicht
+ * Scheme: bw_credits_{group}_{name}
+ *   course — refers to a session (course_id parameter)
+ *   user   — refers to the logged-in customer
+ *   view   — a composite view
  */
 
 class BW_Shortcodes {
 
-    /** Shortcode-Name => Callback */
+    /** Shortcode name => callback */
     public static function map(): array {
         return [
             // course

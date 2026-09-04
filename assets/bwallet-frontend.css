@@ -1,7 +1,7 @@
 /* assets/bwallet-frontend.css */
 
-/* Textfarben — WordPress Global-Styles-Presets mit statischem Fallback,
-   da nicht jedes Theme alle acht Farbrollen in seiner theme.json definiert */
+/* Text colors — WordPress global-styles presets with a static fallback,
+   since not every theme defines all eight color roles in its theme.json */
 :root {
   --bw-color-primary:   var(--wp--preset--color--primary,   #2271b1);
   --bw-color-secondary: var(--wp--preset--color--secondary, #666);
@@ -113,7 +113,7 @@
   margin-top: 0.15rem;
 }
 
-/* Verfügbarkeit — drei Varianten im Markup, umgeschaltet über data-bw-state */
+/* Availability — three variants in the markup, toggled via data-bw-state */
 .bw-availability [data-bw-free-wrap],
 .bw-availability [data-bw-many-wrap],
 .bw-availability [data-bw-full-wrap] {
@@ -130,7 +130,7 @@
   color: var(--bw-color-error, #b00020);
 }
 
-/* Terminliste [bw_course_slots] */
+/* Session list [bw_course_slots] */
 .bw-course-filter {
   display: flex;
   flex-wrap: wrap;
@@ -211,7 +211,7 @@
   color: var(--bw-color-secondary, #666);
 }
 
-/* Hinweise statt Button (ausgebucht, vorbei, keine Credits, …) */
+/* Notes instead of a button (fully booked, over, no credits, …) */
 .bw-slot-note {
   margin: 0.45rem 0;
   color: var(--bw-color-secondary, #666);
@@ -225,7 +225,7 @@
 .bw-slot-note.bw-is-booked {
   color: var(--bw-color-success, #116611);
 }
-/* Zugangsdaten [bw_credits_course_access] */
+/* Access details [bw_credits_course_access] */
 .bw-access {
   margin: 0.75rem 0;
   padding: 0.85rem 1rem;
@@ -249,7 +249,7 @@
   color: var(--bw-color-secondary, #666);
 }
 
-/* Guthaben-Details [bw_credits_user_credits] */
+/* Credit balance details [bw_credits_user_credits] */
 .bw-credits-list {
   list-style: none;
   margin: 0;
@@ -298,7 +298,7 @@
   color: var(--bw-color-secondary, #666);
 }
 
-/* Konto-Übersicht [bw_credits_view_overview] */
+/* Account overview [bw_credits_view_overview] */
 .bw-credits-overview {
   display: flex;
   flex-direction: column;
@@ -359,8 +359,8 @@
   margin: 0.45rem 0;
 }
 
-/* Guthaben mit zwei Zuständen — beide im Markup, umgeschaltet über
-   data-bw-state, damit das JS ohne Reload wechseln kann */
+/* Credit balance with two states — both in the markup, toggled via
+   data-bw-state, so the JS can switch without a reload */
 .bw-balance-state[data-bw-state="has"] [data-bw-empty-wrap],
 .bw-balance-state[data-bw-state="empty"] [data-bw-has-wrap] {
   display: none;

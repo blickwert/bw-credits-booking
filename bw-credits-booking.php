@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.19.0
+ * Version: 0.20.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.19.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.20.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -45,7 +45,7 @@ class BW_Credits_Bookings_MVP {
 
     const DB_VERSION         = 4;
 
-    // 'manual' = Gutschrift durch den Admin (Barzahlung, Kulanz, Korrektur)
+    // 'manual' = credited by the admin (cash payment, goodwill, correction)
     const CREDIT_SOURCES     = ['purchase', 'membership', 'manual'];
 
     public static function init() {
@@ -55,25 +55,25 @@ class BW_Credits_Bookings_MVP {
 
         add_action('woocommerce_order_status_completed', [__CLASS__, 'handle_order_completed'], 10, 1);
 
-        // Rückerstattung/Storno der Bestellung entwertet noch nicht genutzte Credits
+        // Refunding/cancelling the order revokes any not-yet-used credits
         add_action('woocommerce_order_status_refunded',  [__CLASS__, 'handle_order_reversed'], 10, 1);
         add_action('woocommerce_order_status_cancelled', [__CLASS__, 'handle_order_reversed'], 10, 1);
 
-        // Guthaben-Hinweis in der Woo-eigenen "Bestellung abgeschlossen"-Mail
+        // Credit-balance note in WooCommerce's own "order completed" email
         add_action('woocommerce_email_order_details', [__CLASS__, 'inject_credits_into_order_email'], 20, 4);
 
-        // My Account statt wp-login.php als Login-Ziel, mit Rücksprung zum Termin
+        // My Account instead of wp-login.php as the login target, with a return to the session
         add_filter('woocommerce_login_redirect', [__CLASS__, 'filter_login_redirect'], 10, 2);
 
-        // Buchungen im WooCommerce-Konto-Dashboard
+        // Bookings in the WooCommerce account dashboard
         add_action('woocommerce_account_dashboard', [__CLASS__, 'render_account_dashboard'], 20);
         add_action('rest_api_init', [__CLASS__, 'register_rest_routes']);
         add_action('wp_enqueue_scripts', [__CLASS__, 'register_frontend_assets']);
         add_action('wp_ajax_bw_refresh_nonce', [__CLASS__, 'ajax_refresh_nonce']);
 
-        // Frontend-Shortcodes werden zentral in includes/shortcodes.php registriert
+        // Frontend shortcodes are registered centrally in includes/shortcodes.php
 
-        // Demo-/Testhilfen
+        // Demo/test helpers
         add_shortcode('bw_demo_book_slot', [__CLASS__, 'sc_demo_book_slot']);
         add_shortcode('bw_demo_cancel_booking', [__CLASS__, 'sc_demo_cancel_booking']);
     }
@@ -143,7 +143,7 @@ class BW_Credits_Bookings_MVP {
         BW_Emails::unschedule_cron();
     }
 
-    // Führt DB-Migration durch wenn Plugin aktualisiert wird (ohne Deaktivierung)
+    // Runs the DB migration when the plugin is updated (without deactivation)
     public static function maybe_migrate() {
         $installed = (int) get_option('bw_db_version', 1);
         if ($installed >= self::DB_VERSION) return;
@@ -153,20 +153,20 @@ class BW_Credits_Bookings_MVP {
         if ($installed < 3) {
             global $wpdb;
             $bookings = $wpdb->prefix . self::BOOKINGS_TABLE;
-            // is_active=0 kollidiert im Unique-Index sobald derselbe Slot ein
-            // zweites Mal storniert wird — NULL erlaubt beliebig viele Zeilen
+            // is_active=0 collides in the unique index as soon as the same
+            // slot is cancelled a second time — NULL allows any number of rows
             $wpdb->query("UPDATE {$bookings} SET is_active = NULL WHERE is_active = 0");
         }
 
         if ($installed < 4) {
             global $wpdb;
             $bookings = $wpdb->prefix . self::BOOKINGS_TABLE;
-            // dbDelta() stellt bestehende Spalten zuverlässig auf ADD COLUMN/ADD
-            // INDEX um, aber nicht auf NOT NULL -> NULL — auf Sites, die vor der
-            // Umstellung in Version 3 installiert wurden, blieb is_active daher
-            // NOT NULL und ein geschriebenes NULL wurde von MySQL im nicht-strict
-            // Modus still zu 0 konvertiert, was denselben Unique-Index-Konflikt
-            // erneut auslöst. Deshalb hier explizit statt über dbDelta().
+            // dbDelta() reliably applies ADD COLUMN/ADD INDEX to existing
+            // columns, but not NOT NULL -> NULL — on sites installed before
+            // the switch in version 3, is_active therefore stayed NOT NULL,
+            // and a written NULL was silently converted to 0 by MySQL in
+            // non-strict mode, triggering the same unique-index conflict
+            // again. Hence this explicit statement instead of dbDelta().
             $wpdb->query("ALTER TABLE {$bookings} MODIFY is_active TINYINT(1) NULL DEFAULT 1");
             $wpdb->query("UPDATE {$bookings} SET is_active = NULL WHERE is_active = 0");
         }
@@ -177,10 +177,10 @@ class BW_Credits_Bookings_MVP {
      * ------------------------- */
 
     /**
-     * Assets nur registrieren — das Enqueue passiert im Shortcode selbst.
-     * Page-Builder (Elementor, Oxygen, …) legen ihren Inhalt außerhalb von
-     * post_content ab, deshalb ist Shortcode-Erkennung per Inhaltsprüfung
-     * unzuverlässig.
+     * Only registers the assets — the actual enqueue happens in the
+     * shortcode itself. Page builders (Elementor, Oxygen, …) store their
+     * content outside of post_content, so detecting shortcodes by
+     * inspecting the content isn't reliable.
      */
     public static function register_frontend_assets() {
         $handle = 'bw-bwallet-frontend';
@@ -220,8 +220,8 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Frischen REST-Nonce liefern. Nötig weil ein in gecachtem HTML
-     * eingebetteter Nonce abläuft — admin-ajax wird nie gecacht.
+     * Delivers a fresh REST nonce. Needed because a nonce embedded in
+     * cached HTML can expire — admin-ajax is never cached.
      */
     public static function ajax_refresh_nonce() {
         if (!is_user_logged_in()) {
@@ -284,7 +284,7 @@ class BW_Credits_Bookings_MVP {
         $order->save();
     }
 
-    /** Summe der Credits, die die Positionen dieser Bestellung auflösen. */
+    /** Sum of the credits this order's line items resolve to. */
     private static function sum_credit_amount(WC_Order $order): int {
         $total = 0;
 
@@ -300,13 +300,12 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Guthaben-Hinweis in die Woo-eigene "Bestellung abgeschlossen"-Mail
-     * einfügen — kein Eingriff in Woo-Mail-Templates, der Hook ist genau
-     * dafür vorgesehen. Wirkt nur bei der Kunden-Mail, nicht bei der
-     * Admin-Kopie, und nur wenn die Bestellung Credits enthielt. Die Anzahl
-     * wird aus den Bestellpositionen neu berechnet statt gespeichert zu
-     * werden — damit stimmt sie auch wenn Woo die Mail später erneut
-     * versendet.
+     * Inserts a credit-balance note into WooCommerce's own "order
+     * completed" email — no interference with Woo mail templates, the
+     * hook exists exactly for this. Only applies to the customer email,
+     * not the admin copy, and only if the order contained credits. The
+     * amount is recalculated from the order's line items rather than
+     * stored — so it stays correct even if Woo resends the email later.
      */
     public static function inject_credits_into_order_email($order, $sent_to_admin, $plain_text, $email) {
         if ($sent_to_admin || !$order instanceof WC_Order) return;
@@ -332,7 +331,7 @@ class BW_Credits_Bookings_MVP {
 
         $body = nl2br(esc_html(bw_text('order_email.body', $vars)));
 
-        // Konto-Link nach dem Escapen wieder klickbar machen
+        // Make the account link clickable again after escaping
         $link = $vars['account_link'];
         if ($link !== '' && filter_var($link, FILTER_VALIDATE_URL)) {
             $body = str_replace(
@@ -347,9 +346,9 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Bestellung erstattet oder storniert — noch verfügbare Credits daraus
-     * entwerten. Bereits verbrauchte bleiben unangetastet, die hängen an
-     * einer Buchung; die wird bei Bedarf separat storniert.
+     * Order refunded or cancelled — revoke any still-available credits
+     * from it. Already-used ones are left untouched, since they're tied
+     * to a booking; that booking is cancelled separately if needed.
      */
     public static function handle_order_reversed($order_id) {
         self::revoke_order_credits((int) $order_id);
@@ -417,7 +416,7 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Credits eines Nutzers inkl. Herkunft und Buchungsbezug.
+     * A user's credits, including origin and booking reference.
      */
     public static function get_user_credits(int $user_id, int $limit = 200): array {
         global $wpdb;
@@ -435,8 +434,8 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Zählt Credits nach Status. 'available' berücksichtigt das Ablaufdatum,
-     * abgelaufene aber noch nicht umgeschriebene Zeilen laufen unter 'expired'.
+     * Counts credits by status. 'available' takes the expiry date into
+     * account; expired-but-not-yet-relabeled rows count as 'expired'.
      */
     public static function get_credit_summary(int $user_id): array {
         global $wpdb;
@@ -464,14 +463,14 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Manuelle Gutschrift durch den Admin.
+     * Manual credit grant by the admin.
      */
     public static function grant_credits(int $user_id, int $amount, ?string $expires_at = null, string $source = 'manual') {
         if (!get_userdata($user_id)) {
-            return new WP_Error('bw_user_invalid', 'Benutzer nicht gefunden.');
+            return new WP_Error('bw_user_invalid', __('User not found.', 'bw-credits-booking'));
         }
         if ($amount < 1 || $amount > 500) {
-            return new WP_Error('bw_amount_invalid', 'Anzahl muss zwischen 1 und 500 liegen.');
+            return new WP_Error('bw_amount_invalid', __('Amount must be between 1 and 500.', 'bw-credits-booking'));
         }
 
         $ok = self::add_credit_units([
@@ -481,12 +480,12 @@ class BW_Credits_Bookings_MVP {
             'source'     => $source,
         ]);
 
-        return $ok ? true : new WP_Error('bw_grant_failed', 'Gutschrift fehlgeschlagen.');
+        return $ok ? true : new WP_Error('bw_grant_failed', __('Credit grant failed.', 'bw-credits-booking'));
     }
 
     /**
-     * Einzelnen verfügbaren Credit entwerten. Verbrauchte Credits bleiben
-     * unangetastet — die hängen an einer Buchung.
+     * Revokes a single available credit. Used credits are left untouched
+     * — they're tied to a booking.
      */
     public static function revoke_credit(int $credit_id, int $user_id) {
         global $wpdb;
@@ -500,7 +499,7 @@ class BW_Credits_Bookings_MVP {
         ));
 
         if ($updated !== 1) {
-            return new WP_Error('bw_revoke_failed', 'Credit nicht gefunden oder bereits verbraucht.');
+            return new WP_Error('bw_revoke_failed', __('Credit not found or already used.', 'bw-credits-booking'));
         }
 
         return true;
@@ -690,12 +689,13 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Buchung durch den Admin (Walk-in). Darf auch für bereits begonnene
-     * Termine eintragen und wahlweise ohne Credit-Abzug als Freiplatz.
+     * Booking made by the admin (walk-in). May also enroll into sessions
+     * that have already started, optionally without deducting a credit
+     * as a free spot.
      */
     public static function admin_book_slot(int $user_id, int $slot_id, bool $consume_credit = true) {
         if (!get_userdata($user_id)) {
-            return new WP_Error('bw_user_invalid', 'Benutzer nicht gefunden.');
+            return new WP_Error('bw_user_invalid', __('User not found.', 'bw-credits-booking'));
         }
         return self::create_booking($user_id, $slot_id, $consume_credit, false);
     }
@@ -766,7 +766,7 @@ class BW_Credits_Bookings_MVP {
 
         $booking_id = (int) $wpdb->insert_id;
 
-        // consume credit + link to booking — Freiplätze bleiben ohne credit_id
+        // consume credit + link to booking — free spots stay without a credit_id
         $credit_id = 0;
         if ($consume_credit) {
             $credit_id = self::consume_one_credit($user_id, $booking_id);
@@ -801,7 +801,7 @@ class BW_Credits_Bookings_MVP {
 
         $wpdb->query('COMMIT');
 
-        // Nach dem Commit — Empfänger dürfen keine offene Transaktion sehen
+        // After the commit — recipients must not see an open transaction
         do_action('bw_booking_created', $booking_id, $user_id, $slot_id);
 
         return [
@@ -897,7 +897,7 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Alle Buchungen eines Termins inkl. Nutzerdaten — für die Teilnehmerliste.
+     * All bookings for a session, incl. user data — for the participant list.
      */
     public static function get_slot_bookings(int $slot_id): array {
         global $wpdb;
@@ -916,8 +916,8 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Gefilterte Buchungsliste für die Admin-Übersicht.
-     * Gibt die Zeilen und die Gesamtzahl für die Blätterfunktion zurück.
+     * Filtered booking list for the admin overview.
+     * Returns the rows and the total count for pagination.
      */
     public static function query_bookings(array $args = []): array {
         global $wpdb;
@@ -968,8 +968,8 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Storno durch den Admin — ignoriert die Storno-Frist, gibt den Credit
-     * zurück sofern einer verbraucht wurde.
+     * Cancellation by the admin — ignores the cancellation deadline,
+     * refunds the credit if one was consumed.
      */
     public static function admin_cancel_booking(int $booking_id) {
         global $wpdb;
@@ -1013,7 +1013,7 @@ class BW_Credits_Bookings_MVP {
             return new WP_Error('bw_cancel_failed', bw_text('error.generic'));
         }
 
-        // Freiplätze (Admin-Buchung ohne Credit) haben nichts zurückzugeben
+        // Free spots (admin booking without a credit) have nothing to refund
         if (!empty($booking['credit_id'])) {
             $ref = self::refund_credit_by_booking($user_id, $booking_id);
             if (is_wp_error($ref)) {
@@ -1035,9 +1035,9 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * "Nicht erschienen" markieren bzw. zurücknehmen.
-     * Der Platz bleibt belegt und der Credit verbraucht — deshalb bleibt
-     * is_active=1 und booked_count unverändert.
+     * Marks a booking as a no-show, or reverts that mark.
+     * The spot stays booked and the credit stays consumed — hence
+     * is_active=1 and booked_count are left unchanged.
      */
     public static function set_no_show(int $booking_id, bool $no_show) {
         global $wpdb;
@@ -1054,7 +1054,7 @@ class BW_Credits_Bookings_MVP {
         ));
 
         if ($updated !== 1) {
-            return new WP_Error('bw_no_show_failed', 'Status konnte nicht geändert werden.');
+            return new WP_Error('bw_no_show_failed', __('Status could not be changed.', 'bw-credits-booking'));
         }
 
         return true;
@@ -1150,14 +1150,14 @@ class BW_Credits_Bookings_MVP {
 
     // Display balance (block)
     /**
-     * [bw_credits_user_balance] — Guthaben als Zahl oder als Absatz.
-     * Vereint die früheren bw_balance_inline und bw_credits_balance.
+     * [bw_credits_user_balance] — credit balance as a number or a paragraph.
+     * Merges the former bw_balance_inline and bw_credits_balance.
      */
     public static function sc_balance($atts = []) {
         $atts = shortcode_atts([
             'mode'       => 'always',      // always | empty_only
             'format'     => 'inline',      // inline | block
-            'label'      => '',   // leer = Text aus dem Katalog
+            'label'      => '',   // empty = text from the catalogue
             'empty_text' => '',
             'empty_link' => '',
             'logged_out' => '',
@@ -1167,9 +1167,9 @@ class BW_Credits_Bookings_MVP {
             return $atts['logged_out'] !== '' ? esc_html($atts['logged_out']) : '';
         }
 
-        // Gezielter Hinweis während des Credit-Kaufs statt eines
-        // allgegenwärtigen Zählers — nur sichtbar solange ein Credit-Paket
-        // im Warenkorb liegt, z. B. auf der Warenkorb-/Checkout-Seite.
+        // A targeted note during a credit purchase instead of an
+        // ever-present counter — only visible while a credit product is
+        // in the cart, e.g. on the cart/checkout page.
         if (!self::cart_has_credit_product()) {
             return '';
         }
@@ -1182,16 +1182,17 @@ class BW_Credits_Bookings_MVP {
         $available = self::get_available_credits($user_id);
 
         if ($atts['mode'] === 'empty_only') {
-            // Wer nie Guthaben hatte, soll über den Shop einsteigen statt über
-            // einen Hinweis auf leeres Guthaben. total zählt alle je vergebenen
-            // Credits — auch manuelle Gutschriften aus Willkommensaktionen.
+            // Anyone who never had a credit balance should be steered
+            // toward the shop instead of a note about an empty balance.
+            // total counts every credit ever granted — including manual
+            // grants from welcome promotions.
             $summary = self::get_credit_summary($user_id);
             if ($summary['total'] < 1) return '';
         }
 
         self::ensure_assets();
 
-        // data-bw-balance wird vom JS nach Buchung und Storno aktualisiert
+        // data-bw-balance is updated by the JS after booking and cancelling
         $number = '<span data-bw-balance>' . esc_html($available) . '</span>';
 
         if ($atts['mode'] !== 'empty_only') {
@@ -1209,10 +1210,10 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Beide Zustände ins Markup — das JS schaltet über data-bw-state um.
-     * Stünde nur der jeweils zutreffende Zweig da, erschiene der Hinweis erst
-     * nach einem Reload, also gerade nicht in dem Moment in dem der Kunde
-     * seinen letzten Credit verbraucht.
+     * Both states go into the markup — the JS switches between them via
+     * data-bw-state. If only the currently-applicable branch were there,
+     * the note would only appear after a reload — i.e. not at the exact
+     * moment the customer uses up their last credit.
      */
     private static function render_balance_states(array $atts, string $number, int $available): string {
         ob_start();
@@ -1227,7 +1228,7 @@ class BW_Credits_Bookings_MVP {
         return ob_get_clean();
     }
 
-    /** Liegt ein Credit-Paket (_bw_credit_amount gesetzt) im Warenkorb? */
+    /** Is a credit package (with _bw_credit_amount set) in the cart? */
     private static function cart_has_credit_product(): bool {
         if (!function_exists('WC') || !WC()->cart) return false;
 
@@ -1243,7 +1244,7 @@ class BW_Credits_Bookings_MVP {
         return false;
     }
 
-    /** WooCommerce-Shopseite, ausschließliche Quelle für Aufladen-Links. */
+    /** WooCommerce shop page, the sole source for top-up links. */
     public static function shop_url(): string {
         if (!function_exists('wc_get_page_permalink')) return '';
 
@@ -1251,7 +1252,7 @@ class BW_Credits_Bookings_MVP {
         return is_string($url) ? $url : '';
     }
 
-    /** Verlinkter Hinweis-Zusatz, leer wenn keine Shopseite gefunden wird. */
+    /** Linked note suffix, empty if no shop page is found. */
     private static function shop_link(string $label): string {
         $url = self::shop_url();
         if ($url === '') return '';
@@ -1259,7 +1260,7 @@ class BW_Credits_Bookings_MVP {
         return ' <a href="' . esc_url($url) . '">' . esc_html($label) . '</a>';
     }
 
-    /** WooCommerce-My-Account-Seite — dort verwalten Kunden Buchungen und Guthaben. */
+    /** WooCommerce My Account page — where customers manage bookings and their credit balance. */
     public static function my_account_url(): string {
         if (!function_exists('wc_get_page_permalink')) return '';
 
@@ -1268,9 +1269,9 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Login-Ziel für nicht angemeldete Besucher: My Account statt der
-     * nackten wp-login.php, mit Rücksprung zum aktuellen Termin nach dem
-     * Login. Ohne WooCommerce bleibt wp_login_url() als Rückfall.
+     * Login target for visitors who aren't logged in: My Account instead
+     * of bare wp-login.php, with a return to the current session after
+     * login. Without WooCommerce, wp_login_url() remains as the fallback.
      */
     private static function login_url(): string {
         $current = get_permalink() ?: '';
@@ -1283,15 +1284,15 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Bringt Kunden nach dem Login zur Seite zurück, die sie vor dem Login
-     * besucht haben. WooCommerce befolgt redirect_to beim Login über die
-     * eigene My-Account-Seite nicht von selbst — dafür dieser Filter.
+     * Brings customers back, after login, to the page they visited
+     * before logging in. WooCommerce doesn't honor redirect_to on its
+     * own when logging in via its own My Account page — hence this filter.
      */
     public static function filter_login_redirect($redirect, $user) {
         $target = isset($_REQUEST['bw_redirect_to']) ? esc_url_raw(wp_unslash($_REQUEST['bw_redirect_to'])) : '';
         if ($target === '') return $redirect;
 
-        // Nur die eigene Domain zulassen, kein offener Redirect
+        // Only allow our own domain, no open redirect
         if (wp_parse_url($target, PHP_URL_HOST) !== wp_parse_url(home_url(), PHP_URL_HOST)) {
             return $redirect;
         }
@@ -1300,9 +1301,9 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * Slot-ID aus dem Shortcode oder — wenn leer — aus dem aktuellen Beitrag.
-     * So funktionieren die Shortcodes auf der Termin-Einzelseite ohne dass
-     * jemand die ID eintippen muss.
+     * Slot ID from the shortcode, or — if empty — from the current post.
+     * This is what makes the shortcodes work on a session's own single
+     * page without anyone having to type in the ID.
      */
     public static function resolve_course_id(int $slot_id): int {
         if ($slot_id > 0) return $slot_id;
@@ -1344,7 +1345,7 @@ class BW_Credits_Bookings_MVP {
         return new DateTime('now', wp_timezone()) < $cutoff;
     }
 
-    /** $suffix_html muss bereits escaped sein — gedacht für einen Link. */
+    /** $suffix_html must already be escaped — intended for a link. */
     private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
         ob_start();
         bw_get_template('course_booking/course_booking.php', [
@@ -1357,19 +1358,19 @@ class BW_Credits_Bookings_MVP {
     }
 
     /**
-     * [bw_slot_action] — ein Button der je nach Zustand bucht oder storniert.
-     * Ohne slot_id greift der aktuelle Beitrag.
+     * [bw_slot_action] — a button that books or cancels depending on state.
+     * Without slot_id, the current post is used.
      */
     public static function sc_slot_action($atts) {
         $atts = shortcode_atts([
             'course_id'    => 0,
-            'slot_id'      => 0,   // alter Name, bleibt gültig
-            'label_book'   => '',  // leer = Text aus dem Katalog
+            'slot_id'      => 0,   // old name, still valid
+            'label_book'   => '',  // empty = text from the catalogue
             'label_cancel' => '',
             'class'        => 'bw-bwallet-btn',
         ], $atts, 'bw_credits_course_booking');
 
-        // Attribut schlägt Admin-Override schlägt übersetzten Standard
+        // Attribute beats admin override beats translated default
         $atts['label_book']   = $atts['label_book']   !== '' ? $atts['label_book']   : bw_text('booking.button.book');
         $atts['label_cancel'] = $atts['label_cancel'] !== '' ? $atts['label_cancel'] : bw_text('booking.button.cancel');
 
@@ -1391,7 +1392,7 @@ class BW_Credits_Bookings_MVP {
         $user_id = get_current_user_id();
         $booking = self::get_active_booking($user_id, $slot_id);
 
-        // Bereits gebucht → stornieren, solange die Frist läuft
+        // Already booked → cancel, as long as the deadline hasn't passed
         if ($booking) {
             if ($booking['status'] !== 'booked' || !self::can_cancel_now($start)) {
                 return self::note(bw_text('booking.note.booked'), 'bw-is-booked');
@@ -1427,7 +1428,7 @@ class BW_Credits_Bookings_MVP {
         ]);
     }
 
-    /** Umschaltbarer Button — das JS tauscht Aktion und Beschriftung nach dem Klick. */
+    /** Toggleable button — the JS swaps action and label after the click. */
     private static function action_button(array $args): string {
         ob_start();
         bw_get_template('course_booking/course_booking.php', [
@@ -1451,8 +1452,8 @@ class BW_Credits_Bookings_MVP {
     public static function sc_availability($atts) {
         $atts = shortcode_atts([
             'course_id' => 0,
-            'slot_id'   => 0,   // alter Name, bleibt gültig
-            'format'    => '',   // leer = Text aus dem Katalog
+            'slot_id'   => 0,   // old name, still valid
+            'format'    => '',   // empty = text from the catalogue
             'full'      => '',
         ], $atts, 'bw_credits_course_availability');
 
@@ -1484,7 +1485,7 @@ class BW_Credits_Bookings_MVP {
         return ob_get_clean();
     }
 
-    /** Übersicht und Buchungen im WooCommerce-Konto-Dashboard. */
+    /** Overview and bookings in the WooCommerce account dashboard. */
     public static function render_account_dashboard() {
         if (!is_user_logged_in()) return;
 
@@ -1573,32 +1574,32 @@ class BW_Credits_Bookings_MVP {
 
     // Demo: [bw_demo_book_slot slot_id="123"]
     public static function sc_demo_book_slot($atts) {
-        if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
+        if (!is_user_logged_in()) return '<p>' . esc_html__('Please log in.', 'bw-credits-booking') . '</p>';
         $atts = shortcode_atts(['slot_id' => 0], $atts);
         $slot_id = (int) $atts['slot_id'];
-        if ($slot_id <= 0) return '<p>slot_id fehlt.</p>';
+        if ($slot_id <= 0) return '<p>' . esc_html__('slot_id is missing.', 'bw-credits-booking') . '</p>';
 
         $uid = get_current_user_id();
         $res = self::book_slot($uid, $slot_id);
         if (is_wp_error($res)) {
             return '<p>❌ ' . esc_html($res->get_error_message()) . '</p>';
         }
-        return '<p>✅ Gebucht. booking_id=' . esc_html($res['booking_id']) . ', credit_id=' . esc_html($res['credit_id']) . '</p>';
+        return '<p>✅ ' . esc_html__('Booked.', 'bw-credits-booking') . ' booking_id=' . esc_html($res['booking_id']) . ', credit_id=' . esc_html($res['credit_id']) . '</p>';
     }
 
     // Demo: [bw_demo_cancel_booking booking_id="123"]
     public static function sc_demo_cancel_booking($atts) {
-        if (!is_user_logged_in()) return '<p>Bitte einloggen.</p>';
+        if (!is_user_logged_in()) return '<p>' . esc_html__('Please log in.', 'bw-credits-booking') . '</p>';
         $atts = shortcode_atts(['booking_id' => 0], $atts);
         $booking_id = (int) $atts['booking_id'];
-        if ($booking_id <= 0) return '<p>booking_id fehlt.</p>';
+        if ($booking_id <= 0) return '<p>' . esc_html__('booking_id is missing.', 'bw-credits-booking') . '</p>';
 
         $uid = get_current_user_id();
         $res = self::cancel_booking($uid, $booking_id);
         if (is_wp_error($res)) {
             return '<p>❌ ' . esc_html($res->get_error_message()) . '</p>';
         }
-        return '<p>✅ Storniert. booking_id=' . esc_html($booking_id) . '</p>';
+        return '<p>✅ ' . esc_html__('Cancelled.', 'bw-credits-booking') . ' booking_id=' . esc_html($booking_id) . '</p>';
     }
 }
 
