@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.22.0] – 2026-09-07
+
+### Fixed
+- **Auto-generated session titles no longer show double-escaped HTML entities.** A session title built from a taxonomy term containing `&` (e.g. `Ground & Connect`) is stored by WordPress' own save pipeline as `Ground &amp; Connect` — already-safe HTML. Four display sites (the session list `[bw_credits_course_list]`, the admin *Sessions* table, and two admin `<select>` dropdowns) wrapped that already-escaped title in `esc_html()` again, turning it into `Ground &amp;amp; Connect`, which browsers then rendered as the literal text `Ground &amp; Connect` instead of `Ground & Connect`. Fixed by no longer re-escaping `post_title` at those four call sites (`templates/course_list/course_list.php`, `includes/admin-pages.php`).
+
 ## [0.21.0] – 2026-09-04
 
 Phase 4 of the English-source migration, and the last one in this series: `README.md` is now fully English.

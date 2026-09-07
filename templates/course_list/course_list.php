@@ -93,7 +93,11 @@ if (!defined('ABSPATH')) exit;
                         <span class="bw-course-slot-time"><?php echo $ts ? esc_html(wp_date('H:i', $ts)) : '—'; ?></span>
 
                         <a class="bw-course-slot-title" href="<?php echo esc_url(get_permalink($slot)); ?>">
-                            <?php echo esc_html($slot->post_title ?: '#' . $slot->ID); ?>
+                            <?php
+                            // post_title is already HTML-entity-safe from WordPress' own save
+                            // pipeline (sanitize_post_field) — esc_html() here would double-escape it.
+                            echo $slot->post_title !== '' ? $slot->post_title : '#' . $slot->ID;
+                            ?>
                         </a>
 
                         <?php if ($terms) : ?>

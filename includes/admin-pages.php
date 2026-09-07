@@ -181,7 +181,11 @@ class BW_Admin_Pages {
             ?>
             <tr>
                 <td><?php echo esc_html(self::slot_start_label($slot->ID)); ?></td>
-                <td><a href="<?php echo esc_url(get_edit_post_link($slot->ID)); ?>"><?php echo esc_html($slot->post_title ?: '#' . $slot->ID); ?></a></td>
+                <td><a href="<?php echo esc_url(get_edit_post_link($slot->ID)); ?>"><?php
+                    // post_title is already HTML-entity-safe (see slot_options() below) —
+                    // esc_html() here would double-escape it.
+                    echo $slot->post_title !== '' ? $slot->post_title : '#' . $slot->ID;
+                ?></a></td>
                 <td>
                     <?php echo esc_html($booked . ' / ' . $capacity); ?>
                     <?php if ($over) : ?>
@@ -239,7 +243,11 @@ class BW_Admin_Pages {
                 <option value=""><?php esc_html_e('All sessions', 'bw-credits-booking'); ?></option>
                 <?php foreach (self::slot_options() as $id => $title) : ?>
                     <option value="<?php echo esc_attr($id); ?>" <?php selected($slot_id, $id); ?>>
-                        <?php echo esc_html($title); ?>
+                        <?php
+                        // $title comes from slot_options(), which returns post_title
+                        // unmodified — already HTML-entity-safe, esc_html() would double-escape it.
+                        echo $title;
+                        ?>
                     </option>
                 <?php endforeach; ?>
             </select>
@@ -372,7 +380,11 @@ class BW_Admin_Pages {
                             <option value="0"><?php esc_html_e('— Select session —', 'bw-credits-booking'); ?></option>
                             <?php foreach (self::slot_options() as $id => $title) : ?>
                                 <option value="<?php echo esc_attr($id); ?>" <?php selected($preselect_slot, $id); ?>>
-                                    <?php echo esc_html($title); ?>
+                                    <?php
+                        // $title comes from slot_options(), which returns post_title
+                        // unmodified — already HTML-entity-safe, esc_html() would double-escape it.
+                        echo $title;
+                        ?>
                                 </option>
                             <?php endforeach; ?>
                         </select>
