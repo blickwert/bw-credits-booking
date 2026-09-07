@@ -130,13 +130,17 @@
   color: var(--bw-color-error, #b00020);
 }
 
-/* Session list [bw_course_slots] */
+/* Session list [bw_credits_course_list] */
 .bw-course-filter {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   gap: 0.75rem;
   margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: rgba(0,0,0,.02);
 }
 
 .bw-course-filter__field {
@@ -154,41 +158,72 @@
   list-style: none;
   margin: 0;
   padding: 0;
-}
-
-.bw-course-slot-day {
-  font-weight: 600;
-  margin: 1.25rem 0 0.5rem;
-  padding-bottom: 0.3rem;
-  border-bottom: 1px solid rgba(0,0,0,.12);
-}
-
-.bw-course-slot-day:first-child {
-  margin-top: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
 }
 
 .bw-course-slot-item {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
-  justify-content: space-between;
-  gap: 0.75rem;
-  padding: 0.7rem 0;
-  border-bottom: 1px solid rgba(0,0,0,.07);
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+/* Calendar-leaf date block — day/month/time for the session, at a glance */
+.bw-course-slot-date {
+  flex: 0 0 auto;
+  width: 3.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.3rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.6rem;
+  background: #fff;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.bw-course-slot-date__dow,
+.bw-course-slot-date__month {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bw-color-secondary, #666);
+}
+
+.bw-course-slot-date__day {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-color-primary, #2271b1);
+}
+
+.bw-course-slot-date__time {
+  margin-top: 0.15rem;
+  padding-top: 0.15rem;
+  width: 100%;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-color-text, #1e1e1e);
+  border-top: 1px solid rgba(0,0,0,.08);
 }
 
 .bw-course-slot-main {
   display: flex;
-  align-items: baseline;
-  flex-wrap: wrap;
-  gap: 0.6rem;
+  flex-direction: column;
+  gap: 0.25rem;
+  flex: 1 1 auto;
   min-width: 0;
 }
 
-.bw-course-slot-time {
-  font-variant-numeric: tabular-nums;
+.bw-course-slot-title {
   font-weight: 600;
-  white-space: nowrap;
 }
 
 .bw-course-slot-meta {

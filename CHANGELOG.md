@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.23.0] – 2026-09-07
+
+### Changed
+- **`[bw_credits_course_list]` redesigned**: each session row now shows a calendar-leaf date block (weekday, day, month, and time) instead of a plain time column, replacing the previous separate "grouped by day" heading — every row already carries its own date, so the heading was redundant and has been removed along with the now-unused `group_by_day` attribute (**breaking**: the attribute is simply ignored now if still passed, per `shortcode_atts()`'s normal handling of unknown attributes — remove it from any shortcode usages).
+- The per-row meta line now shows only **Level** and **Language** (the course type is already part of the auto-generated session title, so showing it again was redundant). The existing type/level/language filter bar (`show_filter="true"`) is unchanged and still offers all three.
+- Restyled session rows as cards and refreshed the filter bar's styling (`assets/bwallet-frontend.css`) to match.
+
 ## [0.22.0] – 2026-09-07
 
 ### Fixed

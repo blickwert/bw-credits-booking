@@ -12,10 +12,21 @@ if (!defined('ABSPATH')) exit;
 
 class BW_Course_List {
 
-    /** Taxonomies for display and filtering — missing ones are skipped. */
+    /** Taxonomies for filtering — missing ones are skipped. */
     private static function taxonomies(): array {
         return [
             'course_type'  => bw_text('course_list.filter.type'),
+            'course_level' => bw_text('course_list.filter.level'),
+            'course_lang'  => bw_text('course_list.filter.lang'),
+        ];
+    }
+
+    /**
+     * Taxonomies shown in each row's meta line. course_type is left out —
+     * it's already part of the auto-generated session title.
+     */
+    private static function display_taxonomies(): array {
+        return [
             'course_level' => bw_text('course_list.filter.level'),
             'course_lang'  => bw_text('course_list.filter.lang'),
         ];
@@ -31,7 +42,6 @@ class BW_Course_List {
             'show_filter'  => 'false',
             'show_action'  => 'true',
             'availability' => 'true',
-            'group_by_day' => 'true',
             'empty'        => '',   // empty = text from the catalogue
         ], $atts, 'bw_credits_course_list');
 
@@ -51,8 +61,7 @@ class BW_Course_List {
         bw_get_template('course_list/course_list.php', [
             'items'         => $items,
             'empty_message' => $atts['empty'] !== '' ? $atts['empty'] : bw_text('course_list.empty'),
-            'taxonomies'    => self::taxonomies(),
-            'group_by_day'  => filter_var($atts['group_by_day'], FILTER_VALIDATE_BOOLEAN),
+            'taxonomies'    => self::display_taxonomies(),
             'show_action'   => filter_var($atts['show_action'], FILTER_VALIDATE_BOOLEAN),
             'show_avail'    => filter_var($atts['availability'], FILTER_VALIDATE_BOOLEAN),
             'show_filter'   => $show_filter,
