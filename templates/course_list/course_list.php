@@ -2,15 +2,14 @@
 /**
  * [bw_credits_course_list] — session list
  *
- * Frame, optional filter form, day grouping, and the individual session
- * rows all in one file.
+ * Frame, optional filter form, and the individual session rows (each
+ * carrying its own calendar-leaf date block) all in one file.
  *
  * Override: yourtheme/bw-credits-booking/course_list/course_list.php
  *
  * @var array  $items         [['slot' => WP_Post, 'ts' => int|null], …], empty = $empty_message
  * @var string $empty_message
  * @var array  $taxonomies    taxonomy => label, for the meta line per session
- * @var bool   $group_by_day
  * @var bool   $show_action
  * @var bool   $show_avail
  * @var bool   $show_filter
@@ -22,7 +21,7 @@
  *   'hidden'    query parameter => value, kept as hidden fields
  *   'reset_url' empty if no filter is active
  *
- * @version 0.15.0
+ * @version 0.23.0
  */
 if (!defined('ABSPATH')) exit;
 ?>
@@ -62,23 +61,11 @@ if (!defined('ABSPATH')) exit;
 
     <?php if (empty($items)) : ?>
         <p class="bw-course-slots-empty"><?php echo esc_html($empty_message); ?></p>
-    <?php else :
-        $current_day = '';
-    ?>
+    <?php else : ?>
         <ul class="bw-course-slot-list">
             <?php foreach ($items as $item) :
                 $slot = $item['slot'];
                 $ts   = $item['ts'];
-
-                if ($group_by_day && $ts) {
-                    $day = wp_date('Y-m-d', $ts);
-                    if ($day !== $current_day) :
-                        $current_day = $day;
-                        ?>
-                        <li class="bw-course-slot-day"><?php echo esc_html(wp_date('l, j. F', $ts)); ?></li>
-                        <?php
-                    endif;
-                }
 
                 $terms = [];
                 foreach (array_keys($taxonomies) as $taxonomy) {
@@ -89,9 +76,18 @@ if (!defined('ABSPATH')) exit;
                 do_action('bw_before_slot_item', $slot);
             ?>
                 <li class="bw-course-slot-item">
-                    <div class="bw-course-slot-main">
-                        <span class="bw-course-slot-time"><?php echo $ts ? esc_html(wp_date('H:i', $ts)) : '—'; ?></span>
+                    <div class="bw-course-slot-date">
+                        <?php if ($ts) : ?>
+                            <span class="bw-course-slot-date__dow"><?php echo esc_html(wp_date('D', $ts)); ?></span>
+                            <span class="bw-course-slot-date__day"><?php echo esc_html(wp_date('j', $ts)); ?></span>
+                            <span class="bw-course-slot-date__month"><?php echo esc_html(wp_date('M', $ts)); ?></span>
+                            <span class="bw-course-slot-date__time"><?php echo esc_html(wp_date('H:i', $ts)); ?></span>
+                        <?php else : ?>
+                            <span class="bw-course-slot-date__day">—</span>
+                        <?php endif; ?>
+                    </div>
 
+                    <div class="bw-course-slot-main">
                         <a class="bw-course-slot-title" href="<?php echo esc_url(get_permalink($slot)); ?>">
                             <?php
                             // post_title is already HTML-entity-safe from WordPress' own save

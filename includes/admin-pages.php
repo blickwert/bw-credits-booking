@@ -894,8 +894,8 @@ class BW_Admin_Pages {
         return [
             'bw_credits_course_list' => [
                 __('Course', 'bw-credits-booking'),
-                __('Session list, grouped by day, with availability and a book button.', 'bw-credits-booking'),
-                'limit, days, type, level, lang, show_filter, show_action, availability, group_by_day, empty',
+                __('Session list with a calendar-leaf date per session, availability, and a book button.', 'bw-credits-booking'),
+                'limit, days, type, level, lang, show_filter, show_action, availability, empty',
             ],
             'bw_credits_course_booking' => [
                 __('Course', 'bw-credits-booking'),

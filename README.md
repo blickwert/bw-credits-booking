@@ -94,7 +94,7 @@ On a single session page, `course_id` can be omitted — the current post is use
 ### Course
 
 #### `[bw_credits_course_list]`
-Session list, grouped by day, with free spots and a book button.
+Session list with a calendar-leaf date block (day/month/time) per session, level/language, free spots, and a book button.
 
 ```
 [bw_credits_course_list]
@@ -110,8 +110,9 @@ Session list, grouped by day, with free spots and a book button.
 | `show_filter` | false | select fields for course type, level, and language |
 | `show_action` | true | book button per session |
 | `availability` | true | free spots per session |
-| `group_by_day` | true | a heading per day |
 | `empty` | *(text)* | message when there are no sessions |
+
+Each row's calendar-leaf block always shows the session's own date, so sessions are no longer grouped under a separate day heading (the `group_by_day` attribute was removed).
 
 With `show_filter="true"`, the form writes `bw_type`, `bw_level`, and `bw_lang` into the URL; attributes you set explicitly override these.
 
