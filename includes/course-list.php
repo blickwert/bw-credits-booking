@@ -39,7 +39,7 @@ class BW_Course_List {
             'level'        => '',
             'lang'         => '',
             'days'         => 0,
-            'show_filter'  => 'false',
+            'show_filter'  => 'true',
             'show_action'  => 'true',
             'availability' => 'true',
             'empty'        => '',   // empty = text from the catalogue

@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.24.0] – 2026-09-07
+
+### Changed
+- `[bw_credits_course_list]` rows: level/language, availability, and the book button/note are now grouped together in `.bw-course-slot-info` inside `.bw-course-slot-main` — the separate `.bw-course-slot-side` container is removed. On narrow screens each piece still gets its own line; on desktop (`min-width: 640px`) the card becomes a 2-row grid — the title on row 1, and the grouped info on row 2, laid out inline.
+- **Breaking**: `show_filter` now defaults to `true` (previously `false`) — the type/level/language filter bar shows automatically on any page using `[bw_credits_course_list]`, as long as at least one of those taxonomies has terms. Pass `show_filter="false"` to hide it.
+
 ## [0.23.0] – 2026-09-07
 
 ### Changed
