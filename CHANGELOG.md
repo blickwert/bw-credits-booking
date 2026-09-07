@@ -5,6 +5,17 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.27.0] – 2026-09-07
+
+### Added
+- *BW Credits → Emails* now shows a note (when WPML is active) explaining that the page only edits the source text, with a direct link to WPML → String Translation (context *BW Credits*) — translations for these strings always worked correctly at send time, but the admin page gave no indication of where to enter them, which looked like switching the WPML admin-bar language did nothing.
+- The email body field is now a WYSIWYG editor (`wp_editor()`, WordPress core, no extra library) instead of a plain textarea — links, bold text, and lists are preserved when saved.
+- Every booking email is now wrapped in WooCommerce's own mailer header/footer (`WC()->mailer()->wrap_message()`), inheriting the logo/colors/footer text configured under *WooCommerce → Settings → Emails*, instead of a bare unstyled HTML shell. Falls back to the previous plain wrapper if WooCommerce's mailer is unavailable.
+- Emails are now sent as `multipart/alternative`: a plain-text version is derived automatically from the HTML body (via WooCommerce's plain-text mailer wrapper) and attached alongside the HTML version — no separate plain-text field to maintain.
+
+### Changed
+- The email body option's sanitization changed from `sanitize_textarea_field()` (strips all HTML) to `wp_kses_post()` (keeps safe HTML), to match the new WYSIWYG editor. **Note**: any literal `<`/`>` characters in a previously-saved plain-text body will now be interpreted as HTML rather than shown as literal text — an unlikely edge case for typical booking-confirmation copy, but worth a quick look at any heavily customized email texts after upgrading.
+
 ## [0.26.0] – 2026-09-07
 
 ### Changed
