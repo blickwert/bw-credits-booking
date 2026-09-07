@@ -98,7 +98,7 @@ Session list with a calendar-leaf date block (day/month/time) per session, level
 
 ```
 [bw_credits_course_list]
-[bw_credits_course_list days="14" show_filter="true"]
+[bw_credits_course_list days="14" show_filter="false"]
 [bw_credits_course_list type="hatha-yoga" limit="5" availability="false"]
 ```
 
@@ -107,14 +107,16 @@ Session list with a calendar-leaf date block (day/month/time) per session, level
 | `limit` | 20 | maximum number of sessions |
 | `days` | 0 | only the next N days (0 = no limit) |
 | `type` / `level` / `lang` | – | term slug to pre-filter by |
-| `show_filter` | false | select fields for course type, level, and language |
+| `show_filter` | true | select fields for course type, level, and language |
 | `show_action` | true | book button per session |
 | `availability` | true | free spots per session |
 | `empty` | *(text)* | message when there are no sessions |
 
 Each row's calendar-leaf block always shows the session's own date, so sessions are no longer grouped under a separate day heading (the `group_by_day` attribute was removed).
 
-With `show_filter="true"`, the form writes `bw_type`, `bw_level`, and `bw_lang` into the URL; attributes you set explicitly override these.
+Each row groups the level/language, availability, and book button/note together below the title — on desktop this shows as two rows (title, then everything else together); on narrow screens each piece gets its own line.
+
+The filter bar shows automatically whenever a taxonomy has terms to filter by; pass `show_filter="false"` to hide it. When shown, the form writes `bw_type`, `bw_level`, and `bw_lang` into the URL; attributes you set explicitly override these.
 
 #### `[bw_credits_course_booking]`
 A button that books or cancels depending on state and switches after the click without a reload. Shows a note instead when: not logged in, session over, fully booked, no credits, cancellation deadline passed.

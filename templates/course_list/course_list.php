@@ -21,7 +21,7 @@
  *   'hidden'    query parameter => value, kept as hidden fields
  *   'reset_url' empty if no filter is active
  *
- * @version 0.23.0
+ * @version 0.24.0
  */
 if (!defined('ABSPATH')) exit;
 ?>
@@ -96,21 +96,21 @@ if (!defined('ABSPATH')) exit;
                             ?>
                         </a>
 
-                        <?php if ($terms) : ?>
-                            <span class="bw-course-slot-meta"><?php echo esc_html(implode(' · ', $terms)); ?></span>
-                        <?php endif; ?>
-                    </div>
+                        <div class="bw-course-slot-info">
+                            <?php if ($terms) : ?>
+                                <span class="bw-course-slot-meta"><?php echo esc_html(implode(' · ', $terms)); ?></span>
+                            <?php endif; ?>
 
-                    <div class="bw-course-slot-side">
-                        <?php
-                        // Direct calls instead of do_shortcode — saves parsing per row
-                        if ($show_avail) {
-                            echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
-                        }
-                        if ($show_action) {
-                            echo BW_Credits_Bookings_MVP::sc_slot_action(['slot_id' => $slot->ID]);
-                        }
-                        ?>
+                            <?php
+                            // Direct calls instead of do_shortcode — saves parsing per row
+                            if ($show_avail) {
+                                echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
+                            }
+                            if ($show_action) {
+                                echo BW_Credits_Bookings_MVP::sc_slot_action(['slot_id' => $slot->ID]);
+                            }
+                            ?>
+                        </div>
                     </div>
                 </li>
                 <?php do_action('bw_after_slot_item', $slot); ?>
