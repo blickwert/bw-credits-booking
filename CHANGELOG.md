@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.26.0] – 2026-09-07
+
+### Changed
+- `.bw-course-slot-item` now uses `flex-wrap: nowrap` instead of `wrap`, so a session card's date block, title/info, and side content always stay on one line instead of occasionally wrapping onto multiple lines (most noticeable on the narrower cards of the 2-column desktop layout added in 0.25.0).
+
 ## [0.25.0] – 2026-09-07
 
 ### Added
