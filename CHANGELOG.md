@@ -5,6 +5,15 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.25.0] – 2026-09-07
+
+### Added
+- `[bw_credits_course_list]`'s filter bar now works over AJAX: selecting a Type/Level/Language dropdown refreshes the list in place (no page reload), and the resetting link does the same. New public read-only REST route `GET /wp-json/bw-credits/v1/course-list` powers this. The filter selection is still reflected in the URL (`bw_type`/`bw_level`/`bw_lang`, via `history.pushState`), so filtered views stay shareable/bookmarkable and the browser back/forward buttons still work. The filter form remains a real `method="get"` form throughout — with JavaScript disabled, or if a fetch fails, it still works exactly as before (full-page reload).
+- `.bw-course-slot-item` cards now show two per row on wide screens (`min-width: 900px`), instead of always one full-width card per row.
+
+### Changed
+- `templates/course_list/course_list.php` split: the results themselves (empty message or the session list) now live in a new `templates/course_list/course_list-results.php` partial, so the AJAX response can return just that fragment. Both are overridable in a theme the same way as before.
+
 ## [0.24.0] – 2026-09-07
 
 ### Changed
