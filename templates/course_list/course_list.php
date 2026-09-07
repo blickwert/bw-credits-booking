@@ -2,16 +2,21 @@
 /**
  * [bw_credits_course_list] — session list
  *
- * Frame, optional filter form, and the individual session rows (each
- * carrying its own calendar-leaf date block) all in one file.
+ * Frame + optional filter form. The results themselves (empty message or
+ * the session list) are rendered by course_list-results.php and, after
+ * the initial load, refreshed via AJAX (assets/bwallet-frontend.js)
+ * whenever the filter selection changes. The filter form stays a real
+ * `method="get"` form throughout — a no-JS or fetch-failure fallback
+ * still works exactly as before, just without the AJAX refresh.
  *
  * Override: yourtheme/bw-credits-booking/course_list/course_list.php
  *
- * @var array  $items         [['slot' => WP_Post, 'ts' => int|null], …], empty = $empty_message
- * @var string $empty_message
- * @var array  $taxonomies    taxonomy => label, for the meta line per session
- * @var bool   $show_action
- * @var bool   $show_avail
+ * @var string $results_html  pre-rendered HTML from course_list-results.php
+ * @var string $atts_json     JSON-encoded non-filter shortcode attributes
+ *                             (limit, days, type, level, lang, show_action,
+ *                             availability, empty) — resent by the AJAX
+ *                             filter on every request so it can rebuild
+ *                             the same query the shortcode itself would
  * @var bool   $show_filter
  * @var array  $filter        only relevant when $show_filter — see below
  *
@@ -21,11 +26,11 @@
  *   'hidden'    query parameter => value, kept as hidden fields
  *   'reset_url' empty if no filter is active
  *
- * @version 0.24.0
+ * @version 0.25.0
  */
 if (!defined('ABSPATH')) exit;
 ?>
-<div class="bw-course-slots">
+<div class="bw-course-slots" data-bw-course-list data-bw-atts="<?php echo esc_attr($atts_json); ?>">
     <?php if ($show_filter && !empty($filter['available'])) : ?>
         <form class="bw-course-filter" method="get">
             <?php foreach ($filter['hidden'] as $key => $value) : ?>
@@ -57,64 +62,10 @@ if (!defined('ABSPATH')) exit;
                 </a>
             <?php endif; ?>
         </form>
+        <p class="bw-bwallet-msg" data-bw-msg></p>
     <?php endif; ?>
 
-    <?php if (empty($items)) : ?>
-        <p class="bw-course-slots-empty"><?php echo esc_html($empty_message); ?></p>
-    <?php else : ?>
-        <ul class="bw-course-slot-list">
-            <?php foreach ($items as $item) :
-                $slot = $item['slot'];
-                $ts   = $item['ts'];
-
-                $terms = [];
-                foreach (array_keys($taxonomies) as $taxonomy) {
-                    $name = bw_cs_first_term($slot->ID, $taxonomy);
-                    if ($name !== '') $terms[] = $name;
-                }
-
-                do_action('bw_before_slot_item', $slot);
-            ?>
-                <li class="bw-course-slot-item">
-                    <div class="bw-course-slot-date">
-                        <?php if ($ts) : ?>
-                            <span class="bw-course-slot-date__dow"><?php echo esc_html(wp_date('D', $ts)); ?></span>
-                            <span class="bw-course-slot-date__day"><?php echo esc_html(wp_date('j', $ts)); ?></span>
-                            <span class="bw-course-slot-date__month"><?php echo esc_html(wp_date('M', $ts)); ?></span>
-                            <span class="bw-course-slot-date__time"><?php echo esc_html(wp_date('H:i', $ts)); ?></span>
-                        <?php else : ?>
-                            <span class="bw-course-slot-date__day">—</span>
-                        <?php endif; ?>
-                    </div>
-
-                    <div class="bw-course-slot-main">
-                        <a class="bw-course-slot-title" href="<?php echo esc_url(get_permalink($slot)); ?>">
-                            <?php
-                            // post_title is already HTML-entity-safe from WordPress' own save
-                            // pipeline (sanitize_post_field) — esc_html() here would double-escape it.
-                            echo $slot->post_title !== '' ? $slot->post_title : '#' . $slot->ID;
-                            ?>
-                        </a>
-
-                        <div class="bw-course-slot-info">
-                            <?php if ($terms) : ?>
-                                <span class="bw-course-slot-meta"><?php echo esc_html(implode(' · ', $terms)); ?></span>
-                            <?php endif; ?>
-
-                            <?php
-                            // Direct calls instead of do_shortcode — saves parsing per row
-                            if ($show_avail) {
-                                echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
-                            }
-                            if ($show_action) {
-                                echo BW_Credits_Bookings_MVP::sc_slot_action(['slot_id' => $slot->ID]);
-                            }
-                            ?>
-                        </div>
-                    </div>
-                </li>
-                <?php do_action('bw_after_slot_item', $slot); ?>
-            <?php endforeach; ?>
-        </ul>
-    <?php endif; ?>
+    <div class="bw-course-slot-results" data-bw-course-list-results>
+        <?php echo $results_html; ?>
+    </div>
 </div>

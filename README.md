@@ -114,9 +114,9 @@ Session list with a calendar-leaf date block (day/month/time) per session, level
 
 Each row's calendar-leaf block always shows the session's own date, so sessions are no longer grouped under a separate day heading (the `group_by_day` attribute was removed).
 
-Each row groups the level/language, availability, and book button/note together below the title — on desktop this shows as two rows (title, then everything else together); on narrow screens each piece gets its own line.
+Each row groups the level/language, availability, and book button/note together below the title — on desktop this shows as two rows (title, then everything else together); on narrow screens each piece gets its own line. On wide screens (`min-width: 900px`) sessions also show two per row instead of one full-width row each.
 
-The filter bar shows automatically whenever a taxonomy has terms to filter by; pass `show_filter="false"` to hide it. When shown, the form writes `bw_type`, `bw_level`, and `bw_lang` into the URL; attributes you set explicitly override these.
+The filter bar shows automatically whenever a taxonomy has terms to filter by; pass `show_filter="false"` to hide it. Selecting a value refreshes the list via AJAX (`GET /wp-json/bw-credits/v1/course-list`, see [REST API](#rest-api)) — no page reload. The current selection is still reflected in the URL (`bw_type`, `bw_level`, `bw_lang`), so filtered views stay shareable/bookmarkable; attributes you set explicitly are the fallback whenever a taxonomy has no filter field of its own. With JavaScript disabled, or if a request fails, the form still works as a plain page reload.
 
 #### `[bw_credits_course_booking]`
 A button that books or cancels depending on state and switches after the click without a reload. Shows a note instead when: not logged in, session over, fully booked, no credits, cancellation deadline passed.
@@ -267,8 +267,9 @@ All endpoints under `/wp-json/bw-credits/v1/`:
 | POST | `/book` | Book a slot (`slot_id`) |
 | POST | `/cancel` | Cancel a booking (`booking_id`) |
 | GET | `/balance` | Credit balance of the logged-in user |
+| GET | `/course-list` | Powers the AJAX filter on `[bw_credits_course_list]` — same attributes as the shortcode plus `bw_type`/`bw_level`/`bw_lang`, returns `{ "html": "…" }` |
 
-All endpoints require a `nonce` header (`X-WP-Nonce`).
+`/book`, `/cancel`, and `/balance` require a logged-in user. `/course-list` is public — logged-out visitors can filter the session list too. All of them still expect a `nonce` header (`X-WP-Nonce`) from a logged-in browser session; it's simply not required for a logged-out one.
 
 ## PMPro Membership Integration (optional)
 
