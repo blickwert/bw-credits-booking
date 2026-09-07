@@ -163,9 +163,12 @@ class BW_Emails {
 
         $subject = strtr($subject_tpl, $placeholders);
 
-        // Escape values before they land in HTML — the link is made clickable afterwards
+        // The body template is already-sanitized HTML (wp_kses_post, saved via
+        // the WYSIWYG editor) — only the substituted values need escaping, not
+        // the template itself. nl2br() stays for bodies saved before the
+        // WYSIWYG editor existed (plain text with literal newlines).
         $escaped = array_map('esc_html', $placeholders);
-        $body    = nl2br(strtr(esc_html($body_tpl), $escaped));
+        $body    = nl2br(strtr($body_tpl, $escaped));
 
         // Every URL-shaped placeholder value becomes clickable — applies
         // to meeting_link, kurs_link, and konto_link alike
@@ -179,11 +182,43 @@ class BW_Emails {
             );
         }
 
-        $html = '<html><body style="font-family:sans-serif;line-height:1.5">' . $body . '</body></html>';
+        $heading = wp_strip_all_tags($subject);
+
+        // Reuse WooCommerce's own mailer wrapper for a consistent header/footer
+        // (logo, colors, footer text — configured in WooCommerce → Settings →
+        // Emails) instead of a bare, unbranded HTML shell.
+        $mailer = null;
+        if (function_exists('WC')) {
+            $candidate = WC()->mailer();
+            if ($candidate && method_exists($candidate, 'wrap_message')) {
+                $mailer = $candidate;
+            }
+        }
+
+        // Plain-text fallback, derived automatically — no separate plain-text
+        // field for admins to keep in sync with the HTML body.
+        $plain = html_entity_decode(
+            wp_strip_all_tags(str_replace(['<br>', '<br/>', '<br />', '</p>', '</li>'], "\n", $body)),
+            ENT_QUOTES
+        );
+
+        if ($mailer) {
+            $html          = $mailer->wrap_message($heading, $body);
+            $plain_wrapped = $mailer->wrap_message($heading, $plain, true);
+        } else {
+            $html          = '<html><body style="font-family:sans-serif;line-height:1.5">' . $body . '</body></html>';
+            $plain_wrapped = $plain;
+        }
+
+        $set_alt_body = function ($phpmailer) use ($plain_wrapped) {
+            $phpmailer->AltBody = $plain_wrapped;
+        };
 
         add_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
+        add_action('phpmailer_init', $set_alt_body);
         $sent = wp_mail($to, $subject, $html);
         remove_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
+        remove_action('phpmailer_init', $set_alt_body);
 
         return (bool) $sent;
     }
@@ -413,7 +448,10 @@ class BW_Emails {
             ]);
             register_setting($group, self::opt_body($key), [
                 'type'              => 'string',
-                'sanitize_callback' => 'sanitize_textarea_field',
+                // wp_kses_post(), not sanitize_textarea_field() — the body is
+                // now edited via a WYSIWYG editor (see render_page()) and may
+                // contain real HTML (links, bold text, lists, …).
+                'sanitize_callback' => 'wp_kses_post',
             ]);
         }
     }
@@ -423,6 +461,23 @@ class BW_Emails {
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Email Texts', 'bw-credits-booking'); ?></h1>
+
+            <?php if (has_action('wpml_register_single_string')) : ?>
+                <div class="notice notice-info inline">
+                    <p>
+                        <?php
+                        printf(
+                            /* translators: %s: the WPML String Translation context these email texts are registered under */
+                            esc_html__('The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s.', 'bw-credits-booking'),
+                            '<code>BW Credits</code>'
+                        );
+                        ?>
+                        <a href="<?php echo esc_url(admin_url('admin.php?page=wpml-string-translation%2Fmenu%2Fstring-translation.php')); ?>">
+                            <?php esc_html_e('Open WPML String Translation', 'bw-credits-booking'); ?>
+                        </a>
+                    </p>
+                </div>
+            <?php endif; ?>
 
             <p>
                 <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
@@ -472,10 +527,18 @@ class BW_Emails {
                         <tr>
                             <th scope="row"><?php esc_html_e('Body', 'bw-credits-booking'); ?></th>
                             <td>
-                                <textarea rows="8" class="large-text code"
-                                          name="<?php echo esc_attr(self::opt_body($key)); ?>"><?php
-                                    echo esc_textarea(self::get_body($key));
-                                ?></textarea>
+                                <?php
+                                wp_editor(self::get_body($key), 'bw_email_body_editor_' . $key, [
+                                    'textarea_name' => self::opt_body($key),
+                                    'textarea_rows' => 8,
+                                    'media_buttons' => false,
+                                    'teeny'         => true,
+                                    'quicktags'     => true,
+                                ]);
+                                ?>
+                                <p class="description">
+                                    <?php esc_html_e('Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {kurs_titel} can split it apart so it no longer gets replaced.', 'bw-credits-booking'); ?>
+                                </p>
                             </td>
                         </tr>
                     </table>

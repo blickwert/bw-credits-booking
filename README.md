@@ -327,6 +327,10 @@ Placeholders: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verb
 
 If you've already customized one of these three texts under *BW Credits → Emails*, you won't automatically see the new placeholders in your own text — only the default text was extended. To add them, just insert `{kurs_link}`/`{konto_link}` into your own text.
 
+The body is edited with a WYSIWYG editor (WordPress core's `wp_editor()`, no extra library) — links, bold text, and lists are kept when saved. Avoid formatting only part of a placeholder (e.g. bolding half of `{kurs_titel}`), since that can split it apart in the saved HTML so it no longer gets replaced.
+
+Every booking email is wrapped in WooCommerce's own mailer header/footer (`WC()->mailer()->wrap_message()`) — the same logo, colors, and footer text configured under *WooCommerce → Settings → Emails*, so these emails look consistent with WooCommerce's own order emails. A plain-text version is derived automatically from the HTML body and sent alongside it (`multipart/alternative`) — there's no separate plain-text field to maintain.
+
 ### Credit-balance note in the WooCommerce order email
 
 After a credit purchase, the customer gets **no additional email**, but a section directly in WooCommerce's own "order completed" email — how many credits were newly added, the current total balance, and a link to My Account. Runs via the `woocommerce_email_order_details` hook, no interference with Woo mail templates. Wording under *BW Credits → Texts*, group "Order Confirmation Email".
@@ -343,6 +347,8 @@ Delivery is event-driven:
 ### WPML
 
 Subject and body are registered under WPML String Translation, in the context *BW Credits*, when WPML is active. The session's language determines the email's language.
+
+*BW Credits → Emails* only edits the source (base-language) text — it's not language-aware, so switching WPML's admin-bar language there shows the same content regardless of the selected language. That's by design: translations for these strings are entered under **WPML → String Translation** (filtered by context *BW Credits*), the same as anywhere else WPML manages translated strings. The page shows a note with a direct link when WPML is active.
 
 ## Auto-Update Workflow
 

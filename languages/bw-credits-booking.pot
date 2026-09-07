@@ -378,7 +378,7 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:287
 #: includes/metaboxes.php:332
-#: includes/emails.php:269
+#: includes/emails.php:304
 msgid "Not authorized."
 msgstr ""
 
@@ -1011,45 +1011,57 @@ msgstr ""
 msgid "Sent to the address set below for every new booking."
 msgstr ""
 
-#: includes/emails.php:288
+#: includes/emails.php:323
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:291
+#: includes/emails.php:326
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:389
-#: includes/emails.php:390
+#: includes/emails.php:424
+#: includes/emails.php:425
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:425
+#: includes/emails.php:463
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:428
+#: includes/emails.php:471
+msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
+msgstr ""
+
+#: includes/emails.php:476
+msgid "Open WPML String Translation"
+msgstr ""
+
+#: includes/emails.php:483
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:439
+#: includes/emails.php:494
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:454
+#: includes/emails.php:509
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:460
+#: includes/emails.php:515
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:465
+#: includes/emails.php:520
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:473
+#: includes/emails.php:528
 msgid "Body"
+msgstr ""
+
+#: includes/emails.php:540
+msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {kurs_titel} can split it apart so it no longer gets replaced."
 msgstr ""
 
 #: includes/templates.php:20
