@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.30.0] – 2026-09-08
+
+### Changed
+- **Reorganized CSS/JS source layout for maintainability.** `assets/bwallet-frontend.css` and `assets/bwallet-frontend.js` (the files actually enqueued at runtime) are now generated — the source is split into `assets/base.css`/`base.js` (shared across all templates) plus one `<name>.css` per template folder (`templates/<name>/<name>.css`), so template-specific styles sit next to that template's `.php` file. JS only splits out one genuinely template-exclusive piece, `templates/course_list/course_list.js` (the AJAX session-list filter) — everything else (booking/cancel clicks, availability updates, balance refresh, the shared REST/nonce helpers) is used by multiple templates and stays in `assets/base.js`.
+- New build tool `tools/build-assets.php` concatenates the source files into the two combined runtime files (same content, only reordered — no behavior change) and supports `--check` to detect a source change that wasn't rebuilt. `.github/workflows/release.yml` now runs it automatically before packaging a release, so a forgotten local build never ships stale assets.
+
 ## [0.29.0] – 2026-09-08
 
 ### Fixed

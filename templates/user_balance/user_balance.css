@@ -1,0 +1,20 @@
+/* templates/user_balance/user_balance.css */
+
+.bw-balance {
+  margin: 0.45rem 0;
+}
+
+/* Credit balance with two states — both in the markup, toggled via
+   data-bw-state, so the JS can switch without a reload */
+.bw-balance-state[data-bw-state="has"] [data-bw-empty-wrap],
+.bw-balance-state[data-bw-state="empty"] [data-bw-has-wrap] {
+  display: none;
+}
+
+.bw-balance-empty {
+  color: var(--bw-color-error, #b00020);
+}
+
+.bw-balance-empty a {
+  font-weight: 600;
+}

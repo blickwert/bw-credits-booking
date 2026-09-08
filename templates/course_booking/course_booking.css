@@ -1,0 +1,16 @@
+/* templates/course_booking/course_booking.css */
+
+/* Notes instead of a button (fully booked, over, no credits, …) */
+.bw-slot-note {
+  margin: 0.45rem 0;
+  color: var(--bw-color-secondary, #666);
+}
+
+.bw-slot-note.bw-is-full,
+.bw-slot-note.bw-no-credits {
+  color: var(--bw-color-error, #b00020);
+}
+
+.bw-slot-note.bw-is-booked {
+  color: var(--bw-color-success, #116611);
+}
