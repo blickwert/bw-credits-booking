@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.28.0] – 2026-09-08
+
+### Added
+- **Automated releases via GitHub Actions** (`.github/workflows/release.yml`): every push to `main` now reads the plugin version, tags it, builds a plugin ZIP, and publishes a GitHub Release automatically — no more manual `git tag` + "Draft a new release" steps. Skips itself if a release for the current version already exists (safe against repeated pushes without a version bump). Also supports manual triggering (`workflow_dispatch`, with a commit SHA/branch/tag input) to build a release for an older commit — used to backfill releases for versions that predate this workflow.
+
 ## [0.27.0] – 2026-09-07
 
 ### Added

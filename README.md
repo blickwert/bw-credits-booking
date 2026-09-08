@@ -352,9 +352,13 @@ Subject and body are registered under WPML String Translation, in the context *B
 
 ## Auto-Update Workflow
 
+Releases are created automatically by `.github/workflows/release.yml`:
+
 ```
-1. Commit + push the code
-2. git tag v0.8.0 && git push origin v0.8.0
-3. GitHub: Releases → "Draft a new release" → select the tag → Changelog → Publish
-4. WordPress shows the update under "Plugins → Updates" (cache up to 12 h)
+1. Commit + push to main (bump the Version header in bw-credits-booking.php first)
+2. GitHub Actions reads that version, tags it (vX.Y.Z), builds a plugin ZIP,
+   and publishes a GitHub Release — no manual tagging or release step needed
+3. WordPress shows the update under "Plugins → Updates" (cache up to 12 h)
 ```
+
+The workflow skips itself if a release for the current version already exists (safe to push multiple times without bumping the version — e.g. a docs-only commit). It can also be triggered manually from the *Actions* tab (`workflow_dispatch`) with a specific commit SHA/branch/tag as input — useful for building a release from an older commit, e.g. to backfill a version that predates this workflow.

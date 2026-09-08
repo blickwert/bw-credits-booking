@@ -1,0 +1,83 @@
+name: Release Plugin ZIP
+
+# Runs automatically on every push to main (release for the version currently
+# in bw-credits-booking.php), and can be triggered manually via the Actions
+# tab (workflow_dispatch) to build a release for an older commit — used to
+# backfill releases for versions that predate this workflow. Uses GitHub's
+# own per-run token (not any external session/PAT), so it isn't affected by
+# how this repo's git access is configured for other tools.
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: 'Commit SHA (or branch/tag) to release from — used to backfill past versions'
+        required: false
+        default: 'main'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.inputs.ref || github.sha }}
+
+      - name: Read plugin version
+        id: version
+        run: |
+          VERSION=$(grep -m1 "Version:" bw-credits-booking.php | sed 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Check if release already exists
+        id: check
+        run: |
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v${{ steps.version.outputs.version }}")
+          if [ "$STATUS" = "200" ]; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Ensure tag exists
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          TAG="${{ steps.version.outputs.tag }}"
+          if git ls-remote --exit-code --tags origin "refs/tags/$TAG" >/dev/null 2>&1; then
+            echo "Tag $TAG already exists on origin."
+          else
+            git tag "$TAG"
+            git push origin "$TAG"
+          fi
+
+      - name: Create plugin ZIP
+        if: steps.check.outputs.exists == 'false'
+        run: |
+          mkdir -p /tmp/bw-credits-booking
+          rsync -r \
+            --exclude='.git' \
+            --exclude='.github' \
+            --exclude='.claude' \
+            --exclude='tools' \
+            --exclude='*.zip' \
+            ./ /tmp/bw-credits-booking/
+          cd /tmp
+          zip -r bw-credits-booking.zip bw-credits-booking/
+
+      - name: Create GitHub Release
+        if: steps.check.outputs.exists == 'false'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ steps.version.outputs.tag }}
+          name: ${{ steps.version.outputs.tag }}
+          files: /tmp/bw-credits-booking.zip
+          generate_release_notes: true
