@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.29.0] – 2026-09-08
+
+### Fixed
+- `.github/workflows/release.yml`'s `Checkout` step now uses `fetch-depth: 0`. Without it, manually triggering the workflow (`workflow_dispatch`) with a short/abbreviated commit SHA (e.g. `07e3973`) made `actions/checkout@v4` treat the value as a branch/tag name pattern instead of a commit — the shallow fetch it built from that pattern matched nothing, and the step failed after three retries. A full-history checkout resolves any commit reference (short or full SHA, branch, or tag) correctly. Discovered while backfilling the 12 releases missing since v0.16.0 — the full 40-character SHAs worked around it, but this fixes the underlying issue so short SHAs work too. The normal `push`-triggered path was never affected (`github.sha` is always a full SHA there).
+
 ## [0.28.0] – 2026-09-08
 
 ### Added
