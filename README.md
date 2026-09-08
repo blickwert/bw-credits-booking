@@ -224,6 +224,24 @@ add_filter('bw_course_list_query_args', function ($args, $atts, $selected) {
 }, 10, 3);
 ```
 
+### CSS/JS source layout
+
+The styles and interaction scripts loaded at runtime (`assets/bwallet-frontend.css` / `.js`) are generated files — don't edit them directly, edits are overwritten on the next build. The actual source lives split up, next to what it belongs to:
+
+```
+assets/base.css / base.js          shared across all templates (colors, buttons, core booking/cancel logic)
+templates/<name>/<name>.css        styles specific to that one template
+templates/course_list/course_list.js  the AJAX session-list filter (the only JS specific to one template)
+```
+
+After changing any of these source files, rebuild the combined files:
+
+```
+php tools/build-assets.php
+```
+
+`php tools/build-assets.php --check` rebuilds in memory and compares against what's committed, without writing anything — exits non-zero if a source file was changed but the build wasn't re-run and committed. The [release workflow](#auto-update-workflow) also runs the build automatically before packaging a release, so a forgotten local build never ships stale assets.
+
 ## Customizing texts
 
 All 57 texts customers see in the frontend live in a central catalogue and can be changed under *BW Credits → Texts* — no code required. This includes the error messages shown when booking and cancelling.

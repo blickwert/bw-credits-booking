@@ -1,0 +1,158 @@
+/* templates/course_list/course_list.css */
+
+/* Session list [bw_credits_course_list] */
+.bw-course-filter {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: rgba(0,0,0,.02);
+}
+
+.bw-course-filter__field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  font-size: 0.9rem;
+}
+
+.bw-course-filter__reset {
+  font-size: 0.9rem;
+}
+
+.bw-course-slot-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.bw-course-slot-item {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+/* Two cards per row on wide screens — wider than the per-card 640px
+   breakpoint below, so 640-899px stays single-column with the full
+   per-card grid, and only >=900px splits into two columns. */
+@media (min-width: 900px) {
+  .bw-course-slot-list {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+
+  .bw-course-slot-item {
+    flex: 1 1 calc(50% - 0.3rem);
+  }
+}
+
+/* Fetch feedback for the AJAX filter (templates/course_list/course_list.js) */
+[data-bw-course-list-results] {
+  transition: opacity 0.15s ease;
+}
+
+.bw-course-slots.is-loading [data-bw-course-list-results] {
+  opacity: 0.55;
+}
+
+/* Calendar-leaf date block — day/month/time for the session, at a glance */
+.bw-course-slot-date {
+  flex: 0 0 auto;
+  width: 3.75rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0.4rem 0.3rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.6rem;
+  background: #fff;
+  text-align: center;
+  line-height: 1.15;
+}
+
+.bw-course-slot-date__dow,
+.bw-course-slot-date__month {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--bw-color-secondary, #666);
+}
+
+.bw-course-slot-date__day {
+  font-size: 1.35rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-color-primary, #2271b1);
+}
+
+.bw-course-slot-date__time {
+  margin-top: 0.15rem;
+  padding-top: 0.15rem;
+  width: 100%;
+  font-size: 0.75rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-color-text, #1e1e1e);
+  border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.bw-course-slot-main {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.bw-course-slot-title {
+  font-weight: 600;
+}
+
+/* Meta + availability + book button/note, grouped together below the
+   title. Stacked one-per-line on narrow screens; on desktop this becomes
+   the second row of a 2-row grid alongside the title (see @media below). */
+.bw-course-slot-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+}
+
+.bw-course-slot-meta {
+  font-size: 0.9rem;
+  color: var(--bw-color-secondary, #666);
+}
+
+.bw-course-slot-info .bw-slot-note {
+  margin: 0;
+}
+
+@media (min-width: 640px) {
+  .bw-course-slot-main {
+    display: grid;
+    grid-template-rows: repeat(2, auto);
+    row-gap: 0.35rem;
+  }
+
+  .bw-course-slot-info {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem;
+  }
+}
+
+.bw-course-slots-empty {
+  color: var(--bw-color-secondary, #666);
+}

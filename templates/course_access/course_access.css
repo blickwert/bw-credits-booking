@@ -1,0 +1,25 @@
+/* templates/course_access/course_access.css */
+
+/* Access details [bw_credits_course_access] */
+.bw-access {
+  margin: 0.75rem 0;
+  padding: 0.85rem 1rem;
+  border: 1px solid rgba(0,0,0,.12);
+  border-radius: 0.75rem;
+  background: #f6faf7;
+}
+
+.bw-access__title {
+  margin: 0 0 0.5rem;
+  font-size: 1rem;
+}
+
+.bw-access__link {
+  margin: 0 0 0.4rem;
+  font-weight: 600;
+}
+
+.bw-access__info {
+  font-size: 0.92rem;
+  color: var(--bw-color-secondary, #666);
+}

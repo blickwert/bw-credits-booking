@@ -1,0 +1,18 @@
+/* templates/course_availability/course_availability.css */
+
+/* Availability — three variants in the markup, toggled via data-bw-state */
+.bw-availability [data-bw-free-wrap],
+.bw-availability [data-bw-many-wrap],
+.bw-availability [data-bw-full-wrap] {
+  display: none;
+}
+
+.bw-availability[data-bw-state="free"] [data-bw-free-wrap],
+.bw-availability[data-bw-state="many"] [data-bw-many-wrap],
+.bw-availability[data-bw-state="full"] [data-bw-full-wrap] {
+  display: inline;
+}
+
+.bw-availability[data-bw-state="full"] {
+  color: var(--bw-color-error, #b00020);
+}

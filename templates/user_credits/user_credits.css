@@ -1,0 +1,50 @@
+/* templates/user_credits/user_credits.css */
+
+/* Credit balance details [bw_credits_user_credits] */
+.bw-credits-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.bw-credits-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.6rem;
+  padding: 0.55rem 0.85rem;
+  border: 1px solid rgba(0,0,0,.10);
+  border-radius: 0.75rem;
+  background: #fff;
+}
+
+.bw-credits-item--gone {
+  opacity: 0.55;
+}
+
+.bw-credits-amount {
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  min-width: 1.5em;
+}
+
+.bw-credits-source {
+  flex: 1;
+}
+
+.bw-credits-expiry {
+  font-size: 0.9rem;
+  color: var(--bw-color-secondary, #666);
+  white-space: nowrap;
+}
+
+.bw-credits-expiry--soon {
+  color: var(--bw-color-error, #b00020);
+  font-weight: 600;
+}
+
+.bw-credits-empty {
+  color: var(--bw-color-secondary, #666);
+}

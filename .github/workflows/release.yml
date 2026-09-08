@@ -60,6 +60,10 @@ jobs:
             git push origin "$TAG"
           fi
 
+      - name: Build combined CSS/JS assets
+        if: steps.check.outputs.exists == 'false'
+        run: php tools/build-assets.php
+
       - name: Create plugin ZIP
         if: steps.check.outputs.exists == 'false'
         run: |

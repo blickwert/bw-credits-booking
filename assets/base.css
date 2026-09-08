@@ -1,0 +1,53 @@
+/* assets/base.css — shared across all templates (no single template owner) */
+
+/* Text colors — WordPress global-styles presets with a static fallback,
+   since not every theme defines all eight color roles in its theme.json */
+:root {
+  --bw-color-primary:   var(--wp--preset--color--primary,   #2271b1);
+  --bw-color-secondary: var(--wp--preset--color--secondary, #666);
+  --bw-color-text:      var(--wp--preset--color--contrast,  #1e1e1e);
+  --bw-color-accent:    var(--wp--preset--color--accent,    #2271b1);
+  --bw-color-success:   var(--wp--preset--color--success,   #116611);
+  --bw-color-warning:   var(--wp--preset--color--warning,   #996800);
+  --bw-color-error:     var(--wp--preset--color--error,     #b00020);
+  --bw-color-info:      var(--wp--preset--color--info,      #2271b1);
+}
+.bw-bwallet-btn {
+  cursor: pointer;
+  padding: 0.55rem 0.9rem;
+  border: 1px solid rgba(0,0,0,.14);
+  border-radius: 0.75rem;
+  background: #fff;
+  line-height: 1.1;
+}
+
+.bw-bwallet-btn:hover {
+  border-color: rgba(0,0,0,.25);
+}
+
+.bw-bwallet-btn:active {
+  transform: translateY(1px);
+}
+
+.bw-bwallet-btn[disabled] {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.bw-bwallet-btn.is-loading {
+  opacity: 0.7;
+}
+
+.bw-bwallet-msg {
+  margin-top: 0.45rem;
+  font-size: 0.95rem;
+  display: none;
+}
+
+.bw-bwallet-msg[data-state="error"] {
+  color: var(--bw-color-error, #b00020);
+}
+
+.bw-bwallet-msg[data-state="ok"] {
+  color: var(--bw-color-success, #116611);
+}
