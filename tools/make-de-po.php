@@ -365,6 +365,15 @@ const ENGLISH_TO_GERMAN = [
     'Unknown email type.' => 'Unbekannter E-Mail-Typ.',
 
     /* =====================================================
+     * includes/email-language.php (v0.32.0)
+     * ===================================================== */
+    'Email language' => 'E-Mail-Sprache',
+    'The language your booking confirmations, reminders, and other emails are sent in.' => 'Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden.',
+    'Save' => 'Speichern',
+    'Email language saved.' => 'E-Mail-Sprache gespeichert.',
+    'Unknown language.' => 'Unbekannte Sprache.',
+
+    /* =====================================================
      * includes/emails.php — BW_Emails::defaults() (v0.31.0):
      * the German text ships as the gettext translation of the English
      * source, resolved automatically for a de_DE site with no WPML
