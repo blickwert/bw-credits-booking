@@ -377,7 +377,7 @@ msgstr "Texte"
 #: includes/metaboxes.php:332
 #: includes/emails.php:356
 #: includes/emails.php:514
-#: includes/email-language.php:127
+#: includes/email-language.php:139
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
 
@@ -1133,24 +1133,19 @@ msgstr "%s auf den Standardtext zurückgesetzt."
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 
-#: includes/email-language.php:91
-#: includes/email-language.php:113
-msgid "Email language"
-msgstr "E-Mail-Sprache"
-
-#: includes/email-language.php:101
-msgid "The language your booking confirmations, reminders, and other emails are sent in."
-msgstr "Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden."
-
-#: includes/email-language.php:119
+#: includes/email-language.php:131
 msgid "Save"
 msgstr "Speichern"
 
-#: includes/email-language.php:136
-msgid "Email language saved."
-msgstr "E-Mail-Sprache gespeichert."
+#: includes/email-language.php:112
+msgid "The language your booking confirmations, reminders, and other emails are sent in."
+msgstr "Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden."
 
-#: includes/email-language.php:138
+#: includes/email-language.php:148
+msgid "Language saved."
+msgstr "Sprache gespeichert."
+
+#: includes/email-language.php:151
 msgid "Unknown language."
 msgstr "Unbekannte Sprache."
 

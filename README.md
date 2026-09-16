@@ -366,7 +366,7 @@ Delivery is event-driven:
 
 ### Language per customer
 
-With WPML active and more than one language, customers get an **Email language** dropdown — on the WooCommerce account dashboard and on *My Account → Edit account details* (same setting, either place). It decides which language their booking confirmation, cancellation, reminder, and access-details emails are sent in — not the language of the course session, and not whichever language they happen to be browsing the site in at that moment (both of which produced inconsistent results for emails sent later, like reminders). Defaults to whatever language is currently active the first time they see the field; nothing is saved until they submit it.
+With WPML active and more than one language, customers get a **Language** dropdown — on the WooCommerce account dashboard and on *My Account → Edit account details* (same setting, either place). It decides which language their booking confirmation, cancellation, reminder, and access-details emails are sent in — not the language of the course session, and not whichever language they happen to be browsing the site in at that moment (both of which produced inconsistent results for emails sent later, like reminders). Captured automatically at registration from the language active at that moment, and changeable anytime afterward.
 
 The **Admin copy** ignores this setting — it always goes out in WPML's default site language, regardless of which customer booked, since it's read by the studio rather than the customer.
 

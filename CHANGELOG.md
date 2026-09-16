@@ -5,6 +5,15 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.32.1] – 2026-09-16
+
+### Fixed
+- **Fatal error saving the language on the account dashboard**: `Call to undefined function wc_add_notice()`. The dashboard's save handler runs via `admin-post.php`, where `is_admin()` is true, so WooCommerce skips loading its frontend-only function files (including `wc_add_notice()`) even though the request originated from a frontend form. Replaced with the plugin's own redirect+notice pattern (already used for the email "Reset to default" action), which doesn't depend on any WooCommerce frontend-only function.
+- **The chosen language is now captured automatically at registration** (`user_register`), not only once a customer proactively visits their account and clicks Save. Previously, the dropdown showed the currently active language as a live default but saved nothing until submitted — meaning a customer who never opens their account settings kept getting the old, request-dependent behavior this feature was meant to replace.
+
+### Changed
+- Renamed the field from "Email language" to "Language" for clarity — it's still specifically the language used for BW Credits emails, not a general site-language switcher, but "Email language" read as unclear rather than more precise.
+
 ## [0.32.0] – 2026-09-16
 
 ### Changed
