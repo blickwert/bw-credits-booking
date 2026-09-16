@@ -31,6 +31,7 @@ if (!defined('BW_CREDITS_BOOKING_FILE'))       { define('BW_CREDITS_BOOKING_FILE
 require __DIR__ . '/po-format.php';
 require __DIR__ . '/scan-source-strings.php';
 require __DIR__ . '/../includes/text.php';
+require __DIR__ . '/../includes/emails.php';
 
 /**
  * English catalogue default => original German text, captured at the
@@ -351,13 +352,39 @@ const ENGLISH_TO_GERMAN = [
     'Email Texts' => 'E-Mail-Texte',
     'The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s.' => 'Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s.',
     'Open WPML String Translation' => 'WPML String-Übersetzung öffnen',
-    'Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {kurs_titel} can split it apart so it no longer gets replaced.' => 'Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {kurs_titel} ihn so zerteilen, dass er nicht mehr ersetzt wird.',
+    'Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced.' => 'Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird.',
     'Available placeholders:' => 'Verfügbare Platzhalter:',
     'Address for admin copies' => 'Adresse für Admin-Kopien',
     'Active' => 'Aktiv',
     'Send this email' => 'Diese E-Mail verschicken',
     'Subject' => 'Betreff',
     'Body' => 'Text',
+    'Reset to default' => 'Auf Standard zurücksetzen',
+    'Reset %s to the default text? Your saved changes will be lost.' => '%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren.',
+    '%s reset to the default text.' => '%s auf den Standardtext zurückgesetzt.',
+    'Unknown email type.' => 'Unbekannter E-Mail-Typ.',
+
+    /* =====================================================
+     * includes/emails.php — BW_Emails::defaults() (v0.31.0):
+     * the German text ships as the gettext translation of the English
+     * source, resolved automatically for a de_DE site with no WPML
+     * setup — see subject_source()/body_source() in emails.php.
+     * ===================================================== */
+    'Booking confirmation: {course_title}' => 'Buchungsbestätigung: {course_title}',
+    "Hi {customer_name},\n\nyour booking is confirmed:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nSee you soon!" =>
+        "Hallo {customer_name},\n\ndeine Buchung ist bestätigt:\n\n{course_title}\n{date} um {time}\n\nVerbleibende Credits: {credits_remaining}\n\nDetails zum Kurs: {course_link}\nDeine Buchungen verwaltest du hier: {account_link}\n\nBis bald!",
+    'Cancellation: {course_title}' => 'Stornierung: {course_title}',
+    "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}" =>
+        "Hallo {customer_name},\n\ndeine Buchung wurde storniert:\n\n{course_title}\n{date} um {time}\n\nVerbleibende Credits: {credits_remaining}\n\nDeine Buchungen verwaltest du hier: {account_link}",
+    'Reminder: {course_title} on {date}' => 'Erinnerung: {course_title} am {date}',
+    "Hi {customer_name},\n\nyour session is coming up:\n\n{course_title}\n{date} at {time}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nWe look forward to seeing you!" =>
+        "Hallo {customer_name},\n\ndein Kurs steht an:\n\n{course_title}\n{date} um {time}\n\nDetails zum Kurs: {course_link}\nDeine Buchungen verwaltest du hier: {account_link}\n\nWir freuen uns auf dich!",
+    'Access details: {course_title} on {date}' => 'Zugangsdaten: {course_title} am {date}',
+    "Hi {customer_name},\n\nhere are the access details for your online session:\n\n{course_title}\n{date} at {time}\n\nLink: {meeting_link}\n\n{access_details}" =>
+        "Hallo {customer_name},\n\nhier sind die Zugangsdaten für deinen Online-Kurs:\n\n{course_title}\n{date} um {time}\n\nLink: {meeting_link}\n\n{access_details}",
+    'New booking: {course_title}' => 'Neue Buchung: {course_title}',
+    "{customer_name} booked:\n\n{course_title}\n{date} at {time}" =>
+        "{customer_name} hat gebucht:\n\n{course_title}\n{date} um {time}",
 
     /* =====================================================
      * includes/templates.php — template registry descriptions
@@ -397,6 +424,11 @@ foreach (BW_Text::GROUPS as $heading) {
 $scanned = bw_scan_source_strings(bw_scan_default_files());
 foreach (array_keys($scanned) as $text) {
     $live_texts[$text] = true;
+}
+
+foreach (BW_Emails::defaults() as $texts) {
+    $live_texts[$texts['subject']] = true;
+    $live_texts[$texts['body']] = true;
 }
 
 $missing = [];

@@ -378,7 +378,8 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:287
 #: includes/metaboxes.php:332
-#: includes/emails.php:304
+#: includes/emails.php:331
+#: includes/emails.php:499
 msgid "Not authorized."
 msgstr ""
 
@@ -1011,57 +1012,73 @@ msgstr ""
 msgid "Sent to the address set below for every new booking."
 msgstr ""
 
-#: includes/emails.php:323
+#: includes/emails.php:350
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:326
+#: includes/emails.php:353
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:424
-#: includes/emails.php:425
+#: includes/emails.php:451
+#: includes/emails.php:452
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:463
+#: includes/emails.php:508
+msgid "Unknown email type."
+msgstr ""
+
+#: includes/emails.php:516
+msgid "%s reset to the default text."
+msgstr ""
+
+#: includes/emails.php:547
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:471
+#: includes/emails.php:557
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:476
+#: includes/emails.php:562
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:483
+#: includes/emails.php:569
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:494
+#: includes/emails.php:581
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:509
+#: includes/emails.php:597
+msgid "Reset %s to the default text? Your saved changes will be lost."
+msgstr ""
+
+#: includes/emails.php:600
+msgid "Reset to default"
+msgstr ""
+
+#: includes/emails.php:607
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:515
+#: includes/emails.php:613
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:520
+#: includes/emails.php:618
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:528
+#: includes/emails.php:626
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:540
-msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {kurs_titel} can split it apart so it no longer gets replaced."
+#: includes/emails.php:638
+msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
 #: includes/templates.php:20
@@ -1151,5 +1168,55 @@ msgstr ""
 
 #: bw-credits-booking.php:1602
 msgid "Cancelled."
+msgstr ""
+
+#. Default subject of the "booking" email
+#: email:booking.subject
+msgid "Booking confirmation: {course_title}"
+msgstr ""
+
+#. Default body of the "booking" email
+#: email:booking.body
+msgid "Hi {customer_name},\n\nyour booking is confirmed:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nSee you soon!"
+msgstr ""
+
+#. Default subject of the "cancellation" email
+#: email:cancellation.subject
+msgid "Cancellation: {course_title}"
+msgstr ""
+
+#. Default body of the "cancellation" email
+#: email:cancellation.body
+msgid "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}"
+msgstr ""
+
+#. Default subject of the "reminder" email
+#: email:reminder.subject
+msgid "Reminder: {course_title} on {date}"
+msgstr ""
+
+#. Default body of the "reminder" email
+#: email:reminder.body
+msgid "Hi {customer_name},\n\nyour session is coming up:\n\n{course_title}\n{date} at {time}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nWe look forward to seeing you!"
+msgstr ""
+
+#. Default subject of the "access" email
+#: email:access.subject
+msgid "Access details: {course_title} on {date}"
+msgstr ""
+
+#. Default body of the "access" email
+#: email:access.body
+msgid "Hi {customer_name},\n\nhere are the access details for your online session:\n\n{course_title}\n{date} at {time}\n\nLink: {meeting_link}\n\n{access_details}"
+msgstr ""
+
+#. Default subject of the "admin_booking" email
+#: email:admin_booking.subject
+msgid "New booking: {course_title}"
+msgstr ""
+
+#. Default body of the "admin_booking" email
+#: email:admin_booking.body
+msgid "{customer_name} booked:\n\n{course_title}\n{date} at {time}"
 msgstr ""
 

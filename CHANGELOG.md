@@ -5,6 +5,21 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.31.0] – 2026-09-16
+
+Phase 2 of switching the plugin's source language from German to English (phase 1 was the text catalogue, [0.17.0](#0170--2026-09-04)): the 5 email templates (`includes/emails.php`, *BW Credits → Emails*) now default to English, with German delivered as a standard WordPress translation — the same mechanism, and the same split, as the text catalogue: an unedited default is translated automatically via gettext (.po/.mo, ships with the plugin, no setup needed); a saved custom text continues to be translated exclusively via WPML String Translation, as before.
+
+### Added
+- **"Reset to default" button** next to each email type's heading on *BW Credits → Emails* — overwrites just that type's saved subject and body with the current default text (with a confirmation prompt, since it discards any customization). Needed because a saved option value doesn't pick up a changed PHP default on its own; this is the supported way to pull in the new English/translated defaults below on a site that already saved this settings page.
+- Admin placeholder hint now lists all 9 supported tokens — `{course_link}` and `{account_link}` were already substituted but missing from the hint text (pre-existing gap, fixed in passing).
+
+### Changed
+- **Email defaults are now English**, translated to German via gettext exactly like the text catalogue (see above).
+- `languages/bw-credits-booking-de_DE.po`/`.mo` regenerated — includes the German translation for all 5 email types (subject + body) alongside the existing catalogue/UI strings. `tools/make-pot.php`/`make-de-po.php` gained a 4th source pass for `BW_Emails::defaults()`, mirroring how the text catalogue is already pulled in as a direct array iteration (not a scannable `__()` literal).
+
+### Breaking change for saved email texts
+- **Placeholder names in email templates changed to English**, matching the flip: `{kundenname}`→`{customer_name}`, `{kurs_titel}`→`{course_title}`, `{datum}`→`{date}`, `{uhrzeit}`→`{time}`, `{credits_verbleibend}`→`{credits_remaining}`, `{zugangsdaten}`→`{access_details}`, `{kurs_link}`→`{course_link}`, `{konto_link}`→`{account_link}` (`{meeting_link}` unchanged). If you've customized a subject or body under *BW Credits → Emails*, update its placeholders to the new names — otherwise substitution silently stops working for the old ones — or use the new **Reset to default** button to start over from the new (translated) default. There is no backward-compatible alias for the old tokens, same as the catalogue rename in v0.17.0.
+
 ## [0.30.0] – 2026-09-08
 
 ### Changed

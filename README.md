@@ -339,13 +339,15 @@ Five types, each with its own toggle, subject, and body under *BW Credits → Em
 | Access details | see below |
 | Admin copy | every new booking (off by default) |
 
-Placeholders: `{kundenname}` `{kurs_titel}` `{datum}` `{uhrzeit}` `{credits_verbleibend}` `{meeting_link}` `{zugangsdaten}` `{kurs_link}` `{konto_link}`
+Placeholders: `{customer_name}` `{course_title}` `{date}` `{time}` `{credits_remaining}` `{meeting_link}` `{access_details}` `{course_link}` `{account_link}`
 
-`{kurs_link}` and `{konto_link}` link to the session and the WooCommerce My Account page respectively, where customers can view and cancel their own bookings. Both are automatically present in the booking confirmation, cancellation, and reminder emails; a URL-shaped placeholder value always becomes clickable in the email automatically, regardless of which one it is.
+`{course_link}` and `{account_link}` link to the session and the WooCommerce My Account page respectively, where customers can view and cancel their own bookings. Both are automatically present in the booking confirmation, cancellation, and reminder emails; a URL-shaped placeholder value always becomes clickable in the email automatically, regardless of which one it is.
 
-If you've already customized one of these three texts under *BW Credits → Emails*, you won't automatically see the new placeholders in your own text — only the default text was extended. To add them, just insert `{kurs_link}`/`{konto_link}` into your own text.
+If you've already customized one of these three texts under *BW Credits → Emails*, you won't automatically see the new placeholders in your own text — only the default text was extended. To add them, just insert `{course_link}`/`{account_link}` into your own text.
 
-The body is edited with a WYSIWYG editor (WordPress core's `wp_editor()`, no extra library) — links, bold text, and lists are kept when saved. Avoid formatting only part of a placeholder (e.g. bolding half of `{kurs_titel}`), since that can split it apart in the saved HTML so it no longer gets replaced.
+Each type has its own **Reset to default** button next to its heading — overwrites just that type's subject and body with the current default text (asks for confirmation first, since it discards anything you've customized).
+
+The body is edited with a WYSIWYG editor (WordPress core's `wp_editor()`, no extra library) — links, bold text, and lists are kept when saved. Avoid formatting only part of a placeholder (e.g. bolding half of `{course_title}`), since that can split it apart in the saved HTML so it no longer gets replaced.
 
 Every booking email is wrapped in WooCommerce's own mailer header/footer (`WC()->mailer()->wrap_message()`) — the same logo, colors, and footer text configured under *WooCommerce → Settings → Emails*, so these emails look consistent with WooCommerce's own order emails. A plain-text version is derived automatically from the HTML body and sent alongside it (`multipart/alternative`) — there's no separate plain-text field to maintain.
 
@@ -365,6 +367,8 @@ Delivery is event-driven:
 ### WPML
 
 Subject and body are registered under WPML String Translation, in the context *BW Credits*, when WPML is active. The session's language determines the email's language.
+
+The default subject and body for each type are English source text, delivered in German as a standard WordPress translation — same mechanism as the [text catalogue](#customizing-texts), no WPML setup required. This only applies to an **unedited** default; as soon as you save your own text under *BW Credits → Emails*, that text becomes the source and is translated exclusively via WPML String Translation from then on.
 
 *BW Credits → Emails* only edits the source (base-language) text — it's not language-aware, so switching WPML's admin-bar language there shows the same content regardless of the selected language. That's by design: translations for these strings are entered under **WPML → String Translation** (filtered by context *BW Credits*), the same as anywhere else WPML manages translated strings. The page shows a note with a direct link when WPML is active.
 
