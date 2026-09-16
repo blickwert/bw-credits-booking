@@ -364,9 +364,15 @@ Delivery is event-driven:
 3. `access_sent_at` per booking prevents duplicate sends
 4. **Resend access details** button, in case the link changes later
 
+### Language per customer
+
+With WPML active and more than one language, customers get an **Email language** dropdown — on the WooCommerce account dashboard and on *My Account → Edit account details* (same setting, either place). It decides which language their booking confirmation, cancellation, reminder, and access-details emails are sent in — not the language of the course session, and not whichever language they happen to be browsing the site in at that moment (both of which produced inconsistent results for emails sent later, like reminders). Defaults to whatever language is currently active the first time they see the field; nothing is saved until they submit it.
+
+The **Admin copy** ignores this setting — it always goes out in WPML's default site language, regardless of which customer booked, since it's read by the studio rather than the customer.
+
 ### WPML
 
-Subject and body are registered under WPML String Translation, in the context *BW Credits*, when WPML is active. The session's language determines the email's language.
+Subject and body are registered under WPML String Translation, in the context *BW Credits*, when WPML is active — translated per the customer's chosen email language above (or WPML's default language for the admin copy).
 
 The default subject and body for each type are English source text, delivered in German as a standard WordPress translation — same mechanism as the [text catalogue](#customizing-texts), no WPML setup required. This only applies to an **unedited** default; as soon as you save your own text under *BW Credits → Emails*, that text becomes the source and is translated exclusively via WPML String Translation from then on.
 

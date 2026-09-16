@@ -375,8 +375,9 @@ msgstr "Texte"
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:287
 #: includes/metaboxes.php:332
-#: includes/emails.php:331
-#: includes/emails.php:499
+#: includes/emails.php:356
+#: includes/emails.php:514
+#: includes/email-language.php:127
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
 
@@ -978,52 +979,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:208
+#: bw-credits-booking.php:209
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:210
+#: bw-credits-booking.php:211
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:212
+#: bw-credits-booking.php:213
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:470
-#: bw-credits-booking.php:698
+#: bw-credits-booking.php:471
+#: bw-credits-booking.php:699
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:473
+#: bw-credits-booking.php:474
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:483
+#: bw-credits-booking.php:484
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:502
+#: bw-credits-booking.php:503
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1057
+#: bw-credits-booking.php:1058
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1580
+#: bw-credits-booking.php:1581
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1587
+#: bw-credits-booking.php:1588
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1595
+#: bw-credits-booking.php:1596
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1602
+#: bw-credits-booking.php:1603
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1063,74 +1064,95 @@ msgstr "Admin-Kopie"
 msgid "Sent to the address set below for every new booking."
 msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse."
 
-#: includes/emails.php:350
+#: includes/emails.php:375
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:353
+#: includes/emails.php:378
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:451
-#: includes/emails.php:452
+#: includes/emails.php:466
+#: includes/emails.php:467
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:547
+#: includes/emails.php:562
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:557
+#: includes/emails.php:572
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:562
+#: includes/emails.php:577
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:638
+#: includes/emails.php:653
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:569
+#: includes/emails.php:584
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:581
+#: includes/emails.php:596
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:607
+#: includes/emails.php:622
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:613
+#: includes/emails.php:628
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:618
+#: includes/emails.php:633
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:626
+#: includes/emails.php:641
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:600
+#: includes/emails.php:615
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:597
+#: includes/emails.php:612
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:516
+#: includes/emails.php:531
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:508
+#: includes/emails.php:523
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
+
+#: includes/email-language.php:91
+#: includes/email-language.php:113
+msgid "Email language"
+msgstr "E-Mail-Sprache"
+
+#: includes/email-language.php:101
+msgid "The language your booking confirmations, reminders, and other emails are sent in."
+msgstr "Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden."
+
+#: includes/email-language.php:119
+msgid "Save"
+msgstr "Speichern"
+
+#: includes/email-language.php:136
+msgid "Email language saved."
+msgstr "E-Mail-Sprache gespeichert."
+
+#: includes/email-language.php:138
+msgid "Unknown language."
+msgstr "Unbekannte Sprache."
 
 #. Default subject of the "booking" email
 #: email:booking.subject

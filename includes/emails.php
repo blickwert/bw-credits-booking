@@ -183,9 +183,34 @@ class BW_Emails {
             $to = $user->user_email;
         }
 
-        $lang         = self::slot_language($slot_id);
-        $subject_tpl  = self::translate('subject_' . $key, self::subject_source($key), $lang);
-        $body_tpl     = self::translate('body_' . $key, self::body_source($key), $lang);
+        // Which language: a persistent per-customer preference, not the page
+        // the customer happened to be browsing or the course session's own
+        // WPML language — see BW_Email_Language. The admin copy ignores the
+        // customer entirely and always goes out in the site's default
+        // language, since it's read by the studio, not the customer.
+        $lang = ($key === 'admin_booking')
+            ? (string) apply_filters('wpml_default_language', null)
+            : BW_Email_Language::get_user_language($user_id);
+
+        // Locale-switch around the gettext resolution too (not just the WPML
+        // step below) — subject_source()/body_source() resolve an untouched
+        // default via __(), which otherwise depends on whatever WordPress
+        // locale happens to be active for this particular request/cron run.
+        $locale   = $lang !== '' ? (BW_Email_Language::locale_map()[$lang] ?? '') : '';
+        $switched = false;
+        if ($locale !== '' && $locale !== get_locale()) {
+            switch_to_locale($locale);
+            load_plugin_textdomain('bw-credits-booking', false, dirname(plugin_basename(BW_CREDITS_BOOKING_FILE)) . '/languages');
+            $switched = true;
+        }
+
+        $subject_tpl = self::translate('subject_' . $key, self::subject_source($key), $lang !== '' ? $lang : null);
+        $body_tpl    = self::translate('body_' . $key, self::body_source($key), $lang !== '' ? $lang : null);
+
+        if ($switched) {
+            restore_previous_locale();
+        }
+
         $placeholders = self::placeholders($user_id, $slot_id);
 
         $subject = strtr($subject_tpl, $placeholders);
@@ -424,16 +449,6 @@ class BW_Emails {
             do_action('wpml_register_single_string', 'BW Credits', 'subject_' . $key, self::get_subject($key));
             do_action('wpml_register_single_string', 'BW Credits', 'body_' . $key, self::get_body($key));
         }
-    }
-
-    /** The session's language determines the email's language. */
-    private static function slot_language(int $slot_id): ?string {
-        if (!has_filter('wpml_post_language_details')) return null;
-
-        $details = apply_filters('wpml_post_language_details', null, $slot_id);
-        return is_array($details) && !empty($details['language_code'])
-            ? (string) $details['language_code']
-            : null;
     }
 
     private static function translate(string $name, string $value, ?string $lang): string {

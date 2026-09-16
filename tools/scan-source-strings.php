@@ -167,6 +167,7 @@ function bw_scan_default_files(): array {
         'includes/settings.php',
         'includes/admin.php',
         'includes/emails.php',
+        'includes/email-language.php',
         'includes/templates.php',
         'includes/updater.php',
         'bw-credits-booking.php',

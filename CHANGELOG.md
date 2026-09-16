@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.32.0] – 2026-09-16
+
+### Changed
+- **Email language is now a persistent per-customer preference, not derived from context.** Previously, an unedited email default was translated based on whatever WordPress locale happened to be active for the request that triggered it (the page the customer was browsing at that moment, or the site's default for the reminder cron), while a customer-saved override was translated via WPML String Translation based on the *course session's* language — two different, both request-dependent mechanisms that could send the same customer German one time and English the next. Both are replaced by one persistent setting: a new **Email language** dropdown (on the WooCommerce account dashboard and *My Account → Edit account details*, `includes/email-language.php`, new `BW_Email_Language` class, stored as user meta `_bw_email_language`) that determines the language for all of a customer's future booking confirmation, cancellation, reminder, and access-details emails — only shown with WPML active and more than one language. The **Admin copy** is unaffected by a customer's choice and always sends in WPML's default site language, since it's read by the studio, not the customer.
+- `BW_Emails::send()` now switches the active locale (`switch_to_locale()`) around the gettext-resolved default, using the customer's chosen language, so the shipped default text picks the right translation regardless of what triggered the send — this was the main gap, since the WPML-translation step alone never covered an unedited default that isn't set up in WPML String Translation.
+- Removed `BW_Emails::slot_language()` (the course-session-language lookup it existed for is gone).
+
 ## [0.31.0] – 2026-09-16
 
 Phase 2 of switching the plugin's source language from German to English (phase 1 was the text catalogue, [0.17.0](#0170--2026-09-04)): the 5 email templates (`includes/emails.php`, *BW Credits → Emails*) now default to English, with German delivered as a standard WordPress translation — the same mechanism, and the same split, as the text catalogue: an unedited default is translated automatically via gettext (.po/.mo, ships with the plugin, no setup needed); a saved custom text continues to be translated exclusively via WPML String Translation, as before.
