@@ -37,6 +37,7 @@ class BW_Emails {
         // Meeting link was added → access details to all participants
         add_action('bw_meeting_link_added', [__CLASS__, 'send_access_for_slot'], 10, 1);
         add_action('admin_post_bw_resend_access', [__CLASS__, 'handle_resend_access']);
+        add_action('admin_post_bw_reset_email', [__CLASS__, 'handle_reset_email']);
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
         add_action('init', [__CLASS__, 'schedule_cron']);
@@ -65,47 +66,73 @@ class BW_Emails {
         return $v !== '' ? $v : (self::defaults()[$key]['body'] ?? '');
     }
 
+    /**
+     * The text actually used when sending: a saved override as-is (still
+     * translated via WPML further down in send()), or — for an untouched
+     * default — the gettext translation of it, so a German-locale site
+     * sends correct German out of the box without any WPML setup. Same
+     * split as BW_Text::get(); get_subject()/get_body() above stay raw
+     * (English) for the admin editor and the WPML source registration.
+     */
+    private static function subject_source(string $key): string {
+        $v = (string) get_option(self::opt_subject($key), '');
+        return $v !== '' ? $v : __(self::defaults()[$key]['subject'] ?? '', 'bw-credits-booking');
+    }
+
+    private static function body_source(string $key): string {
+        $v = (string) get_option(self::opt_body($key), '');
+        return $v !== '' ? $v : __(self::defaults()[$key]['body'] ?? '', 'bw-credits-booking');
+    }
+
+    /**
+     * Source (English) defaults, one entry per email type. Resolved at
+     * runtime through subject_source()/body_source() — gettext for the
+     * untouched default, WPML for a saved override — the same split as
+     * BW_Text::get(). register_wpml_strings() and render_page() use the
+     * raw values here directly (never gettext-translated), matching how
+     * BW_Text::catalogue()'s raw defaults are registered with WPML.
+     */
     public static function defaults(): array {
         return [
             'booking' => [
-                'subject' => 'Buchungsbestätigung: {kurs_titel}',
-                'body'    => "Hallo {kundenname},\n\n"
-                           . "deine Buchung ist bestätigt:\n\n"
-                           . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
-                           . "Verbleibende Credits: {credits_verbleibend}\n\n"
-                           . "Details zum Kurs: {kurs_link}\n"
-                           . "Deine Buchungen verwaltest du hier: {konto_link}\n\n"
-                           . "Bis bald!",
+                'subject' => 'Booking confirmation: {course_title}',
+                'body'    => "Hi {customer_name},\n\n"
+                           . "your booking is confirmed:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Credits remaining: {credits_remaining}\n\n"
+                           . "Session details: {course_link}\n"
+                           . "Manage your bookings here: {account_link}\n\n"
+                           . "See you soon!",
             ],
             'cancellation' => [
-                'subject' => 'Stornierung: {kurs_titel}',
-                'body'    => "Hallo {kundenname},\n\n"
-                           . "deine Buchung wurde storniert:\n\n"
-                           . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
-                           . "Verbleibende Credits: {credits_verbleibend}\n\n"
-                           . "Deine Buchungen verwaltest du hier: {konto_link}",
+                'subject' => 'Cancellation: {course_title}',
+                'body'    => "Hi {customer_name},\n\n"
+                           . "your booking has been cancelled:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Credits remaining: {credits_remaining}\n\n"
+                           . "Manage your bookings here: {account_link}",
             ],
             'reminder' => [
-                'subject' => 'Erinnerung: {kurs_titel} am {datum}',
-                'body'    => "Hallo {kundenname},\n\n"
-                           . "dein Kurs steht an:\n\n"
-                           . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
-                           . "Details zum Kurs: {kurs_link}\n"
-                           . "Deine Buchungen verwaltest du hier: {konto_link}\n\n"
-                           . "Wir freuen uns auf dich!",
+                'subject' => 'Reminder: {course_title} on {date}',
+                'body'    => "Hi {customer_name},\n\n"
+                           . "your session is coming up:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Session details: {course_link}\n"
+                           . "Manage your bookings here: {account_link}\n\n"
+                           . "We look forward to seeing you!",
             ],
             'access' => [
-                'subject' => 'Zugangsdaten: {kurs_titel} am {datum}',
-                'body'    => "Hallo {kundenname},\n\n"
-                           . "hier sind die Zugangsdaten für deinen Online-Kurs:\n\n"
-                           . "{kurs_titel}\n{datum} um {uhrzeit}\n\n"
+                'subject' => 'Access details: {course_title} on {date}',
+                'body'    => "Hi {customer_name},\n\n"
+                           . "here are the access details for your online session:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
                            . "Link: {meeting_link}\n\n"
-                           . "{zugangsdaten}",
+                           . "{access_details}",
             ],
             'admin_booking' => [
-                'subject' => 'Neue Buchung: {kurs_titel}',
-                'body'    => "{kundenname} hat gebucht:\n\n"
-                           . "{kurs_titel}\n{datum} um {uhrzeit}",
+                'subject' => 'New booking: {course_title}',
+                'body'    => "{customer_name} booked:\n\n"
+                           . "{course_title}\n{date} at {time}",
             ],
         ];
     }
@@ -120,15 +147,15 @@ class BW_Emails {
         $link  = (string) get_post_meta($slot_id, BW_Metaboxes::META_MEETING_LINK, true);
 
         return [
-            '{kundenname}'          => $user ? $user->display_name : '',
-            '{kurs_titel}'          => get_the_title($slot_id) ?: '',
-            '{datum}'               => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
-            '{uhrzeit}'             => $start ? wp_date('H:i', $start->getTimestamp()) : '',
-            '{credits_verbleibend}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
-            '{meeting_link}'        => $link,
-            '{zugangsdaten}'        => (string) get_post_meta($slot_id, BW_Metaboxes::META_ACCESS_INFO, true),
-            '{kurs_link}'           => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
-            '{konto_link}'          => BW_Credits_Bookings_MVP::my_account_url(),
+            '{customer_name}'     => $user ? $user->display_name : '',
+            '{course_title}'      => get_the_title($slot_id) ?: '',
+            '{date}'              => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
+            '{time}'              => $start ? wp_date('H:i', $start->getTimestamp()) : '',
+            '{credits_remaining}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
+            '{meeting_link}'      => $link,
+            '{access_details}'    => (string) get_post_meta($slot_id, BW_Metaboxes::META_ACCESS_INFO, true),
+            '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
+            '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
         ];
     }
 
@@ -157,8 +184,8 @@ class BW_Emails {
         }
 
         $lang         = self::slot_language($slot_id);
-        $subject_tpl  = self::translate('subject_' . $key, self::get_subject($key), $lang);
-        $body_tpl     = self::translate('body_' . $key, self::get_body($key), $lang);
+        $subject_tpl  = self::translate('subject_' . $key, self::subject_source($key), $lang);
+        $body_tpl     = self::translate('body_' . $key, self::body_source($key), $lang);
         $placeholders = self::placeholders($user_id, $slot_id);
 
         $subject = strtr($subject_tpl, $placeholders);
@@ -171,7 +198,7 @@ class BW_Emails {
         $body    = nl2br(strtr($body_tpl, $escaped));
 
         // Every URL-shaped placeholder value becomes clickable — applies
-        // to meeting_link, kurs_link, and konto_link alike
+        // to meeting_link, course_link, and account_link alike
         foreach ($placeholders as $value) {
             if ($value === '' || !filter_var($value, FILTER_VALIDATE_URL)) continue;
 
@@ -456,11 +483,70 @@ class BW_Emails {
         }
     }
 
+    /* =========================================================
+     * Reset to default
+     * ========================================================= */
+
+    private static function reset_url(string $key): string {
+        return wp_nonce_url(
+            admin_url('admin-post.php?action=bw_reset_email&key=' . rawurlencode($key)),
+            'bw_reset_email_' . $key
+        );
+    }
+
+    public static function handle_reset_email() {
+        if (!current_user_can(BW_Settings::CAPABILITY)) {
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
+        }
+
+        $key = isset($_GET['key']) ? sanitize_key(wp_unslash($_GET['key'])) : '';
+        check_admin_referer('bw_reset_email_' . $key);
+
+        $defaults = self::defaults();
+        $types    = self::types();
+        if (!isset($defaults[$key])) {
+            self::redirect('err:' . __('Unknown email type.', 'bw-credits-booking'));
+        }
+
+        update_option(self::opt_subject($key), $defaults[$key]['subject']);
+        update_option(self::opt_body($key), $defaults[$key]['body']);
+
+        self::redirect('ok:' . sprintf(
+            /* translators: %s: email type label, e.g. "Booking confirmation" */
+            __('%s reset to the default text.', 'bw-credits-booking'),
+            $types[$key][0]
+        ));
+    }
+
+    private static function redirect(string $notice) {
+        wp_safe_redirect(add_query_arg(
+            ['page' => self::PAGE, 'bw_notice' => rawurlencode($notice)],
+            admin_url('admin.php')
+        ));
+        exit;
+    }
+
+    private static function notice() {
+        if (empty($_GET['bw_notice'])) return;
+
+        $raw     = sanitize_text_field(wp_unslash($_GET['bw_notice']));
+        $is_err  = strpos($raw, 'err:') === 0;
+        $message = substr($raw, 4);
+
+        printf(
+            '<div class="notice %s is-dismissible"><p>%s</p></div>',
+            $is_err ? 'notice-error' : 'notice-success',
+            esc_html($message)
+        );
+    }
+
     public static function render_page() {
         if (!current_user_can(BW_Settings::CAPABILITY)) return;
         ?>
         <div class="wrap">
             <h1><?php esc_html_e('Email Texts', 'bw-credits-booking'); ?></h1>
+
+            <?php self::notice(); ?>
 
             <?php if (has_action('wpml_register_single_string')) : ?>
                 <div class="notice notice-info inline">
@@ -481,9 +567,10 @@ class BW_Emails {
 
             <p>
                 <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
-                <code>{kundenname}</code> <code>{kurs_titel}</code> <code>{datum}</code>
-                <code>{uhrzeit}</code> <code>{credits_verbleibend}</code>
-                <code>{meeting_link}</code> <code>{zugangsdaten}</code>
+                <code>{customer_name}</code> <code>{course_title}</code> <code>{date}</code>
+                <code>{time}</code> <code>{credits_remaining}</code>
+                <code>{meeting_link}</code> <code>{access_details}</code>
+                <code>{course_link}</code> <code>{account_link}</code>
             </p>
 
             <form method="post" action="options.php">
@@ -501,7 +588,18 @@ class BW_Emails {
                 </table>
 
                 <?php foreach (self::types() as $key => [$label, $description]) : ?>
-                    <h2><?php echo esc_html($label); ?></h2>
+                    <h2>
+                        <?php echo esc_html($label); ?>
+                        <a class="button button-small" style="margin-left:.5rem;font-weight:normal;vertical-align:middle;"
+                           href="<?php echo esc_url(self::reset_url($key)); ?>"
+                           onclick="return confirm('<?php echo esc_js(sprintf(
+                               /* translators: %s: email type label, e.g. "Booking confirmation" */
+                               __('Reset %s to the default text? Your saved changes will be lost.', 'bw-credits-booking'),
+                               $label
+                           )); ?>');">
+                            <?php esc_html_e('Reset to default', 'bw-credits-booking'); ?>
+                        </a>
+                    </h2>
                     <p class="description"><?php echo esc_html($description); ?></p>
 
                     <table class="form-table">
@@ -537,7 +635,7 @@ class BW_Emails {
                                 ]);
                                 ?>
                                 <p class="description">
-                                    <?php esc_html_e('Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {kurs_titel} can split it apart so it no longer gets replaced.', 'bw-credits-booking'); ?>
+                                    <?php esc_html_e('Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced.', 'bw-credits-booking'); ?>
                                 </p>
                             </td>
                         </tr>
