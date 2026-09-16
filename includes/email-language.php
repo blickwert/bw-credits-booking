@@ -24,6 +24,12 @@ class BW_Email_Language {
 
         add_action('woocommerce_edit_account_form', [__CLASS__, 'render_field_for_current_user']);
         add_action('woocommerce_save_account_details', [__CLASS__, 'save_from_account_form']);
+
+        // Capture the language active at registration as the initial
+        // preference, so it's already set correctly from day one instead
+        // of only ever taking effect once a customer proactively visits
+        // their account and saves a choice.
+        add_action('user_register', [__CLASS__, 'save_language_on_registration']);
     }
 
     /* =========================================================
@@ -77,6 +83,11 @@ class BW_Email_Language {
         }
     }
 
+    public static function save_language_on_registration(int $user_id): void {
+        $current = (string) apply_filters('wpml_current_language', null);
+        self::save_user_language($user_id, $current);
+    }
+
     /* =========================================================
      * Field rendering
      * ========================================================= */
@@ -88,7 +99,7 @@ class BW_Email_Language {
         $current = self::get_user_language($user_id);
         ?>
         <p class="form-row form-row-wide">
-            <label for="bw_email_language"><?php esc_html_e('Email language', 'bw-credits-booking'); ?></label>
+            <label for="bw_email_language"><?php esc_html_e('Language', 'bw-credits-booking'); ?></label>
             <select name="<?php echo esc_attr(self::META_KEY); ?>" id="bw_email_language" class="woocommerce-Input woocommerce-Input--select">
                 <?php foreach ($languages as $code => $language) : ?>
                     <option value="<?php echo esc_attr($code); ?>" <?php selected($current, $code); ?>>
@@ -109,8 +120,9 @@ class BW_Email_Language {
         if (!is_user_logged_in() || !self::active_languages()) return;
 
         $user_id = get_current_user_id();
+        self::notice();
         ?>
-        <h2><?php esc_html_e('Email language', 'bw-credits-booking'); ?></h2>
+        <h2><?php esc_html_e('Language', 'bw-credits-booking'); ?></h2>
         <form method="post" action="<?php echo esc_url(admin_url('admin-post.php')); ?>">
             <input type="hidden" name="action" value="bw_save_email_language">
             <?php wp_nonce_field('bw_save_email_language'); ?>
@@ -133,13 +145,42 @@ class BW_Email_Language {
 
         if (isset(self::active_languages()[$code])) {
             self::save_user_language($user_id, $code);
-            wc_add_notice(__('Email language saved.', 'bw-credits-booking'), 'success');
-        } else {
-            wc_add_notice(__('Unknown language.', 'bw-credits-booking'), 'error');
+            self::redirect('ok:' . __('Language saved.', 'bw-credits-booking'));
         }
 
-        wp_safe_redirect(wc_get_account_endpoint_url('dashboard'));
+        self::redirect('err:' . __('Unknown language.', 'bw-credits-booking'));
+    }
+
+    /**
+     * Own redirect/notice pair instead of wc_add_notice() — this handler
+     * runs via admin-post.php, where is_admin() is true, so WooCommerce
+     * skips loading its frontend-only function files (including
+     * wc_add_notice(), and possibly others) even though the request
+     * originated from a frontend form. Same ok:/err: query-string
+     * pattern already used elsewhere in this plugin (see
+     * BW_Emails::redirect()/notice()). Redirects back via the referer
+     * (the dashboard page the form was submitted from) rather than
+     * wc_get_account_endpoint_url(), to stay free of any WooCommerce
+     * frontend-only function in this code path.
+     */
+    private static function redirect(string $notice) {
+        $back = wp_get_referer() ?: home_url('/');
+        wp_safe_redirect(add_query_arg('bw_notice', rawurlencode($notice), $back));
         exit;
+    }
+
+    private static function notice() {
+        if (empty($_GET['bw_notice'])) return;
+
+        $raw     = sanitize_text_field(wp_unslash($_GET['bw_notice']));
+        $is_err  = strpos($raw, 'err:') === 0;
+        $message = substr($raw, 4);
+
+        printf(
+            '<div class="woocommerce-%s">%s</div>',
+            $is_err ? 'error' : 'message',
+            esc_html($message)
+        );
     }
 
     /* --- Edit-account form: WooCommerce's own form/save cycle --- */

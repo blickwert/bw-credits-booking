@@ -380,7 +380,7 @@ msgstr ""
 #: includes/metaboxes.php:332
 #: includes/emails.php:356
 #: includes/emails.php:514
-#: includes/email-language.php:127
+#: includes/email-language.php:139
 msgid "Not authorized."
 msgstr ""
 
@@ -1082,24 +1082,19 @@ msgstr ""
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
-#: includes/email-language.php:91
-#: includes/email-language.php:113
-msgid "Email language"
-msgstr ""
-
-#: includes/email-language.php:101
+#: includes/email-language.php:112
 msgid "The language your booking confirmations, reminders, and other emails are sent in."
 msgstr ""
 
-#: includes/email-language.php:119
+#: includes/email-language.php:131
 msgid "Save"
 msgstr ""
 
-#: includes/email-language.php:136
-msgid "Email language saved."
+#: includes/email-language.php:148
+msgid "Language saved."
 msgstr ""
 
-#: includes/email-language.php:138
+#: includes/email-language.php:151
 msgid "Unknown language."
 msgstr ""
 

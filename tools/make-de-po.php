@@ -365,12 +365,12 @@ const ENGLISH_TO_GERMAN = [
     'Unknown email type.' => 'Unbekannter E-Mail-Typ.',
 
     /* =====================================================
-     * includes/email-language.php (v0.32.0)
+     * includes/email-language.php (v0.32.0) — 'Language' reuses the
+     * existing course_list filter label entry above, not repeated here.
      * ===================================================== */
-    'Email language' => 'E-Mail-Sprache',
-    'The language your booking confirmations, reminders, and other emails are sent in.' => 'Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden.',
     'Save' => 'Speichern',
-    'Email language saved.' => 'E-Mail-Sprache gespeichert.',
+    'The language your booking confirmations, reminders, and other emails are sent in.' => 'Die Sprache, in der deine Buchungsbestätigungen, Erinnerungen und andere E-Mails verschickt werden.',
+    'Language saved.' => 'Sprache gespeichert.',
     'Unknown language.' => 'Unbekannte Sprache.',
 
     /* =====================================================
