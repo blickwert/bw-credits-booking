@@ -68,6 +68,27 @@ Each credit package is a simple WC product with three extra fields (*General* ta
 
 Credits are granted automatically when the order status becomes `completed`.
 
+### Product feature list (optional)
+
+Any WooCommerce product can also get 3 optional title+description pairs — e.g. "Includes a mat", "Beginner friendly" — via `includes/product-features.php`:
+
+| Field | Meta key |
+|---|---|
+| Feature 1 Title / Description | `_bw_feature_1_title` / `_bw_feature_1_desc` |
+| Feature 2 Title / Description | `_bw_feature_2_title` / `_bw_feature_2_desc` |
+| Feature 3 Title / Description | `_bw_feature_3_title` / `_bw_feature_3_desc` |
+
+Off by default — enable under *BW Credits → Settings → Product feature list*. When off, neither the fields on the product edit screen nor the shortcode below show anything; already-saved values are kept.
+
+There's deliberately no automatic placement on the product page. Pull an individual field in wherever you want with the `[bw_product_feature]` shortcode:
+
+```
+[bw_product_feature n="1" field="title"]
+[bw_product_feature n="1" field="desc"]
+```
+
+`field` is `title` or `desc`, `n` is `1`–`3`. Defaults to the current product; pass `product_id="123"` to show a different product's feature. Empty string if the switch is off, the combination is invalid, or that field isn't filled in. Or skip the shortcode and read the meta key directly in a theme template (`get_post_meta($product_id, '_bw_feature_1_title', true)`).
+
 ## ACF dependency
 
 The plugin only needs ACF for **one** field on the chosen post type

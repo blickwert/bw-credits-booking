@@ -979,52 +979,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:209
+#: bw-credits-booking.php:210
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:211
+#: bw-credits-booking.php:212
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:213
+#: bw-credits-booking.php:214
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:471
-#: bw-credits-booking.php:699
+#: bw-credits-booking.php:472
+#: bw-credits-booking.php:700
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:474
+#: bw-credits-booking.php:475
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:484
+#: bw-credits-booking.php:485
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:503
+#: bw-credits-booking.php:504
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1058
+#: bw-credits-booking.php:1059
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1581
+#: bw-credits-booking.php:1582
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1588
+#: bw-credits-booking.php:1589
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1596
+#: bw-credits-booking.php:1597
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1603
+#: bw-credits-booking.php:1604
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1148,6 +1148,26 @@ msgstr "Sprache gespeichert."
 #: includes/email-language.php:151
 msgid "Unknown language."
 msgstr "Unbekannte Sprache."
+
+#: includes/product-features.php:45
+msgid "Product feature list"
+msgstr "Produkt-Feature-Liste"
+
+#: includes/product-features.php:62
+msgid "Enable the product feature list (fields below on each product, plus the [bw_product_feature] shortcode)"
+msgstr "Produkt-Feature-Liste aktivieren (Felder unten bei jedem Produkt, plus der [bw_product_feature]-Shortcode)"
+
+#: includes/product-features.php:75
+msgid "Feature List"
+msgstr "Feature-Liste"
+
+#: includes/product-features.php:81
+msgid "Feature %d Title"
+msgstr "Feature %d Titel"
+
+#: includes/product-features.php:87
+msgid "Feature %d Description"
+msgstr "Feature %d Beschreibung"
 
 #. Default subject of the "booking" email
 #: email:booking.subject

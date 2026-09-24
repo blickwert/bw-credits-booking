@@ -374,6 +374,15 @@ const ENGLISH_TO_GERMAN = [
     'Unknown language.' => 'Unbekannte Sprache.',
 
     /* =====================================================
+     * includes/product-features.php (v0.33.0)
+     * ===================================================== */
+    'Product feature list' => 'Produkt-Feature-Liste',
+    'Enable the product feature list (fields below on each product, plus the [bw_product_feature] shortcode)' => 'Produkt-Feature-Liste aktivieren (Felder unten bei jedem Produkt, plus der [bw_product_feature]-Shortcode)',
+    'Feature List' => 'Feature-Liste',
+    'Feature %d Title' => 'Feature %d Titel',
+    'Feature %d Description' => 'Feature %d Beschreibung',
+
+    /* =====================================================
      * includes/emails.php — BW_Emails::defaults() (v0.31.0):
      * the German text ships as the gettext translation of the English
      * source, resolved automatically for a de_DE site with no WPML
