@@ -381,6 +381,9 @@ const ENGLISH_TO_GERMAN = [
     'Feature List' => 'Feature-Liste',
     'Feature %d Title' => 'Feature %d Titel',
     'Feature %d Description' => 'Feature %d Beschreibung',
+    'Number of features' => 'Anzahl der Features',
+    'How many title+description pairs appear per product. Lowering this hides, but does not delete, data already saved in the now-hidden slots.' => 'Wie viele Titel+Beschreibung-Paare pro Produkt erscheinen. Ein Verringern blendet bereits gespeicherte Daten in den dadurch ausgeblendeten Feldern nur aus, löscht sie aber nicht.',
+    'Meta key: %1$s — Shortcode: %2$s' => 'Meta-Key: %1$s — Shortcode: %2$s',
 
     /* =====================================================
      * includes/emails.php — BW_Emails::defaults() (v0.31.0):

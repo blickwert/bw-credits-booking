@@ -70,15 +70,9 @@ Credits are granted automatically when the order status becomes `completed`.
 
 ### Product feature list (optional)
 
-Any WooCommerce product can also get 3 optional title+description pairs — e.g. "Includes a mat", "Beginner friendly" — via `includes/product-features.php`:
+Any WooCommerce product can also get a number of optional title+description pairs — e.g. "Includes a mat", "Beginner friendly" — via `includes/product-features.php`. Meta key for feature `n`: `_bw_feature_{n}_title` / `_bw_feature_{n}_desc`.
 
-| Field | Meta key |
-|---|---|
-| Feature 1 Title / Description | `_bw_feature_1_title` / `_bw_feature_1_desc` |
-| Feature 2 Title / Description | `_bw_feature_2_title` / `_bw_feature_2_desc` |
-| Feature 3 Title / Description | `_bw_feature_3_title` / `_bw_feature_3_desc` |
-
-Off by default — enable under *BW Credits → Settings → Product feature list*. When off, neither the fields on the product edit screen nor the shortcode below show anything; already-saved values are kept.
+Off by default — enable under *BW Credits → Settings → Product feature list*, where you also set **Number of features** (default 3 — how many title+description pairs appear per product). When the switch is off, neither the fields on the product edit screen nor the shortcode below show anything; already-saved values are kept. Lowering the count later hides, but doesn't delete, data in the now-hidden slots — raising it again brings them back. Each field's "?" tooltip on the product edit screen shows its exact meta key and shortcode.
 
 There's deliberately no automatic placement on the product page. Pull an individual field in wherever you want with the `[bw_product_feature]` shortcode:
 

@@ -1149,25 +1149,38 @@ msgstr "Sprache gespeichert."
 msgid "Unknown language."
 msgstr "Unbekannte Sprache."
 
-#: includes/product-features.php:45
+#: includes/product-features.php:65
 msgid "Product feature list"
 msgstr "Produkt-Feature-Liste"
 
-#: includes/product-features.php:62
+#: includes/product-features.php:93
 msgid "Enable the product feature list (fields below on each product, plus the [bw_product_feature] shortcode)"
 msgstr "Produkt-Feature-Liste aktivieren (Felder unten bei jedem Produkt, plus der [bw_product_feature]-Shortcode)"
 
-#: includes/product-features.php:75
+#: includes/product-features.php:115
 msgid "Feature List"
 msgstr "Feature-Liste"
 
-#: includes/product-features.php:81
+#: includes/product-features.php:121
 msgid "Feature %d Title"
 msgstr "Feature %d Titel"
 
-#: includes/product-features.php:87
+#: includes/product-features.php:134
 msgid "Feature %d Description"
 msgstr "Feature %d Beschreibung"
+
+#: includes/product-features.php:72
+msgid "Number of features"
+msgstr "Anzahl der Features"
+
+#: includes/product-features.php:104
+msgid "How many title+description pairs appear per product. Lowering this hides, but does not delete, data already saved in the now-hidden slots."
+msgstr "Wie viele Titel+Beschreibung-Paare pro Produkt erscheinen. Ein Verringern blendet bereits gespeicherte Daten in den dadurch ausgeblendeten Feldern nur aus, löscht sie aber nicht."
+
+#: includes/product-features.php:124
+#: includes/product-features.php:137
+msgid "Meta key: %1$s — Shortcode: %2$s"
+msgstr "Meta-Key: %1$s — Shortcode: %2$s"
 
 #. Default subject of the "booking" email
 #: email:booking.subject
