@@ -1098,23 +1098,36 @@ msgstr ""
 msgid "Unknown language."
 msgstr ""
 
-#: includes/product-features.php:45
+#: includes/product-features.php:65
 msgid "Product feature list"
 msgstr ""
 
-#: includes/product-features.php:62
+#: includes/product-features.php:72
+msgid "Number of features"
+msgstr ""
+
+#: includes/product-features.php:93
 msgid "Enable the product feature list (fields below on each product, plus the [bw_product_feature] shortcode)"
 msgstr ""
 
-#: includes/product-features.php:75
+#: includes/product-features.php:104
+msgid "How many title+description pairs appear per product. Lowering this hides, but does not delete, data already saved in the now-hidden slots."
+msgstr ""
+
+#: includes/product-features.php:115
 msgid "Feature List"
 msgstr ""
 
-#: includes/product-features.php:81
+#: includes/product-features.php:121
 msgid "Feature %d Title"
 msgstr ""
 
-#: includes/product-features.php:87
+#: includes/product-features.php:124
+#: includes/product-features.php:137
+msgid "Meta key: %1$s — Shortcode: %2$s"
+msgstr ""
+
+#: includes/product-features.php:134
 msgid "Feature %d Description"
 msgstr ""
 

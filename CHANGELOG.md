@@ -5,6 +5,15 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.34.0] – 2026-09-24
+
+### Added
+- **Configurable feature count**: new setting **"Number of features"** under *BW Credits → Settings* (default 3) controls how many title+description pairs appear per product, instead of a hardcoded 3. Lowering the count hides, but doesn't delete, data already saved in the now-hidden slots.
+- **Help tooltips on the product edit screen**: each Feature Title/Description field now has a "?" tooltip showing its exact meta key and the matching `[bw_product_feature]` shortcode usage, so you don't need to look them up elsewhere.
+
+### Fixed
+- `range(1, 0)` in PHP returns `[1, 0]`, not an empty array — setting the feature count to 0 would have still made slot 1 available. Fixed in the internal slot-list helper (caught by a new regression test, no user-facing impact since this shipped in the same release as the configurable count).
+
 ## [0.33.0] – 2026-09-24
 
 ### Added

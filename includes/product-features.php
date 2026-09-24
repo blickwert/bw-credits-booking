@@ -2,21 +2,23 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Product feature list: 3 optional title+description pairs on the
- * WooCommerce Product edit screen, for a small marketing bullet list
- * (e.g. "Includes: mat & towel"). Gated behind a global on/off switch
- * under BW Credits → Settings — when off, neither the product edit
- * fields nor the shortcode show anything, though saved values are kept.
+ * Product feature list: a configurable number of optional
+ * title+description pairs on the WooCommerce Product edit screen, for
+ * a small marketing bullet list (e.g. "Includes: mat & towel"). Gated
+ * behind a global on/off switch under BW Credits → Settings — when
+ * off, neither the product edit fields nor the shortcode show
+ * anything, though saved values are kept.
  *
  * No automatic frontend placement by design: pull individual fields in
  * via the [bw_product_feature] shortcode wherever wanted, or read the
- * meta directly (get_post_meta()) from a theme template.
+ * meta directly (get_post_meta()) from a theme template. Each field's
+ * help tooltip shows its exact meta key and shortcode usage.
  */
 
 class BW_Product_Features {
 
     const OPT_ENABLED = 'bw_product_features_enabled';
-    const SLOTS        = [1, 2, 3];
+    const OPT_COUNT   = 'bw_product_features_count';
 
     public static function init() {
         add_action('woocommerce_product_options_general_product_data', [__CLASS__, 'render_fields']);
@@ -30,14 +32,32 @@ class BW_Product_Features {
         return '_bw_feature_' . $n . '_' . $field;
     }
 
+    private static function shortcode_example(int $n, string $field): string {
+        return '[bw_product_feature n="' . $n . '" field="' . $field . '"]';
+    }
+
+    /**
+     * 1..N — N is the admin-configured count. Reducing the count later
+     * doesn't delete data for the now-hidden slots; it just stops
+     * showing/serving them until the count goes back up.
+     */
+    private static function slots(): array {
+        $count = self::get_count();
+        return $count > 0 ? range(1, $count) : [];
+    }
+
     /* =========================================================
-     * Global switch
+     * Global switch + feature count
      * ========================================================= */
 
     public static function register_settings() {
         register_setting('bw_credits_settings', self::OPT_ENABLED, [
             'type'              => 'boolean',
             'sanitize_callback' => function ($v) { return $v ? 1 : 0; },
+        ]);
+        register_setting('bw_credits_settings', self::OPT_COUNT, [
+            'type'              => 'integer',
+            'sanitize_callback' => function ($v) { return max(0, (int) $v); },
         ]);
 
         add_settings_field(
@@ -47,10 +67,21 @@ class BW_Product_Features {
             BW_Settings::MENU_SLUG,
             'bw_general'
         );
+        add_settings_field(
+            self::OPT_COUNT,
+            __('Number of features', 'bw-credits-booking'),
+            [__CLASS__, 'field_count'],
+            BW_Settings::MENU_SLUG,
+            'bw_general'
+        );
     }
 
     public static function is_enabled(): bool {
         return (bool) get_option(self::OPT_ENABLED, false);
+    }
+
+    public static function get_count(): int {
+        return max(0, (int) get_option(self::OPT_COUNT, 3));
     }
 
     public static function field_enabled() {
@@ -64,6 +95,15 @@ class BW_Product_Features {
         <?php
     }
 
+    public static function field_count() {
+        printf(
+            '<input type="number" min="0" step="1" name="%s" value="%d" class="small-text">',
+            esc_attr(self::OPT_COUNT),
+            self::get_count()
+        );
+        echo '<p class="description">' . esc_html__('How many title+description pairs appear per product. Lowering this hides, but does not delete, data already saved in the now-hidden slots.', 'bw-credits-booking') . '</p>';
+    }
+
     /* =========================================================
      * Product edit screen
      * ========================================================= */
@@ -74,17 +114,31 @@ class BW_Product_Features {
         echo '<div class="options_group">';
         echo '<h4 style="padding-left:12px;">' . esc_html__('Feature List', 'bw-credits-booking') . '</h4>';
 
-        foreach (self::SLOTS as $n) {
+        foreach (self::slots() as $n) {
             woocommerce_wp_text_input([
                 'id'          => self::meta_key($n, 'title'),
-                /* translators: %d: feature slot number (1-3) */
+                /* translators: %d: feature slot number */
                 'label'       => sprintf(__('Feature %d Title', 'bw-credits-booking'), $n),
+                'description' => sprintf(
+                    /* translators: 1: post meta key, 2: shortcode usage example */
+                    __('Meta key: %1$s — Shortcode: %2$s', 'bw-credits-booking'),
+                    self::meta_key($n, 'title'),
+                    self::shortcode_example($n, 'title')
+                ),
+                'desc_tip'    => true,
             ]);
 
             woocommerce_wp_textarea_input([
                 'id'          => self::meta_key($n, 'desc'),
-                /* translators: %d: feature slot number (1-3) */
+                /* translators: %d: feature slot number */
                 'label'       => sprintf(__('Feature %d Description', 'bw-credits-booking'), $n),
+                'description' => sprintf(
+                    /* translators: 1: post meta key, 2: shortcode usage example */
+                    __('Meta key: %1$s — Shortcode: %2$s', 'bw-credits-booking'),
+                    self::meta_key($n, 'desc'),
+                    self::shortcode_example($n, 'desc')
+                ),
+                'desc_tip'    => true,
                 'rows'        => 2,
             ]);
         }
@@ -93,7 +147,7 @@ class BW_Product_Features {
     }
 
     public static function save_fields($product) {
-        foreach (self::SLOTS as $n) {
+        foreach (self::slots() as $n) {
             $title_key = self::meta_key($n, 'title');
             if (isset($_POST[$title_key])) {
                 $product->update_meta_data($title_key, sanitize_text_field(wp_unslash($_POST[$title_key])));
@@ -121,7 +175,7 @@ class BW_Product_Features {
         ], $atts, 'bw_product_feature');
 
         $n = (int) $atts['n'];
-        if (!in_array($n, self::SLOTS, true)) return '';
+        if (!in_array($n, self::slots(), true)) return '';
 
         $field = (string) $atts['field'];
         if (!in_array($field, ['title', 'desc'], true)) return '';
