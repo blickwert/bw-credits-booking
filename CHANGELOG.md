@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.33.0] – 2026-09-24
+
+### Added
+- **Product feature list**: 3 optional title+description pairs (`includes/product-features.php`, new `BW_Product_Features` class) on the WooCommerce Product edit screen — e.g. to list "Includes a mat", "Beginner friendly", etc. under a product. Stored as regular post meta (`_bw_feature_1_title`/`_bw_feature_1_desc` … `_bw_feature_3_desc`).
+- Gated behind a new global switch, **"Product feature list"** under *BW Credits → Settings* — off by default. When off, neither the fields on the product edit screen nor the new shortcode show anything; already-saved values are kept, so turning it back on doesn't lose data.
+- New shortcode `[bw_product_feature n="1" field="title"]` (`field`: `title` or `desc`) to pull an individual field into the product description or anywhere else — by design there's no automatic placement on the product page; place the shortcode where you want it, or read the meta key directly in a theme template. Defaults to the current product if no `product_id` attribute is given.
+
 ## [0.32.1] – 2026-09-16
 
 ### Fixed
