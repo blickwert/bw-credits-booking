@@ -2,9 +2,9 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Two small utility shortcodes for WooCommerce product pages — plain
+ * Small utility shortcodes for WooCommerce product pages — plain
  * pricing/tax data, no admin UI, no on/off switch (unlike the product
- * feature list). Both resolve the product from an optional product_id
+ * feature list). All resolve the product from an optional product_id
  * attribute, falling back to WooCommerce's own `global $product`
  * (set automatically in the product-page/loop context).
  */
@@ -14,6 +14,7 @@ class BW_Product_Pricing {
     public static function init() {
         add_shortcode('bw_product_tax_info', [__CLASS__, 'shortcode_tax_info']);
         add_shortcode('bw_product_price_per_unit', [__CLASS__, 'shortcode_price_per_unit']);
+        add_shortcode('bw_product_price', [__CLASS__, 'shortcode_price']);
     }
 
     private static function resolve_product(array $atts): ?WC_Product {
@@ -63,6 +64,24 @@ class BW_Product_Pricing {
 
         $per_unit = (float) $product->get_price() / $amount;
         return wc_price($per_unit);
+    }
+
+    /**
+     * [bw_product_price] — the product's regular active price (sale
+     * price if the product is on sale, same as get_price() elsewhere
+     * in this file), formatted via wc_price(). Empty if the product has
+     * no price set at all — distinct from an actual price of 0, which
+     * is shown as "0,00 €" like any other price.
+     */
+    public static function shortcode_price($atts): string {
+        $atts    = shortcode_atts(['product_id' => 0], $atts, 'bw_product_price');
+        $product = self::resolve_product($atts);
+        if (!$product) return '';
+
+        $price = $product->get_price();
+        if ($price === '') return '';
+
+        return wc_price((float) $price);
     }
 }
 

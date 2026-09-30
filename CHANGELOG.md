@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.37.0] – 2026-09-30
+
+### Added
+- **`[bw_product_price]` shortcode** (`includes/product-pricing.php`) — the product's plain active price (sale price if on sale), formatted via `wc_price()`, e.g. `29,90 €`. Complements the existing `[bw_product_tax_info]`/`[bw_product_price_per_unit]`, same conventions (optional `product_id` attribute, defaults to the current product). Empty string only if the product has no price set at all — an actual price of `0` is shown as `0,00 €`, not treated as empty.
+
 ## [0.36.0] – 2026-09-30
 
 ### Added

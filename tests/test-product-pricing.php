@@ -1,7 +1,7 @@
 <?php
 /**
  * Regression test: BW_Product_Pricing ([bw_product_tax_info],
- * [bw_product_price_per_unit]). Loads the real
+ * [bw_product_price_per_unit], [bw_product_price]). Loads the real
  * includes/product-pricing.php against a stub WordPress/WooCommerce
  * environment.
  */
@@ -142,6 +142,42 @@ $GLOBALS['product'] = null;
 $GLOBALS['__products'][7] = new WC_Product(7, '90.00');
 $GLOBALS['__postmeta'][7]['_bw_credit_amount'] = '5';
 check('price_per_unit(): product_id attribute works without a global $product', BW_Product_Pricing::shortcode_price_per_unit(['product_id' => 7]) === '18,00 €');
+
+/* ---------------------------------------------------------------
+ * 8. shortcode_price(): no product -> empty
+ * --------------------------------------------------------------- */
+reset_state();
+check('price(): no global $product, no product_id -> empty', BW_Product_Pricing::shortcode_price([]) === '');
+
+/* ---------------------------------------------------------------
+ * 9. shortcode_price(): plain formatted price, via global $product
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['product'] = new WC_Product(42, '150.00');
+check('price(): formats the product\'s price via wc_price()', BW_Product_Pricing::shortcode_price([]) === '150,00 €');
+
+/* ---------------------------------------------------------------
+ * 10. shortcode_price(): an actual price of 0 is shown, not treated
+ *     as "no price"
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['product'] = new WC_Product(42, '0');
+check('price(): an actual price of 0 is formatted as "0,00 €", not empty', BW_Product_Pricing::shortcode_price([]) === '0,00 €');
+
+/* ---------------------------------------------------------------
+ * 11. shortcode_price(): no price set at all -> empty
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['product'] = new WC_Product(42, '');
+check('price(): no price set at all -> empty (distinct from an actual 0)', BW_Product_Pricing::shortcode_price([]) === '');
+
+/* ---------------------------------------------------------------
+ * 12. shortcode_price(): via explicit product_id
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['product'] = null;
+$GLOBALS['__products'][7] = new WC_Product(7, '29.90');
+check('price(): product_id attribute works without a global $product', BW_Product_Pricing::shortcode_price(['product_id' => 7]) === '29,90 €');
 
 printf("\n%d/%d checks passed\n", $pass, $pass + $fail);
 exit($fail > 0 ? 1 : 0);
