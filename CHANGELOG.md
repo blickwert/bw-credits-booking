@@ -5,6 +5,14 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.35.0] – 2026-09-30
+
+### Added
+- **Two new product-page shortcodes** (`includes/product-pricing.php`, new `BW_Product_Pricing` class), always available, no settings toggle:
+  - `[bw_product_tax_info]` — the product's tax rate as a bare number (e.g. `20`), intentionally with no wrapping text like "incl. 20% VAT" — that wording belongs in the surrounding translatable content, not hardcoded in the shortcode. Moved into the plugin from a standalone snippet the user had been running under the tag `[product_tax_info]` — **renamed** to `[bw_product_tax_info]` to match the plugin's shortcode naming, and the snippet's hardcoded German "inkl. …% USt." text was dropped for the same multi-language reason. Update any existing usage of the old tag to the new one.
+  - `[bw_product_price_per_unit]` — the product's price divided by its Credit Amount (`_bw_credit_amount`), e.g. a €150 / 10-credit package shows `15,00 €` — lets customers compare packages of different sizes. Formatted via `wc_price()` (shop currency settings). Empty for a product with no credit amount set.
+  - Both default to the current product (WooCommerce's own `global $product`); accept an optional `product_id` attribute to target a different one.
+
 ## [0.34.0] – 2026-09-24
 
 ### Added
