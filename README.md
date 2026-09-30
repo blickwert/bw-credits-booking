@@ -401,6 +401,18 @@ The default subject and body for each type are English source text, delivered in
 
 *BW Credits → Emails* only edits the source (base-language) text — it's not language-aware, so switching WPML's admin-bar language there shows the same content regardless of the selected language. That's by design: translations for these strings are entered under **WPML → String Translation** (filtered by context *BW Credits*), the same as anywhere else WPML manages translated strings. The page shows a note with a direct link when WPML is active.
 
+## Tests + CI
+
+`tests/test-*.php` are standalone regression tests — each stubs just enough of WordPress/WooCommerce/WPML to load the real plugin file it covers and exercise it directly, no test framework or WordPress install needed. Run them all with:
+
+```
+php tools/run-tests.php
+```
+
+Each test file runs in its own PHP process (they each define their own stub functions like `add_action()`/`esc_html()`, which would collide with "cannot redeclare function" if two ran in the same process) — the runner aggregates pass/fail and exits non-zero if any file fails.
+
+`.github/workflows/ci.yml` runs this, `php -l` on every PHP file, and drift checks for the two generated-file pipelines (`tools/make-pot.php`/`make-de-po.php`/`make-mo.php` for translations, `tools/build-assets.php --check` for the combined CSS/JS) — automatically on every pull request and push to `main`. Fast and deterministic (no external review queue); a lightweight complement to, not a replacement for, an actual code review.
+
 ## Auto-Update Workflow
 
 Releases are created automatically by `.github/workflows/release.yml`:
