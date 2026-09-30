@@ -1,0 +1,39 @@
+name: CI
+
+# Fast, deterministic checks on every PR and push to main — lint, the
+# regression test suite (tests/test-*.php, via tools/run-tests.php),
+# and drift checks for the two generated-file pipelines (i18n, combined
+# CSS/JS). Runs immediately, no external review queue — a lightweight
+# complement to (not a replacement for) a human/Copilot code review.
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Lint PHP files
+        run: find . -name '*.php' -not -path './.git/*' -print0 | xargs -0 -n1 php -l
+
+      - name: Run regression tests
+        run: php tools/run-tests.php
+
+      - name: Verify the i18n pipeline is up to date
+        run: |
+          php tools/make-pot.php
+          php tools/make-de-po.php
+          php tools/make-mo.php languages/bw-credits-booking-de_DE.po languages/bw-credits-booking-de_DE.mo
+          git diff --exit-code -- languages/ || {
+            echo '::error::languages/ is out of date — run make-pot.php, make-de-po.php, make-mo.php locally and commit the result.'
+            exit 1
+          }
+
+      - name: Verify the combined CSS/JS build is up to date
+        run: php tools/build-assets.php --check
