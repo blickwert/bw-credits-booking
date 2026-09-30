@@ -9,7 +9,10 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ### Added
 - **CI workflow** (`.github/workflows/ci.yml`) — runs automatically on every pull request and push to `main`, no external review queue to wait on: `php -l` on every PHP file, the full regression test suite, and drift checks for both generated-file pipelines (translations, combined CSS/JS). A fast, deterministic complement to (not a replacement for) an actual code review.
-- **Regression tests moved into the repository** under `tests/test-*.php` — previously these only existed as session-scratchpad files and were never committed, so they weren't runnable by anyone else (or by CI). Each test file stubs its own WordPress/WooCommerce/WPML environment and loads the real plugin file it covers directly, no test framework or WordPress install needed. New `tools/run-tests.php` runs every test file (each in its own PHP process, since they each define their own global stub functions) and aggregates pass/fail — `php tools/run-tests.php`.
+- **Regression tests moved into the repository** under `tests/test-*.php` (`test-emails.php`, `test-product-features.php`, `test-product-pricing.php`) — previously these only existed as session-scratchpad files and were never committed, so they weren't runnable by anyone else (or by CI). Each test file stubs its own WordPress/WooCommerce/WPML environment and loads the real plugin file it covers directly, no test framework or WordPress install needed. New `tools/run-tests.php` runs every test file (each in its own PHP process, since they each define their own global stub functions) and aggregates pass/fail — `php tools/run-tests.php`.
+
+### Fixed
+- `languages/bw-credits-booking.pot`/`-de_DE.po` had stale `#:` source-location line numbers left over from v0.35.0 (it added a line to `bw-credits-booking.php` without re-running the i18n pipeline, since it introduced no new translatable strings) — regenerated. No effect on the compiled `.mo` (comments aren't compiled in), found by this release's own new CI drift check.
 
 ## [0.35.0] – 2026-09-30
 
