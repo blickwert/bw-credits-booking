@@ -83,13 +83,15 @@ There's deliberately no automatic placement on the product page. Pull an individ
 
 `field` is `title` or `desc`, `n` is `1`–`3`. Defaults to the current product; pass `product_id="123"` to show a different product's feature. Empty string if the switch is off, the combination is invalid, or that field isn't filled in. Or skip the shortcode and read the meta key directly in a theme template (`get_post_meta($product_id, '_bw_feature_1_title', true)`).
 
-### Tax and price-per-unit shortcodes
+### Tax and pricing shortcodes
 
-Two more small utility shortcodes for the product page (`includes/product-pricing.php`), always available — no settings toggle. Both default to the current product (WooCommerce's own `global $product`); pass `product_id="123"` for a different one.
+Three more small utility shortcodes for the product page (`includes/product-pricing.php`), always available — no settings toggle. All default to the current product (WooCommerce's own `global $product`); pass `product_id="123"` for a different one.
 
 `[bw_product_tax_info]` — the product's tax rate as a bare number (e.g. `20`), nothing else. No "incl. 20% VAT"-style wrapping text on purpose — that wording belongs in the surrounding (translatable) content, not hardcoded in the shortcode, so it works the same on every language version. Empty string without a matching tax rate. (Moved into the plugin from a standalone snippet that previously used the tag `[product_tax_info]` — update any existing usage to the new `bw_` name.)
 
 `[bw_product_price_per_unit]` — the product's price divided by its Credit Amount (`_bw_credit_amount`), e.g. a €150 / 10-credit package shows `15,00 €`. Formatted with `wc_price()`, so it follows the shop's currency settings. Empty string for a product with no credit amount set.
+
+`[bw_product_price]` — the product's plain active price (sale price if it's on sale), formatted with `wc_price()`, e.g. `29,90 €`. An actual price of `0` is shown as `0,00 €`; empty string only if the product has no price set at all.
 
 ## ACF dependency
 
