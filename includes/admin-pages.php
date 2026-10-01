@@ -301,7 +301,7 @@ class BW_Admin_Pages {
                 </td>
                 <td>
                     <a href="<?php echo esc_url(get_edit_post_link((int) $b['slot_id'])); ?>">
-                        <?php echo esc_html(get_the_title((int) $b['slot_id']) ?: '#' . (int) $b['slot_id']); ?>
+                        <?php echo get_the_title((int) $b['slot_id']) ?: '#' . (int) $b['slot_id']; ?>
                     </a><br>
                     <small><?php echo esc_html(self::slot_start_label((int) $b['slot_id'])); ?></small>
                 </td>

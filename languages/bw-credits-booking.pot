@@ -378,8 +378,8 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:287
 #: includes/metaboxes.php:332
-#: includes/emails.php:356
-#: includes/emails.php:514
+#: includes/emails.php:363
+#: includes/emails.php:521
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr ""
@@ -1013,72 +1013,72 @@ msgstr ""
 msgid "Sent to the address set below for every new booking."
 msgstr ""
 
-#: includes/emails.php:375
+#: includes/emails.php:382
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:378
+#: includes/emails.php:385
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:466
-#: includes/emails.php:467
+#: includes/emails.php:473
+#: includes/emails.php:474
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:523
+#: includes/emails.php:530
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:531
+#: includes/emails.php:538
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:562
+#: includes/emails.php:569
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:572
+#: includes/emails.php:579
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:577
+#: includes/emails.php:584
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:584
+#: includes/emails.php:591
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:596
+#: includes/emails.php:603
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:612
+#: includes/emails.php:619
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:615
+#: includes/emails.php:622
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:622
+#: includes/emails.php:629
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:628
+#: includes/emails.php:635
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:633
+#: includes/emails.php:640
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:641
+#: includes/emails.php:648
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:653
+#: includes/emails.php:660
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 

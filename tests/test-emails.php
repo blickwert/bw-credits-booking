@@ -129,7 +129,12 @@ function home_url($path = '/') { return 'https://example.test' . $path; }
 function get_userdata($id) {
     return $id > 0 ? (object) ['display_name' => 'Jane Doe', 'user_email' => 'jane@example.test'] : false;
 }
-function get_the_title($id) { return 'Hatha Yoga'; }
+// Overridable per-test via $GLOBALS['__slot_title'] — defaults to a plain
+// title so existing assertions below are unaffected; the title-escaping
+// regression test further down sets this to an already-HTML-escaped
+// value, matching what WordPress actually stores for a term name
+// containing "&" (e.g. post_title saved as "Ground &amp; Connect").
+function get_the_title($id) { return $GLOBALS['__slot_title'] ?? 'Hatha Yoga'; }
 function get_post_meta($id, $key, $single = false) { return $GLOBALS['__postmeta'][$id][$key] ?? ''; }
 function get_permalink($id) { return 'https://example.test/session/' . $id; }
 
@@ -182,6 +187,7 @@ function reset_state() {
     $GLOBALS['__mails']     = [];
     $GLOBALS['__redirect']  = null;
     $GLOBALS['__referer']   = 'https://example.test/my-account/';
+    unset($GLOBALS['__slot_title']); // back to the 'Hatha Yoga' default
 }
 
 /* ---------------------------------------------------------------
@@ -286,6 +292,27 @@ check('save_language_on_registration(): stores the language active at signup', g
 $GLOBALS['__wpml_on'] = false;
 BW_Email_Language::save_language_on_registration(100);
 check('save_language_on_registration(): no-op without WPML', get_user_meta(100, '_bw_email_language', true) === '');
+
+/* ---------------------------------------------------------------
+ * 7. send(): {course_title} with an "&" in the term name is not
+ *    double-escaped. WordPress stores post_title HTML-entity-escaped
+ *    once (e.g. "Ground &amp; Connect" for a term named "Ground & Connect")
+ *    — get_the_title() returns it exactly as stored, un-decoded.
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__slot_title'] = 'Ground &amp; Connect';
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+
+check(
+    'send(): subject shows a single "&" (plain text, not escaped at all) — not "&amp;"',
+    $sent && $sent['subject'] === 'Booking confirmation: Ground & Connect'
+);
+check(
+    'send(): body shows "&amp;" exactly once (correct HTML), not "&amp;amp;"',
+    $sent && str_contains($sent['message'], 'Ground &amp; Connect') && !str_contains($sent['message'], '&amp;amp;')
+);
 
 printf("\n%d/%d checks passed\n", $pass, $pass + $fail);
 exit($fail > 0 ? 1 : 0);

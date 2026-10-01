@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.38.0] – 2026-10-01
+
+### Fixed
+- **"&" in a course-type name showed up as "&amp;"** in the auto-generated course session title. Root cause: WordPress stores term names entity-escaped (`Ground &amp; Connect`), and `bw_cs_first_term()` returned that verbatim — so the auto-title saved a literal `&amp;` into `post_title`, and every other caller (admin "Course type" column, course list meta line, My Account booking meta line) escaped it a second time. `bw_cs_first_term()` now returns the decoded raw name. **Existing sessions keep their old title until they are saved once more** (re-saving regenerates the title).
+- Same double-escaping class fixed at three remaining title outputs: the Bookings admin table's "Session" column, the slot title in the My Account booking list (`templates/user_bookings/user_bookings.php`), and the `{course_title}` email placeholder — the latter also showed `&amp;` in the plain-text **subject** line.
+- `tests/test-emails.php`: new regression test for an `&` in the course title (subject shows `&`, body shows `&amp;` exactly once).
+
 ## [0.37.0] – 2026-09-30
 
 ### Added

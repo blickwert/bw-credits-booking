@@ -148,7 +148,14 @@ class BW_Emails {
 
         return [
             '{customer_name}'     => $user ? $user->display_name : '',
-            '{course_title}'      => get_the_title($slot_id) ?: '',
+            // get_the_title() returns post_title as stored — WordPress
+            // HTML-entity-escapes it once at save time (e.g. "Ground &amp;
+            // Connect"), so decoding it back to raw text here lets the
+            // single esc_html() pass below (and the plain-text subject
+            // line, which isn't escaped at all) treat it the same as
+            // every other placeholder: exactly one escaping pass, right
+            // before output, not zero and not two.
+            '{course_title}'      => html_entity_decode(get_the_title($slot_id) ?: '', ENT_QUOTES),
             '{date}'              => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
             '{time}'              => $start ? wp_date('H:i', $start->getTimestamp()) : '',
             '{credits_remaining}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
