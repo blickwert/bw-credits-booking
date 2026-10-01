@@ -26,9 +26,9 @@ if (empty($items)) : ?>
             <div class="bw-booking-item bw-status-<?php echo esc_attr($item['status']); ?>">
                 <div class="bw-booking-slot">
                     <?php if ($item['permalink'] !== '') : ?>
-                        <a href="<?php echo esc_url($item['permalink']); ?>"><?php echo esc_html($item['slot_title']); ?></a>
+                        <a href="<?php echo esc_url($item['permalink']); ?>"><?php echo $item['slot_title']; ?></a>
                     <?php else : ?>
-                        <?php echo esc_html($item['slot_title']); ?>
+                        <?php echo $item['slot_title']; ?>
                     <?php endif; ?>
 
                     <?php if ($item['meta_bits']) : ?>

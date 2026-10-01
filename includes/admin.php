@@ -219,6 +219,9 @@ if (!function_exists('bw_cs_first_term')) {
     function bw_cs_first_term(int $post_id, string $taxonomy): string {
         $terms = get_the_terms($post_id, $taxonomy);
         if (empty($terms) || is_wp_error($terms)) return '';
-        return $terms[0]->name ?? '';
+        // WordPress stores term names entity-escaped ("Ground &amp; Connect");
+        // return raw text so callers escape exactly once and the auto-title
+        // doesn't persist a literal "&amp;" into post_title.
+        return html_entity_decode($terms[0]->name ?? '', ENT_QUOTES, 'UTF-8');
     }
 }
