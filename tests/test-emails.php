@@ -148,10 +148,23 @@ function wp_mail($to, $subject, $message) {
     return true;
 }
 
-class BW_Metaboxes {
-    const META_MEETING_LINK = '_bw_meeting_link';
-    const META_ACCESS_INFO  = '_bw_access_info';
+date_default_timezone_set('UTC');
+if (!defined('ARRAY_A')) define('ARRAY_A', 'ARRAY_A');
+
+// Minimal $wpdb: get_results() hands back $GLOBALS['__db_rows'] and records
+// the SQL; update() records which booking ids were marked.
+class Test_WPDB {
+    public $prefix   = 'wp_';
+    public $postmeta = 'wp_postmeta';
+    public $queries  = [];
+    public $updates  = [];
+    public function prepare($sql, ...$args) { return $sql; }
+    public function get_results($sql, $output = null) { $this->queries[] = $sql; return $GLOBALS['__db_rows'] ?? []; }
+    public function update($table, $data, $where, ...$f) { $this->updates[] = $where['id']; return 1; }
+    public function query($sql) { $this->queries[] = $sql; return 1; }
 }
+$GLOBALS['wpdb'] = new Test_WPDB();
+
 class BW_Credits_Bookings_MVP {
     const META_START_DT  = '_bw_start_dt';
     const BOOKINGS_TABLE = 'bw_bookings';
@@ -164,6 +177,7 @@ class BW_Settings {
     const MENU_SLUG = 'bw-credits';
 }
 
+require __DIR__ . '/../includes/metaboxes.php';
 require __DIR__ . '/../includes/emails.php';
 require __DIR__ . '/../includes/email-language.php';
 
@@ -188,6 +202,17 @@ function reset_state() {
     $GLOBALS['__redirect']  = null;
     $GLOBALS['__referer']   = 'https://example.test/my-account/';
     unset($GLOBALS['__slot_title']); // back to the 'Hatha Yoga' default
+    $GLOBALS['__postmeta']  = [];
+    $GLOBALS['__db_rows']   = [];
+    $GLOBALS['wpdb']->queries = [];
+    $GLOBALS['wpdb']->updates = [];
+}
+
+function access_mails(): array {
+    return array_values(array_filter($GLOBALS['__mails'], fn($m) => str_starts_with($m['subject'], 'Access details')));
+}
+function slot_starts_in(int $slot_id, string $offset) {
+    $GLOBALS['__postmeta'][$slot_id]['_bw_start_dt'] = (new DateTime('now'))->modify($offset)->format('Y-m-d H:i:s');
 }
 
 /* ---------------------------------------------------------------
@@ -313,6 +338,120 @@ check(
     'send(): body shows "&amp;" exactly once (correct HTML), not "&amp;amp;"',
     $sent && str_contains($sent['message'], 'Ground &amp; Connect') && !str_contains($sent['message'], '&amp;amp;')
 );
+
+/* ---------------------------------------------------------------
+ * 8. Online Access: session value wins, else the Settings default
+ * --------------------------------------------------------------- */
+reset_state();
+check('get_meeting_link(): nothing set anywhere -> empty', BW_Metaboxes::get_meeting_link(42) === '');
+
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+$GLOBALS['__options']['bw_default_access_info']  = 'Default PIN 1234';
+check('get_meeting_link(): falls back to the default', BW_Metaboxes::get_meeting_link(42) === 'https://zoom.test/default');
+check('get_access_info(): falls back to the default', BW_Metaboxes::get_access_info(42) === 'Default PIN 1234');
+
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+$GLOBALS['__postmeta'][42]['_bw_access_info']  = 'Own PIN';
+check('get_meeting_link(): the session\'s own link wins', BW_Metaboxes::get_meeting_link(42) === 'https://zoom.test/own');
+check('get_access_info(): the session\'s own details win', BW_Metaboxes::get_access_info(42) === 'Own PIN');
+
+unset($GLOBALS['__postmeta'][42]['_bw_meeting_link'], $GLOBALS['__postmeta'][42]['_bw_access_info']);
+$ph = BW_Emails::placeholders(1, 42);
+check('placeholders(): {meeting_link}/{access_details} use the defaults', $ph['{meeting_link}'] === 'https://zoom.test/default' && $ph['{access_details}'] === 'Default PIN 1234');
+
+/* ---------------------------------------------------------------
+ * 9. on_booking_created(): hours = 0 keeps today's immediate send
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+slot_starts_in(42, '+5 days');
+BW_Emails::on_booking_created(500, 1, 42);
+check('on_booking_created(): hours=0 + default link -> access details sent right away', count(access_mails()) === 1);
+check('on_booking_created(): ... and the booking is marked as sent', $GLOBALS['wpdb']->updates === [500]);
+
+reset_state();
+slot_starts_in(42, '+5 days');
+BW_Emails::on_booking_created(500, 1, 42);
+check('on_booking_created(): no link anywhere -> nothing sent', count(access_mails()) === 0);
+
+/* ---------------------------------------------------------------
+ * 10. on_booking_created(): hours > 0 waits, unless already in the window
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+slot_starts_in(42, '+5 days');
+BW_Emails::on_booking_created(500, 1, 42);
+check('on_booking_created(): hours=24, session in 5 days -> not sent yet', count(access_mails()) === 0 && $GLOBALS['wpdb']->updates === []);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+slot_starts_in(42, '+2 hours');
+BW_Emails::on_booking_created(500, 1, 42);
+check('on_booking_created(): hours=24, late booking 2h before -> sent right away', count(access_mails()) === 1);
+
+/* ---------------------------------------------------------------
+ * 11. on_meeting_link_added() respects the window; manual resend doesn't
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+slot_starts_in(42, '+5 days');
+$GLOBALS['__db_rows'] = [['id' => 501, 'user_id' => 1]];
+BW_Emails::on_meeting_link_added(42);
+check('on_meeting_link_added(): hours=24, session in 5 days -> waits for the cron', count(access_mails()) === 0);
+
+BW_Emails::send_access_for_slot(42);
+check('send_access_for_slot() (used by "Resend"): always immediate, regardless of hours', count(access_mails()) === 1 && $GLOBALS['wpdb']->updates === [501]);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+slot_starts_in(42, '+3 hours');
+$GLOBALS['__db_rows'] = [['id' => 501, 'user_id' => 1]];
+BW_Emails::on_meeting_link_added(42);
+check('on_meeting_link_added(): link entered inside the window -> sent right away', count(access_mails()) === 1);
+
+reset_state();
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+slot_starts_in(42, '+5 days');
+$GLOBALS['__db_rows'] = [['id' => 501, 'user_id' => 1]];
+BW_Emails::on_meeting_link_added(42);
+check('on_meeting_link_added(): hours=0 -> sent right away (unchanged behavior)', count(access_mails()) === 1);
+
+/* ---------------------------------------------------------------
+ * 12. run_access_details() cron
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42]];
+BW_Emails::run_access_details();
+check('run_access_details(): hours=0 -> no-op (no query, nothing sent)', $GLOBALS['wpdb']->queries === [] && count(access_mails()) === 0);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+$GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42], ['id' => 601, 'user_id' => 1, 'slot_id' => 43]];
+BW_Emails::run_access_details();
+check('run_access_details(): sends + marks every due booking (default link covers both)', count(access_mails()) === 2 && $GLOBALS['wpdb']->updates === [600, 601]);
+check('run_access_details(): with a default link, no own-link filter in SQL', !str_contains($GLOBALS['wpdb']->queries[0] ?? '', 'lm.meta_value'));
+check('run_access_details(): only bookings not yet sent are queried', str_contains($GLOBALS['wpdb']->queries[0] ?? '', 'access_sent_at IS NULL'));
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+$GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42], ['id' => 601, 'user_id' => 1, 'slot_id' => 43]];
+BW_Emails::run_access_details();
+check('run_access_details(): without a default, SQL requires the session\'s own link', str_contains($GLOBALS['wpdb']->queries[0] ?? '', "lm.meta_value <> ''"));
+check('run_access_details(): a session without any link is skipped', $GLOBALS['wpdb']->updates === [600]);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_email_access_enabled'] = 0;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+$GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42]];
+BW_Emails::run_access_details();
+check('run_access_details(): access email disabled -> no query', $GLOBALS['wpdb']->queries === []);
 
 printf("\n%d/%d checks passed\n", $pass, $pass + $fail);
 exit($fail > 0 ? 1 : 0);

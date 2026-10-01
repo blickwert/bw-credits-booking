@@ -342,8 +342,23 @@ const ENGLISH_TO_GERMAN = [
     'Sent to the customer after a cancellation.' => 'Nach einer Stornierung an den Kunden.',
     'Reminder' => 'Erinnerung',
     'Before the session starts — timing set in Settings.' => 'Vor Kursbeginn — Zeitpunkt in den Einstellungen.',
-    'As soon as the meeting link is entered for the session, and immediately for later bookings.' =>
-        'Sobald der Meeting-Link am Termin eingetragen wird, und bei späteren Buchungen sofort.',
+    'Meeting link and access details for online sessions — timing set in Settings → Online Access.' =>
+        'Meeting-Link und Zugangsdaten für Online-Termine — Zeitpunkt in Einstellungen → Online-Zugang.',
+    'Defaults for online sessions. A meeting link or access details entered on a session itself take precedence.' =>
+        'Standardwerte für Online-Termine. Ein direkt am Termin eingetragener Meeting-Link bzw. Zugangsdaten haben Vorrang.',
+    'Default meeting link' => 'Standard-Meeting-Link',
+    'Default access details / notes' => 'Standard-Zugangsdaten / Hinweise',
+    'Send access details (hours before)' => 'Zugangsdaten senden (Stunden vorher)',
+    'Used for every session that has no meeting link of its own.' =>
+        'Gilt für jeden Termin ohne eigenen Meeting-Link.',
+    'Used for every session that has no access details of its own.' =>
+        'Gilt für jeden Termin ohne eigene Zugangsdaten.',
+    'When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away.' =>
+        'Wann Teilnehmer die Zugangsdaten-Mail erhalten. 0 = sofort, sobald ein Meeting-Link vorhanden ist. Sonst so viele Stunden vor Kursbeginn — spätere Buchungen erhalten sie sofort.',
+    'Leave empty to use the default from Settings (shown in grey).' =>
+        'Leer lassen, um den Standardwert aus den Einstellungen zu verwenden (grau angezeigt).',
+    'The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away.' =>
+        'Die Zugangsdaten werden automatisch %d Stunden vor Kursbeginn an alle Teilnehmer verschickt. Wer später bucht, erhält sie sofort.',
     'Admin copy' => 'Admin-Kopie',
     'Sent to the address set below for every new booking.' => 'Bei jeder neuen Buchung an die unten hinterlegte Adresse.',
     'Access details sent to %d participants.' => 'Zugangsdaten an %d Teilnehmer verschickt.',
