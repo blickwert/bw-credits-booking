@@ -331,7 +331,7 @@ Menu **BW Credits** (capability `manage_options`):
 
 | Page | Content |
 |---|---|
-| Settings | Session post type, default capacity, cancellation deadline, reminder lead time, shop page |
+| Settings | Session post type, default capacity, cancellation deadline, reminder lead time, shop page; **Online Access** defaults (meeting link, access details, when to send them) |
 | Sessions | All sessions with occupancy and utilization, upcoming/past filter |
 | Bookings | Filtered list, cancellation, form for walk-in bookings |
 | Credits | User search, view credit balance, grant and revoke manually |
@@ -361,7 +361,7 @@ Five types, each with its own toggle, subject, and body under *BW Credits → Em
 | Booking confirmation | after a successful booking |
 | Cancellation confirmation | after a cancellation |
 | Reminder | X hours before the session starts (hourly cron) |
-| Access details | see below |
+| Access details | immediately or N hours before the start — see below |
 | Admin copy | every new booking (off by default) |
 
 Placeholders: `{customer_name}` `{course_title}` `{date}` `{time}` `{credits_remaining}` `{meeting_link}` `{access_details}` `{course_link}` `{account_link}`
@@ -382,12 +382,20 @@ After a credit purchase, the customer gets **no additional email**, but a sectio
 
 ### Access details for online sessions
 
-Delivery is event-driven:
+**Defaults** under *BW Credits → Settings → Online Access*: a default **meeting link** and default **access details / notes**, used for every session that has none of its own (same pattern as the default capacity — the session fields stay empty and show the default greyed out as a hint; a value entered on the session always wins). Applies to the emails, `[bw_credits_course_access]` and the My Account booking list alike.
 
-1. The instructor enters the meeting link on the session and saves → all existing participants receive the access details
-2. Anyone who books **afterwards** gets them right away with the booking confirmation
-3. `access_sent_at` per booking prevents duplicate sends
-4. **Resend access details** button, in case the link changes later
+**Timing** — setting *Send access details (hours before)*:
+
+- **0 (default, previous behavior)** — event-driven:
+  1. The instructor enters the meeting link on the session and saves → all existing participants receive the access details
+  2. Anyone who books **afterwards** gets them right away with the booking confirmation
+- **N > 0** — the hourly cron (same one as the reminder) sends them **N hours before the start** to every booked participant who hasn't received them yet, as soon as the session has a link (its own or the default). This also covers participants who were already booked when a default link was set later. A booking or a newly entered link *inside* that window is sent right away, so late bookers don't miss a session that starts soon.
+
+In both modes:
+- `access_sent_at` per booking prevents duplicate sends
+- **Resend access details** button on the session — always sends immediately, regardless of the timing setting, e.g. when the link changes later
+
+Note: with `0`, setting a default link afterwards does **not** email participants who already booked (there's no per-session "link entered" event) — use *Resend access details* on those sessions, or set a value above 0 so the cron picks them up.
 
 ### Language per customer
 

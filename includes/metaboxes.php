@@ -14,11 +14,16 @@ class BW_Metaboxes {
     const META_MEETING_LINK = '_bw_meeting_link';
     const META_ACCESS_INFO  = '_bw_access_info';
 
+    const OPT_DEFAULT_MEETING_LINK = 'bw_default_meeting_link';
+    const OPT_DEFAULT_ACCESS_INFO  = 'bw_default_access_info';
+    const OPT_ACCESS_HOURS         = 'bw_access_details_hours';
+
     const NONCE_SAVE = 'bw_slot_meta_save';
 
     public static function init() {
         add_action('add_meta_boxes', [__CLASS__, 'register']);
         add_action('save_post',      [__CLASS__, 'save'], 10, 2);
+        add_action('admin_init',     [__CLASS__, 'register_settings']);
 
         // Print the nonce independently of the meta boxes — otherwise
         // saving is lost as soon as a box is hidden via Screen Options
@@ -33,6 +38,88 @@ class BW_Metaboxes {
 
     private static function post_type(): string {
         return BW_Settings::get_slot_post_type();
+    }
+
+    /* ---------------------------------------------------------
+     * Online access: global defaults + per-session resolution
+     * --------------------------------------------------------- */
+
+    public static function get_default_meeting_link(): string {
+        return (string) get_option(self::OPT_DEFAULT_MEETING_LINK, '');
+    }
+
+    public static function get_default_access_info(): string {
+        return (string) get_option(self::OPT_DEFAULT_ACCESS_INFO, '');
+    }
+
+    /** 0 = send as soon as a link is available; N = send N hours before the start. */
+    public static function get_access_details_hours(): int {
+        return max(0, (int) get_option(self::OPT_ACCESS_HOURS, 0));
+    }
+
+    /** The session's own meeting link, else the default from Settings. */
+    public static function get_meeting_link(int $slot_id): string {
+        $own = (string) get_post_meta($slot_id, self::META_MEETING_LINK, true);
+        return $own !== '' ? $own : self::get_default_meeting_link();
+    }
+
+    /** The session's own access details, else the default from Settings. */
+    public static function get_access_info(int $slot_id): string {
+        $own = (string) get_post_meta($slot_id, self::META_ACCESS_INFO, true);
+        return $own !== '' ? $own : self::get_default_access_info();
+    }
+
+    public static function register_settings() {
+        $group = 'bw_credits_settings';
+
+        register_setting($group, self::OPT_DEFAULT_MEETING_LINK, [
+            'type'              => 'string',
+            'sanitize_callback' => 'esc_url_raw',
+        ]);
+        register_setting($group, self::OPT_DEFAULT_ACCESS_INFO, [
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_textarea_field',
+        ]);
+        register_setting($group, self::OPT_ACCESS_HOURS, [
+            'type'              => 'integer',
+            'sanitize_callback' => [BW_Settings::class, 'sanitize_positive_int'],
+        ]);
+
+        add_settings_section('bw_online_access', __('Online Access', 'bw-credits-booking'), function () {
+            echo '<p>' . esc_html__('Defaults for online sessions. A meeting link or access details entered on a session itself take precedence.', 'bw-credits-booking') . '</p>';
+        }, BW_Settings::MENU_SLUG);
+
+        add_settings_field(self::OPT_DEFAULT_MEETING_LINK, __('Default meeting link', 'bw-credits-booking'), [__CLASS__, 'field_default_meeting_link'], BW_Settings::MENU_SLUG, 'bw_online_access');
+        add_settings_field(self::OPT_DEFAULT_ACCESS_INFO, __('Default access details / notes', 'bw-credits-booking'), [__CLASS__, 'field_default_access_info'], BW_Settings::MENU_SLUG, 'bw_online_access');
+        add_settings_field(self::OPT_ACCESS_HOURS, __('Send access details (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_access_hours'], BW_Settings::MENU_SLUG, 'bw_online_access');
+    }
+
+    public static function field_default_meeting_link() {
+        printf(
+            '<input type="url" name="%s" value="%s" class="regular-text" placeholder="https://zoom.us/j/...">',
+            esc_attr(self::OPT_DEFAULT_MEETING_LINK),
+            esc_attr(self::get_default_meeting_link())
+        );
+        echo '<p class="description">' . esc_html__('Used for every session that has no meeting link of its own.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_default_access_info() {
+        printf(
+            '<textarea name="%s" rows="4" class="large-text" placeholder="%s">%s</textarea>',
+            esc_attr(self::OPT_DEFAULT_ACCESS_INFO),
+            esc_attr__('Meeting ID, password, dial-in numbers …', 'bw-credits-booking'),
+            esc_textarea(self::get_default_access_info())
+        );
+        echo '<p class="description">' . esc_html__('Used for every session that has no access details of its own.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_access_hours() {
+        printf(
+            '<input type="number" min="0" step="1" name="%s" value="%d" class="small-text">',
+            esc_attr(self::OPT_ACCESS_HOURS),
+            self::get_access_details_hours()
+        );
+        echo '<p class="description">' . esc_html__('When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------
@@ -92,27 +179,42 @@ class BW_Metaboxes {
      * --------------------------------------------------------- */
 
     public static function render_access(WP_Post $post) {
-        $link = get_post_meta($post->ID, self::META_MEETING_LINK, true);
-        $info = get_post_meta($post->ID, self::META_ACCESS_INFO, true);
+        $link         = get_post_meta($post->ID, self::META_MEETING_LINK, true);
+        $info         = get_post_meta($post->ID, self::META_ACCESS_INFO, true);
+        $default_link = self::get_default_meeting_link();
+        $default_info = self::get_default_access_info();
+        $hours        = self::get_access_details_hours();
         ?>
         <p>
             <label for="bw_meeting_link"><strong><?php esc_html_e('Meeting link', 'bw-credits-booking'); ?></strong></label><br>
             <input type="url" id="bw_meeting_link" name="bw_meeting_link"
                    value="<?php echo esc_attr($link); ?>" class="widefat"
-                   placeholder="https://zoom.us/j/...">
+                   placeholder="<?php echo esc_attr($default_link !== '' ? $default_link : 'https://zoom.us/j/...'); ?>">
         </p>
 
         <p>
             <label for="bw_access_info"><strong><?php esc_html_e('Access details / notes', 'bw-credits-booking'); ?></strong></label><br>
             <textarea id="bw_access_info" name="bw_access_info" rows="4" class="widefat"
-                      placeholder="<?php echo esc_attr__('Meeting ID, password, dial-in numbers …', 'bw-credits-booking'); ?>"><?php echo esc_textarea($info); ?></textarea>
+                      placeholder="<?php echo esc_attr($default_info !== '' ? $default_info : __('Meeting ID, password, dial-in numbers …', 'bw-credits-booking')); ?>"><?php echo esc_textarea($info); ?></textarea>
         </p>
+
+        <?php if ($default_link !== '' || $default_info !== '') : ?>
+            <p class="description"><?php esc_html_e('Leave empty to use the default from Settings (shown in grey).', 'bw-credits-booking'); ?></p>
+        <?php endif; ?>
 
         <p class="description">
-            <?php esc_html_e('As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation.', 'bw-credits-booking'); ?>
+            <?php if ($hours > 0) : ?>
+                <?php echo esc_html(sprintf(
+                    /* translators: %d: hours before the session start, from Settings */
+                    __('The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away.', 'bw-credits-booking'),
+                    $hours
+                )); ?>
+            <?php else : ?>
+                <?php esc_html_e('As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation.', 'bw-credits-booking'); ?>
+            <?php endif; ?>
         </p>
 
-        <?php if ($link) : ?>
+        <?php if (self::get_meeting_link($post->ID) !== '') : ?>
             <p>
                 <a class="button"
                    href="<?php echo esc_url(wp_nonce_url(

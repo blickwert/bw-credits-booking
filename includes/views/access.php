@@ -25,8 +25,8 @@ class BW_View_Access {
         $booking = BW_Credits_Bookings_MVP::get_active_booking(get_current_user_id(), $slot_id);
         if (!$booking || $booking['status'] !== 'booked') return '';
 
-        $link = (string) get_post_meta($slot_id, BW_Metaboxes::META_MEETING_LINK, true);
-        $info = (string) get_post_meta($slot_id, BW_Metaboxes::META_ACCESS_INFO, true);
+        $link = BW_Metaboxes::get_meeting_link($slot_id);
+        $info = BW_Metaboxes::get_access_info($slot_id);
 
         if ($link === '' && $info === '') return '';
 

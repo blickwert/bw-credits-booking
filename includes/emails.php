@@ -4,10 +4,13 @@ if (!defined('ABSPATH')) exit;
 /**
  * Email notifications, including the reminder cron and access-details delivery.
  *
- * Access details are event-driven, not schedule-driven:
- *  - The instructor enters the meeting link  → all existing bookings
- *  - Someone books afterwards                → just that one booking
- * The access_sent_at flag prevents duplicate sends in both directions.
+ * Access details (meeting link = the session's own, else the default from
+ * Settings), timing per "Send access details (hours before)":
+ *  - 0: event-driven — link entered on the session → all existing bookings;
+ *    someone books afterwards → just that booking.
+ *  - N: the hourly cron sends them N hours before the start; events inside
+ *    that window (late booking, link entered late) still send right away.
+ * The access_sent_at flag prevents duplicate sends in all directions.
  */
 
 class BW_Emails {
@@ -22,7 +25,7 @@ class BW_Emails {
             'booking'       => [__('Booking confirmation', 'bw-credits-booking'), __('Sent to the customer right after a successful booking.', 'bw-credits-booking')],
             'cancellation'  => [__('Cancellation confirmation', 'bw-credits-booking'), __('Sent to the customer after a cancellation.', 'bw-credits-booking')],
             'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
-            'access'        => [__('Access details', 'bw-credits-booking'), __('As soon as the meeting link is entered for the session, and immediately for later bookings.', 'bw-credits-booking')],
+            'access'        => [__('Access details', 'bw-credits-booking'), __('Meeting link and access details for online sessions — timing set in Settings → Online Access.', 'bw-credits-booking')],
             'admin_booking' => [__('Admin copy', 'bw-credits-booking'), __('Sent to the address set below for every new booking.', 'bw-credits-booking')],
         ];
     }
@@ -34,12 +37,12 @@ class BW_Emails {
         add_action('bw_booking_created',   [__CLASS__, 'on_booking_created'], 10, 3);
         add_action('bw_booking_cancelled', [__CLASS__, 'on_booking_cancelled'], 10, 3);
 
-        // Meeting link was added → access details to all participants
-        add_action('bw_meeting_link_added', [__CLASS__, 'send_access_for_slot'], 10, 1);
+        add_action('bw_meeting_link_added', [__CLASS__, 'on_meeting_link_added'], 10, 1);
         add_action('admin_post_bw_resend_access', [__CLASS__, 'handle_resend_access']);
         add_action('admin_post_bw_reset_email', [__CLASS__, 'handle_reset_email']);
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
+        add_action(self::CRON_HOOK, [__CLASS__, 'run_access_details']);
         add_action('init', [__CLASS__, 'schedule_cron']);
         add_action('init', [__CLASS__, 'register_wpml_strings'], 20);
     }
@@ -144,7 +147,6 @@ class BW_Emails {
     public static function placeholders(int $user_id, int $slot_id): array {
         $user  = get_userdata($user_id);
         $start = self::slot_start($slot_id);
-        $link  = (string) get_post_meta($slot_id, BW_Metaboxes::META_MEETING_LINK, true);
 
         return [
             '{customer_name}'     => $user ? $user->display_name : '',
@@ -159,8 +161,8 @@ class BW_Emails {
             '{date}'              => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
             '{time}'              => $start ? wp_date('H:i', $start->getTimestamp()) : '',
             '{credits_remaining}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
-            '{meeting_link}'      => $link,
-            '{access_details}'    => (string) get_post_meta($slot_id, BW_Metaboxes::META_ACCESS_INFO, true),
+            '{meeting_link}'      => BW_Metaboxes::get_meeting_link($slot_id),
+            '{access_details}'    => BW_Metaboxes::get_access_info($slot_id),
             '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
             '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
         ];
@@ -298,9 +300,11 @@ class BW_Emails {
             self::send('admin_booking', (int) $user_id, (int) $slot_id, $admin_to);
         }
 
-        // Link already exists → this customer gets the access details immediately
-        $link = (string) get_post_meta((int) $slot_id, BW_Metaboxes::META_MEETING_LINK, true);
-        if ($link !== '' && self::send('access', (int) $user_id, (int) $slot_id)) {
+        // Link already available and it's time → this customer gets the access
+        // details immediately; otherwise run_access_details() sends them later
+        if (BW_Metaboxes::get_meeting_link((int) $slot_id) !== ''
+            && self::access_due((int) $slot_id)
+            && self::send('access', (int) $user_id, (int) $slot_id)) {
             self::mark_access_sent((int) $booking_id);
         }
     }
@@ -314,15 +318,38 @@ class BW_Emails {
      * ========================================================= */
 
     /**
+     * Whether access details for this session may go out now: always with
+     * the "0 hours" setting, otherwise once the start is within the window.
+     * No start date → now, since the cron can't schedule it either.
+     */
+    private static function access_due(int $slot_id): bool {
+        $hours = BW_Metaboxes::get_access_details_hours();
+        if ($hours === 0) return true;
+
+        $start = self::slot_start($slot_id);
+        if (!$start) return true;
+
+        $until = (new DateTime('now', wp_timezone()))->modify('+' . $hours . ' hours');
+        return $start <= $until;
+    }
+
+    /** The session's own link was entered (empty → set) in the meta box. */
+    public static function on_meeting_link_added($slot_id) {
+        if (self::access_due((int) $slot_id)) {
+            self::send_access_for_slot((int) $slot_id);
+        }
+    }
+
+    /**
      * Sends access details to all active bookings for a session that
-     * haven't received them yet.
+     * haven't received them yet — immediately, regardless of the timing
+     * setting (also used by the manual "Resend" button).
      */
     public static function send_access_for_slot($slot_id): int {
         global $wpdb;
         $slot_id = (int) $slot_id;
 
-        $link = (string) get_post_meta($slot_id, BW_Metaboxes::META_MEETING_LINK, true);
-        if ($link === '') return 0;
+        if (BW_Metaboxes::get_meeting_link($slot_id) === '') return 0;
 
         $table = $wpdb->prefix . BW_Credits_Bookings_MVP::BOOKINGS_TABLE;
 
@@ -441,6 +468,61 @@ class BW_Emails {
                     ['%s'],
                     ['%d']
                 );
+            }
+        }
+    }
+
+    /**
+     * Access details N hours before the start (only with N > 0 — with 0 the
+     * booking/link events above send them). Also catches bookings whose
+     * session only got a link later, e.g. via the default from Settings.
+     */
+    public static function run_access_details() {
+        if (!self::is_enabled('access')) return;
+
+        $hours = BW_Metaboxes::get_access_details_hours();
+        if ($hours <= 0) return;
+
+        global $wpdb;
+        $table = $wpdb->prefix . BW_Credits_Bookings_MVP::BOOKINGS_TABLE;
+
+        $now   = new DateTime('now', wp_timezone());
+        $until = (clone $now)->modify('+' . $hours . ' hours');
+
+        // Without a default link, only sessions with their own link qualify —
+        // filtered in SQL so link-less bookings can't fill up the LIMIT
+        $link_join  = '';
+        $link_where = '';
+        if (BW_Metaboxes::get_default_meeting_link() === '') {
+            $link_join  = $wpdb->prepare(
+                "INNER JOIN {$wpdb->postmeta} lm ON lm.post_id = b.slot_id AND lm.meta_key = %s",
+                BW_Metaboxes::META_MEETING_LINK
+            );
+            $link_where = "AND lm.meta_value <> ''";
+        }
+
+        $rows = (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT b.id, b.user_id, b.slot_id
+             FROM {$table} b
+             INNER JOIN {$wpdb->postmeta} pm
+                 ON pm.post_id = b.slot_id AND pm.meta_key = %s
+             {$link_join}
+             WHERE b.is_active = 1
+               AND b.status = 'booked'
+               AND b.access_sent_at IS NULL
+               AND CAST(pm.meta_value AS DATETIME) > %s
+               AND CAST(pm.meta_value AS DATETIME) <= %s
+               {$link_where}
+             LIMIT 200",
+            BW_Credits_Bookings_MVP::META_START_DT,
+            $now->format('Y-m-d H:i:s'),
+            $until->format('Y-m-d H:i:s')
+        ), ARRAY_A);
+
+        foreach ($rows as $row) {
+            if (BW_Metaboxes::get_meeting_link((int) $row['slot_id']) === '') continue;
+            if (self::send('access', (int) $row['user_id'], (int) $row['slot_id'])) {
+                self::mark_access_sent((int) $row['id']);
             }
         }
     }

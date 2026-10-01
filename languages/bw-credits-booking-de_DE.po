@@ -373,10 +373,10 @@ msgid "Texts"
 msgstr "Texte"
 
 #: includes/admin-pages.php:54
-#: includes/metaboxes.php:287
-#: includes/metaboxes.php:332
-#: includes/emails.php:363
-#: includes/emails.php:521
+#: includes/metaboxes.php:389
+#: includes/metaboxes.php:434
+#: includes/emails.php:390
+#: includes/emails.php:603
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
@@ -426,7 +426,7 @@ msgid "Utilization"
 msgstr "Auslastung"
 
 #: includes/admin-pages.php:167
-#: includes/metaboxes.php:157
+#: includes/metaboxes.php:259
 msgid "Actions"
 msgstr "Aktionen"
 
@@ -435,7 +435,7 @@ msgid "overbooked"
 msgstr "überbucht"
 
 #: includes/admin-pages.php:202
-#: includes/metaboxes.php:47
+#: includes/metaboxes.php:134
 msgid "Participants"
 msgstr "Teilnehmer"
 
@@ -467,16 +467,16 @@ msgid "Customer"
 msgstr "Kunde"
 
 #: includes/admin-pages.php:284
-#: includes/metaboxes.php:155
-#: includes/metaboxes.php:353
+#: includes/metaboxes.php:257
+#: includes/metaboxes.php:455
 msgid "Booked on"
 msgstr "Gebucht am"
 
 #: includes/admin-pages.php:285
 #: includes/admin-pages.php:538
 #: includes/admin-pages.php:723
-#: includes/metaboxes.php:156
-#: includes/metaboxes.php:354
+#: includes/metaboxes.php:258
+#: includes/metaboxes.php:456
 msgid "Status"
 msgstr "Status"
 
@@ -546,14 +546,14 @@ msgid "No users found."
 msgstr "Keine Benutzer gefunden."
 
 #: includes/admin-pages.php:458
-#: includes/metaboxes.php:153
-#: includes/metaboxes.php:351
+#: includes/metaboxes.php:255
+#: includes/metaboxes.php:453
 msgid "Name"
 msgstr "Name"
 
 #: includes/admin-pages.php:459
-#: includes/metaboxes.php:154
-#: includes/metaboxes.php:352
+#: includes/metaboxes.php:256
+#: includes/metaboxes.php:454
 msgid "Email"
 msgstr "E-Mail"
 
@@ -656,7 +656,7 @@ msgid "Booking created."
 msgstr "Buchung angelegt."
 
 #: includes/admin-pages.php:621
-#: includes/metaboxes.php:310
+#: includes/metaboxes.php:412
 msgid "Booking cancelled."
 msgstr "Buchung storniert."
 
@@ -796,88 +796,90 @@ msgstr "Parameter"
 msgid "Credit revoked."
 msgstr "Credit entwertet."
 
-#: includes/metaboxes.php:45
+#: includes/metaboxes.php:132
 msgid "Capacity"
 msgstr "Kapazität"
 
-#: includes/metaboxes.php:46
+#: includes/metaboxes.php:88
+#: includes/metaboxes.php:133
 msgid "Online Access"
 msgstr "Online-Zugang"
 
-#: includes/metaboxes.php:66
+#: includes/metaboxes.php:153
 msgid "Maximum participants"
 msgstr "Maximale Teilnehmer"
 
-#: includes/metaboxes.php:73
+#: includes/metaboxes.php:160
 msgid "Leave empty to use the default (%s) from settings."
 msgstr "Leer lassen für den Standardwert (%s) aus den Einstellungen."
 
-#: includes/metaboxes.php:80
+#: includes/metaboxes.php:167
 msgid "Booked:"
 msgstr "Belegt:"
 
-#: includes/metaboxes.php:83
+#: includes/metaboxes.php:170
 msgid "Overbooked"
 msgstr "Überbucht"
 
-#: includes/metaboxes.php:83
+#: includes/metaboxes.php:170
 msgid "capacity is below the number of existing bookings."
 msgstr "die Kapazität liegt unter der Zahl bestehender Buchungen."
 
-#: includes/metaboxes.php:85
+#: includes/metaboxes.php:172
 msgid "Calculated automatically and cannot be edited directly."
 msgstr "Wird automatisch berechnet und kann nicht direkt bearbeitet werden."
 
-#: includes/metaboxes.php:99
+#: includes/metaboxes.php:189
 msgid "Meeting link"
 msgstr "Meeting-Link"
 
-#: includes/metaboxes.php:106
+#: includes/metaboxes.php:196
 msgid "Access details / notes"
 msgstr "Zugangsdaten / Hinweise"
 
-#: includes/metaboxes.php:108
+#: includes/metaboxes.php:110
+#: includes/metaboxes.php:198
 msgid "Meeting ID, password, dial-in numbers …"
 msgstr "Meeting-ID, Passwort, Einwahlnummern …"
 
-#: includes/metaboxes.php:112
+#: includes/metaboxes.php:213
 msgid "As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation."
 msgstr "Sobald hier zum ersten Mal ein Link gespeichert wird, gehen die Zugangsdaten automatisch an alle Teilnehmer. Wer danach noch bucht, bekommt sie direkt mit der Buchungsbestätigung."
 
-#: includes/metaboxes.php:122
+#: includes/metaboxes.php:224
 msgid "Resend access details to all participants?"
 msgstr "Zugangsdaten an alle Teilnehmer erneut senden?"
 
-#: includes/metaboxes.php:123
+#: includes/metaboxes.php:225
 msgid "Resend access details"
 msgstr "Zugangsdaten erneut senden"
 
-#: includes/metaboxes.php:125
+#: includes/metaboxes.php:227
 msgid "Only necessary if the link has changed since."
 msgstr "Nur nötig wenn sich der Link nachträglich geändert hat."
 
-#: includes/metaboxes.php:140
+#: includes/metaboxes.php:242
 msgid "No bookings for this session yet."
 msgstr "Noch keine Buchungen für diesen Termin."
 
-#: includes/metaboxes.php:152
-#: includes/metaboxes.php:350
+#: includes/metaboxes.php:254
+#: includes/metaboxes.php:452
 msgid "No."
 msgstr "Nr."
 
-#: includes/metaboxes.php:185
+#: includes/metaboxes.php:287
 msgid "Cancel booking? A consumed credit will be refunded."
 msgstr "Buchung stornieren? Ein verbrauchter Credit wird zurückgegeben."
 
-#: includes/metaboxes.php:209
+#: includes/metaboxes.php:311
 msgid "Attendance list as CSV"
 msgstr "Anwesenheitsliste als CSV"
 
-#: includes/metaboxes.php:325
+#: includes/metaboxes.php:427
 msgid "Marked as no-show."
 msgstr "Als nicht erschienen markiert."
 
-#: includes/metaboxes.php:326
+#: includes/metaboxes.php:428
 msgid "No-show mark removed."
 msgstr "Markierung zurückgenommen."
 
@@ -1028,108 +1030,144 @@ msgstr "booking_id fehlt."
 msgid "Cancelled."
 msgstr "Storniert."
 
-#: includes/emails.php:22
+#: includes/emails.php:25
 msgid "Booking confirmation"
 msgstr "Buchungsbestätigung"
 
-#: includes/emails.php:22
+#: includes/emails.php:25
 msgid "Sent to the customer right after a successful booking."
 msgstr "Direkt nach einer erfolgreichen Buchung an den Kunden."
 
-#: includes/emails.php:23
+#: includes/emails.php:26
 msgid "Cancellation confirmation"
 msgstr "Stornobestätigung"
 
-#: includes/emails.php:23
+#: includes/emails.php:26
 msgid "Sent to the customer after a cancellation."
 msgstr "Nach einer Stornierung an den Kunden."
 
-#: includes/emails.php:24
+#: includes/emails.php:27
 msgid "Reminder"
 msgstr "Erinnerung"
 
-#: includes/emails.php:24
+#: includes/emails.php:27
 msgid "Before the session starts — timing set in Settings."
 msgstr "Vor Kursbeginn — Zeitpunkt in den Einstellungen."
 
-#: includes/emails.php:25
-msgid "As soon as the meeting link is entered for the session, and immediately for later bookings."
-msgstr "Sobald der Meeting-Link am Termin eingetragen wird, und bei späteren Buchungen sofort."
+#: includes/emails.php:28
+msgid "Meeting link and access details for online sessions — timing set in Settings → Online Access."
+msgstr "Meeting-Link und Zugangsdaten für Online-Termine — Zeitpunkt in Einstellungen → Online-Zugang."
 
-#: includes/emails.php:26
+#: includes/metaboxes.php:89
+msgid "Defaults for online sessions. A meeting link or access details entered on a session itself take precedence."
+msgstr "Standardwerte für Online-Termine. Ein direkt am Termin eingetragener Meeting-Link bzw. Zugangsdaten haben Vorrang."
+
+#: includes/metaboxes.php:92
+msgid "Default meeting link"
+msgstr "Standard-Meeting-Link"
+
+#: includes/metaboxes.php:93
+msgid "Default access details / notes"
+msgstr "Standard-Zugangsdaten / Hinweise"
+
+#: includes/metaboxes.php:94
+msgid "Send access details (hours before)"
+msgstr "Zugangsdaten senden (Stunden vorher)"
+
+#: includes/metaboxes.php:103
+msgid "Used for every session that has no meeting link of its own."
+msgstr "Gilt für jeden Termin ohne eigenen Meeting-Link."
+
+#: includes/metaboxes.php:113
+msgid "Used for every session that has no access details of its own."
+msgstr "Gilt für jeden Termin ohne eigene Zugangsdaten."
+
+#: includes/metaboxes.php:122
+msgid "When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away."
+msgstr "Wann Teilnehmer die Zugangsdaten-Mail erhalten. 0 = sofort, sobald ein Meeting-Link vorhanden ist. Sonst so viele Stunden vor Kursbeginn — spätere Buchungen erhalten sie sofort."
+
+#: includes/metaboxes.php:202
+msgid "Leave empty to use the default from Settings (shown in grey)."
+msgstr "Leer lassen, um den Standardwert aus den Einstellungen zu verwenden (grau angezeigt)."
+
+#: includes/metaboxes.php:209
+msgid "The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away."
+msgstr "Die Zugangsdaten werden automatisch %d Stunden vor Kursbeginn an alle Teilnehmer verschickt. Wer später bucht, erhält sie sofort."
+
+#: includes/emails.php:29
 msgid "Admin copy"
 msgstr "Admin-Kopie"
 
-#: includes/emails.php:26
+#: includes/emails.php:29
 msgid "Sent to the address set below for every new booking."
 msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse."
 
-#: includes/emails.php:382
+#: includes/emails.php:409
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:385
+#: includes/emails.php:412
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:473
-#: includes/emails.php:474
+#: includes/emails.php:555
+#: includes/emails.php:556
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:569
+#: includes/emails.php:651
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:579
+#: includes/emails.php:661
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:584
+#: includes/emails.php:666
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:660
+#: includes/emails.php:742
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:591
+#: includes/emails.php:673
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:603
+#: includes/emails.php:685
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:629
+#: includes/emails.php:711
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:635
+#: includes/emails.php:717
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:640
+#: includes/emails.php:722
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:648
+#: includes/emails.php:730
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:622
+#: includes/emails.php:704
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:619
+#: includes/emails.php:701
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:538
+#: includes/emails.php:620
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:530
+#: includes/emails.php:612
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 

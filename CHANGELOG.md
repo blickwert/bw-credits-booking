@@ -5,6 +5,16 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.39.0] – 2026-10-01
+
+### Added
+- **Settings → Online Access** — new section with a default **meeting link** and default **access details / notes**, used for every session that has none of its own. Resolved at read time like the default capacity: session fields stay empty and show the default as a greyed-out placeholder; a value on the session always wins. New `BW_Metaboxes::get_meeting_link()`/`get_access_info()` are used by the access-details email, `[bw_credits_course_access]` and the My Account booking list.
+- **Send access details (hours before)** — `0` (default) keeps the previous event-driven behavior unchanged. With `N > 0`, the existing hourly cron sends the access details N hours before the session start to every booked participant who hasn't received them yet. This also covers participants who were already booked when a default link was set later. A booking or a link entered *inside* that window still sends immediately. The manual *Resend access details* button always sends immediately.
+
+### Changed
+- Access-details email type description under *BW Credits → Emails* now points to the new timing setting.
+- `tests/test-emails.php` loads the real `includes/metaboxes.php` (instead of a constant-only stub) plus a minimal `$wpdb` stub; new checks cover the fallback, both timing modes, the cron and the manual resend.
+
 ## [0.38.0] – 2026-10-01
 
 ### Fixed
