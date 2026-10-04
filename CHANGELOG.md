@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.39.1] – 2026-10-04
+
+### Fixed
+- `[bw_product_price]`, `[bw_product_price_per_unit]` and `[bw_product_tax_info]` now resolve the product from the current post when there is no `global $product` — previously they rendered empty inside an Elementor atomic Loop (`e-collection-loop`), which sets the post but not WooCommerce's global. `product_id` and `global $product` still take precedence.
+
 ## [0.39.0] – 2026-10-01
 
 ### Added
