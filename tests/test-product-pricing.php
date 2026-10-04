@@ -20,6 +20,10 @@ function get_post_meta($id, $key, $single = false) {
     return $GLOBALS['__postmeta'][$id][$key] ?? '';
 }
 
+$GLOBALS['__current_post'] = 0; // the "current post" (get_the_ID())
+function get_the_ID() { return $GLOBALS['__current_post'] ?: false; }
+function get_post_type($id) { return isset($GLOBALS['__products'][$id]) ? 'product' : 'page'; }
+
 function wc_get_product($id) {
     return $GLOBALS['__products'][$id] ?? false;
 }
@@ -77,6 +81,7 @@ function reset_state() {
     $GLOBALS['__products']  = [];
     $GLOBALS['__tax_rates'] = [];
     $GLOBALS['product']     = null;
+    $GLOBALS['__current_post'] = 0;
 }
 
 /* ---------------------------------------------------------------
@@ -178,6 +183,25 @@ reset_state();
 $GLOBALS['product'] = null;
 $GLOBALS['__products'][7] = new WC_Product(7, '29.90');
 check('price(): product_id attribute works without a global $product', BW_Product_Pricing::shortcode_price(['product_id' => 7]) === '29,90 €');
+
+/* ---------------------------------------------------------------
+ * 13. No global $product (e.g. Elementor atomic Loop): falls back to
+ *     the current post if it is a product
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__products'][9] = new WC_Product(9, '45.00');
+$GLOBALS['__current_post'] = 9;
+check('price(): falls back to the current product post without a global $product', BW_Product_Pricing::shortcode_price([]) === '45,00 €');
+
+reset_state();
+$GLOBALS['__current_post'] = 3; // a page, not a product
+check('price(): current post is not a product -> empty', BW_Product_Pricing::shortcode_price([]) === '');
+
+reset_state();
+$GLOBALS['__products'][9] = new WC_Product(9, '45.00');
+$GLOBALS['__current_post'] = 9;
+$GLOBALS['product'] = new WC_Product(42, '150.00');
+check('price(): global $product still wins over the current post', BW_Product_Pricing::shortcode_price([]) === '150,00 €');
 
 printf("\n%d/%d checks passed\n", $pass, $pass + $fail);
 exit($fail > 0 ? 1 : 0);

@@ -6,7 +6,9 @@ if (!defined('ABSPATH')) exit;
  * pricing/tax data, no admin UI, no on/off switch (unlike the product
  * feature list). All resolve the product from an optional product_id
  * attribute, falling back to WooCommerce's own `global $product`
- * (set automatically in the product-page/loop context).
+ * (set automatically in the product-page/classic loop context) and
+ * finally to the current post if it is a product (e.g. inside an
+ * Elementor atomic Loop, which sets the post but not `global $product`).
  */
 
 class BW_Product_Pricing {
@@ -25,7 +27,17 @@ class BW_Product_Pricing {
         }
 
         global $product;
-        return $product instanceof WC_Product ? $product : null;
+        if ($product instanceof WC_Product) {
+            return $product;
+        }
+
+        $post_id = (int) get_the_ID();
+        if ($post_id > 0 && get_post_type($post_id) === 'product') {
+            $current = wc_get_product($post_id);
+            return $current instanceof WC_Product ? $current : null;
+        }
+
+        return null;
     }
 
     /**
