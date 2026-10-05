@@ -5,6 +5,14 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.40.0] – 2026-10-05
+
+### Added
+- New e-mail placeholders `{first_name}` (falls back to the display name), `{course_type}`, `{course_level}` (terms of the session) and `{contact_email}` (WooCommerce from address).
+
+### Changed
+- New default texts for the booking-confirmation and access-details e-mails (EN + DE). Already saved overrides are kept — use *Reset to default* under BW Credits → Emails to adopt the new texts.
+
 ## [0.39.1] – 2026-10-04
 
 ### Fixed

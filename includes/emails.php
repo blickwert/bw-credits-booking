@@ -98,14 +98,16 @@ class BW_Emails {
     public static function defaults(): array {
         return [
             'booking' => [
-                'subject' => 'Booking confirmation: {course_title}',
-                'body'    => "Hi {customer_name},\n\n"
-                           . "your booking is confirmed:\n\n"
-                           . "{course_title}\n{date} at {time}\n\n"
-                           . "Credits remaining: {credits_remaining}\n\n"
-                           . "Session details: {course_link}\n"
-                           . "Manage your bookings here: {account_link}\n\n"
-                           . "See you soon!",
+                'subject' => 'See You on the Mat Soon! 🧘‍♀️',
+                'body'    => "Greetings {first_name} 🌿,\n\n"
+                           . "Your class has been successfully booked! ✨\n\n"
+                           . "I’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n"
+                           . "<strong>Class Details 🧘‍♀️</strong>\n"
+                           . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                           . "Two days before your class, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
+                           . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
+                           . "I look forward to seeing you on the mat soon. 🤍\n\n"
+                           . "With warmth, 🌸\nHelena",
             ],
             'cancellation' => [
                 'subject' => 'Cancellation: {course_title}',
@@ -125,12 +127,20 @@ class BW_Emails {
                            . "We look forward to seeing you!",
             ],
             'access' => [
-                'subject' => 'Access details: {course_title} on {date}',
-                'body'    => "Hi {customer_name},\n\n"
-                           . "here are the access details for your online session:\n\n"
-                           . "{course_title}\n{date} at {time}\n\n"
-                           . "Link: {meeting_link}\n\n"
-                           . "{access_details}",
+                'subject' => 'Your Class Link & Joining Details 💻✨',
+                'body'    => "A mindful hello {first_name} 🌿,\n\n"
+                           . "Your class is coming up soon. ✨ Below you will find all the details you need to join the session and prepare for your practice.\n\n"
+                           . "<strong>Class Details 🧘‍♀️</strong>\n"
+                           . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                           . "<strong>Zoom Details 💻</strong>\n"
+                           . "Join Link: {meeting_link}\n{access_details}\n\n"
+                           . "To join the class, you can either click directly on the Zoom link above, or open Zoom and enter the Meeting ID and Passcode manually. 🌱\n\n"
+                           . "To ensure a smooth and welcoming experience for everyone, please make sure to:"
+                           . "<ul><li>Join using your real first and last name, so I can confirm your identity and welcome you into the session. 🤍</li>"
+                           . "<li>Keep your camera turned on during the class. 📹</li></ul>\n"
+                           . "If you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\n"
+                           . "I’m looking forward to our upcoming session and sharing this practice with you. ✨\n\n"
+                           . "With gratitude, 🌸\nHelena",
             ],
             'admin_booking' => [
                 'subject' => 'New booking: {course_title}',
@@ -150,6 +160,8 @@ class BW_Emails {
 
         return [
             '{customer_name}'     => $user ? $user->display_name : '',
+            // First name for a personal greeting; display name when the account has none.
+            '{first_name}'        => $user ? (trim((string) ($user->first_name ?? '')) !== '' ? trim((string) $user->first_name) : $user->display_name) : '',
             // get_the_title() returns post_title as stored — WordPress
             // HTML-entity-escapes it once at save time (e.g. "Ground &amp;
             // Connect"), so decoding it back to raw text here lets the
@@ -161,11 +173,42 @@ class BW_Emails {
             '{date}'              => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
             '{time}'              => $start ? wp_date('H:i', $start->getTimestamp()) : '',
             '{credits_remaining}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
+            // Terms of the session's taxonomies (comma separated); empty if the taxonomy doesn't exist.
+            '{course_type}'       => self::slot_terms($slot_id, (string) apply_filters('bw_email_course_type_taxonomy', 'course_type')),
+            '{course_level}'      => self::slot_terms($slot_id, (string) apply_filters('bw_email_course_level_taxonomy', 'course_level')),
             '{meeting_link}'      => BW_Metaboxes::get_meeting_link($slot_id),
             '{access_details}'    => BW_Metaboxes::get_access_info($slot_id),
             '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
             '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
+            '{contact_email}'     => self::contact_email(),
         ];
+    }
+
+    /**
+     * Term names of a session for one taxonomy, comma separated ("Hatha Yoga", "Beginners, Intermediate");
+     * '' without a session, without the taxonomy or without terms.
+     */
+    private static function slot_terms(int $slot_id, string $taxonomy): string {
+        if ($slot_id <= 0 || $taxonomy === '' || !taxonomy_exists($taxonomy)) return '';
+
+        $terms = get_the_terms($slot_id, $taxonomy);
+        if (!is_array($terms) || !$terms) return '';
+
+        return implode(', ', array_map(function ($term) {
+            return html_entity_decode($term->name, ENT_QUOTES);
+        }, $terms));
+    }
+
+    /**
+     * Address customers can write to: WooCommerce's sender address (WooCommerce → Settings → Emails),
+     * else the site admin address. Overridable via the bw_email_contact_email filter.
+     */
+    private static function contact_email(): string {
+        $address = (string) get_option('woocommerce_email_from_address', '');
+        if (!is_email($address)) {
+            $address = (string) get_option('admin_email', '');
+        }
+        return (string) apply_filters('bw_email_contact_email', $address);
     }
 
     private static function slot_start(int $slot_id): ?DateTime {
