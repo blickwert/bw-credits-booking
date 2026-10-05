@@ -1173,13 +1173,13 @@ msgstr "Auf Standard zurücksetzen"
 msgid "Reset all to default"
 msgstr "Alle auf Standard zurücksetzen"
 
-#: includes/course-info.php:83
+#: includes/course-info.php:106
 msgid "%d min."
 msgstr "%d Min."
 
 #: includes/admin-pages.php:912
-msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration."
-msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer."
+msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
+msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt."
 
 #: includes/emails.php:739
 msgid "All emails reset to the default text."
