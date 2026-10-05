@@ -5,13 +5,17 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.40.3] – 2026-10-05
+
+### Changed
+- Sign-off in the booking and access-details defaults: emoji now sits next to the name ("With warmth,\nHelena 🌸") instead of at the end of the greeting line.
+
 ## [0.40.2] – 2026-10-05
 
 ### Fixed
 - Plugin e-mails (booking, access details, cancellation) went out without the WooCommerce / Kadence Email Designer styling: the header/footer templates were rendered but the CSS was never inlined. The mail is now run through WooCommerce's own `style_inline()` after wrapping.
 
 ### Changed
-- Sign-off in the booking and access-details defaults: emoji now sits next to the name ("With warmth,\nHelena 🌸") instead of at the end of the greeting line.
 - Default booking-confirmation text now links to My Account so participants can view, manage or cancel their booking.
 
 ## [0.40.1] – 2026-10-05
