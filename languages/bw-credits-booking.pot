@@ -378,8 +378,8 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:433
-#: includes/emails.php:646
+#: includes/emails.php:447
+#: includes/emails.php:660
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr ""
@@ -1051,72 +1051,96 @@ msgstr ""
 msgid "Sent to the address set below for every new booking."
 msgstr ""
 
-#: includes/emails.php:452
+#: includes/emails.php:209
+msgid "Before your class"
+msgstr ""
+
+#: includes/emails.php:212
+msgid "One day before your class"
+msgstr ""
+
+#: includes/emails.php:213
+msgid "Two days before your class"
+msgstr ""
+
+#: includes/emails.php:214
+msgid "%d days before your class"
+msgstr ""
+
+#: includes/emails.php:216
+msgid "One hour before your class"
+msgstr ""
+
+#: includes/emails.php:217
+msgid "%d hours before your class"
+msgstr ""
+
+#: includes/emails.php:466
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:455
+#: includes/emails.php:469
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:598
-#: includes/emails.php:599
+#: includes/emails.php:612
+#: includes/emails.php:613
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:655
+#: includes/emails.php:669
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:663
+#: includes/emails.php:677
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:694
+#: includes/emails.php:708
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:704
+#: includes/emails.php:718
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:709
+#: includes/emails.php:723
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:716
+#: includes/emails.php:730
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:728
+#: includes/emails.php:742
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:744
+#: includes/emails.php:758
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:747
+#: includes/emails.php:761
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:754
+#: includes/emails.php:768
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:760
+#: includes/emails.php:774
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:765
+#: includes/emails.php:779
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:773
+#: includes/emails.php:787
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:785
+#: includes/emails.php:799
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1265,7 +1289,7 @@ msgstr ""
 
 #. Default body of the "booking" email
 #: email:booking.body
-msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nTwo days before your class, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth, 🌸\nHelena"
+msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth, 🌸\nHelena"
 msgstr ""
 
 #. Default subject of the "cancellation" email

@@ -364,7 +364,7 @@ Five types, each with its own toggle, subject, and body under *BW Credits → Em
 | Access details | immediately or N hours before the start — see below |
 | Admin copy | every new booking (off by default) |
 
-Placeholders: `{customer_name}` `{first_name}` `{course_title}` `{course_type}` `{course_level}` `{contact_email}` `{date}` `{time}` `{credits_remaining}` `{meeting_link}` `{access_details}` `{course_link}` `{account_link}`
+Placeholders: `{customer_name}` `{first_name}` `{course_title}` `{course_type}` `{course_level}` `{contact_email}` `{access_timing}` `{date}` `{time}` `{credits_remaining}` `{meeting_link}` `{access_details}` `{course_link}` `{account_link}`
 
 `{course_link}` and `{account_link}` link to the session and the WooCommerce My Account page respectively, where customers can view and cancel their own bookings. Both are automatically present in the booking confirmation, cancellation, and reminder emails; a URL-shaped placeholder value always becomes clickable in the email automatically, regardless of which one it is.
 

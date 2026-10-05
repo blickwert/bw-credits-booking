@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.40.1] – 2026-10-05
+
+### Added
+- New e-mail placeholder `{access_timing}` — the phrase for when the access details are sent, derived from *Settings → Online Access → Send access details (hours before)* (e.g. "Two days before your class", "Before your class" for 0), translated to German. The default booking-confirmation text uses it instead of a fixed "Two days before".
+
 ## [0.40.0] – 2026-10-05
 
 ### Added
