@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.43.0] – 2026-10-05
+
+### Added
+- **`[bw_credits_course_info field="…"]`** — one value of a session for the single-session template (type, level and language names/descriptions, start, date, time, duration, detail).
+- **Featured image from the course type** — the type's ACF image becomes the session's featured image on save and when the type's image changes; existing sessions are filled once after the update. A featured image set by hand is never replaced.
+
 ## [0.42.0] – 2026-10-05
 
 ### Added

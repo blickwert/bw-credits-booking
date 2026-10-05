@@ -157,6 +157,18 @@ Free spots — **visible even without login**. Updates after booking and cancell
 
 `course_id`, `format`, `full`
 
+#### `[bw_credits_course_info]`
+One value of a session, so the single-session Elementor template can be built from plain widgets. Without `course_id` it uses the current session.
+
+```
+[bw_credits_course_info field="type"]
+[bw_credits_course_info field="type_description"]
+```
+
+`field`: `type`, `type_description`, `level`, `level_description`, `language` (names and descriptions of the taxonomy terms), `start` (`d.m.Y H:i`), `date`, `time`, `duration`, `detail` (the session's content). Empty values print nothing. `course_id`
+
+**Featured image:** a session's featured image is taken from its course type (the term's ACF image `img`) when the session is saved and when the type's image changes; existing sessions are filled once after the update. A featured image chosen by hand is never replaced.
+
 #### `[bw_credits_course_access]`
 Meeting link and access details. **Visible only to logged-in users with an active booking for this session** — without a booking, nothing is output, not even a hint that the link exists.
 

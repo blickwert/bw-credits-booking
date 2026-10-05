@@ -20,6 +20,7 @@ class BW_Shortcodes {
             'bw_credits_course_booking'      => ['BW_Credits_Bookings_MVP', 'sc_slot_action'],
             'bw_credits_course_availability' => ['BW_Credits_Bookings_MVP', 'sc_availability'],
             'bw_credits_course_access'       => ['BW_View_Access', 'render'],
+            'bw_credits_course_info'         => ['BW_Course_Info', 'render'],
 
             // user
             'bw_credits_user_balance'  => ['BW_Credits_Bookings_MVP', 'sc_balance'],

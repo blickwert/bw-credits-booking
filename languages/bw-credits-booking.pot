@@ -358,7 +358,7 @@ msgstr ""
 
 #: includes/admin-pages.php:43
 #: includes/admin-pages.php:43
-#: includes/admin-pages.php:941
+#: includes/admin-pages.php:946
 msgid "Shortcodes"
 msgstr ""
 
@@ -451,9 +451,9 @@ msgid "No bookings found."
 msgstr ""
 
 #: includes/admin-pages.php:282
-#: includes/admin-pages.php:916
 #: includes/admin-pages.php:921
 #: includes/admin-pages.php:926
+#: includes/admin-pages.php:931
 msgid "Customer"
 msgstr ""
 
@@ -672,7 +672,7 @@ msgid "Template"
 msgstr ""
 
 #: includes/admin-pages.php:722
-#: includes/admin-pages.php:956
+#: includes/admin-pages.php:961
 msgid "Description"
 msgstr ""
 
@@ -728,6 +728,7 @@ msgstr ""
 #: includes/admin-pages.php:901
 #: includes/admin-pages.php:906
 #: includes/admin-pages.php:911
+#: includes/admin-pages.php:916
 msgid "Course"
 msgstr ""
 
@@ -744,46 +745,50 @@ msgid "Available spots. Visible even without login."
 msgstr ""
 
 #: includes/admin-pages.php:912
-msgid "Access details for the online session. Only for participants with an active booking."
+msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration."
 msgstr ""
 
 #: includes/admin-pages.php:917
-msgid "Available credit balance. With mode=\"empty_only\", only visible if the customer has had credits before and now has none."
+msgid "Access details for the online session. Only for participants with an active booking."
 msgstr ""
 
 #: includes/admin-pages.php:922
-msgid "Credit balance in detail: origin and expiry date."
+msgid "Available credit balance. With mode=\"empty_only\", only visible if the customer has had credits before and now has none."
 msgstr ""
 
 #: includes/admin-pages.php:927
-msgid "The customer's bookings, with the option to cancel."
-msgstr ""
-
-#: includes/admin-pages.php:931
-msgid "View"
+msgid "Credit balance in detail: origin and expiry date."
 msgstr ""
 
 #: includes/admin-pages.php:932
+msgid "The customer's bookings, with the option to cancel."
+msgstr ""
+
+#: includes/admin-pages.php:936
+msgid "View"
+msgstr ""
+
+#: includes/admin-pages.php:937
 msgid "Credit balance, next session, and links. Appears automatically in the account dashboard."
 msgstr ""
 
-#: includes/admin-pages.php:946
+#: includes/admin-pages.php:951
 msgid "On a single session page, %s can be omitted — the current post is used instead."
 msgstr ""
 
-#: includes/admin-pages.php:954
+#: includes/admin-pages.php:959
 msgid "Group"
 msgstr ""
 
-#: includes/admin-pages.php:955
+#: includes/admin-pages.php:960
 msgid "Shortcode"
 msgstr ""
 
-#: includes/admin-pages.php:957
+#: includes/admin-pages.php:962
 msgid "Parameters"
 msgstr ""
 
-#: includes/admin-pages.php:986
+#: includes/admin-pages.php:991
 msgid "Credit revoked."
 msgstr ""
 
@@ -908,6 +913,10 @@ msgstr ""
 
 #: includes/metaboxes.php:428
 msgid "No-show mark removed."
+msgstr ""
+
+#: includes/course-info.php:83
+msgid "%d min."
 msgstr ""
 
 #: includes/settings.php:72
@@ -1254,52 +1263,52 @@ msgstr ""
 msgid "No changelog information available."
 msgstr ""
 
-#: bw-credits-booking.php:211
+#: bw-credits-booking.php:212
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:213
+#: bw-credits-booking.php:214
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:215
+#: bw-credits-booking.php:216
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:473
-#: bw-credits-booking.php:701
+#: bw-credits-booking.php:474
+#: bw-credits-booking.php:702
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:476
+#: bw-credits-booking.php:477
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:486
+#: bw-credits-booking.php:487
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:505
+#: bw-credits-booking.php:506
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1060
+#: bw-credits-booking.php:1061
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1583
+#: bw-credits-booking.php:1584
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1590
+#: bw-credits-booking.php:1591
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1598
+#: bw-credits-booking.php:1599
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1605
+#: bw-credits-booking.php:1606
 msgid "Cancelled."
 msgstr ""
 

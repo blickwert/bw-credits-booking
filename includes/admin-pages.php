@@ -907,6 +907,11 @@ class BW_Admin_Pages {
                 __('Available spots. Visible even without login.', 'bw-credits-booking'),
                 'course_id, format, full',
             ],
+            'bw_credits_course_info' => [
+                __('Course', 'bw-credits-booking'),
+                __("One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration.", 'bw-credits-booking'),
+                'field (type, type_description, level, level_description, language, start, date, time, duration, detail), course_id',
+            ],
             'bw_credits_course_access' => [
                 __('Course', 'bw-credits-booking'),
                 __('Access details for the online session. Only for participants with an active booking.', 'bw-credits-booking'),
