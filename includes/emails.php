@@ -108,7 +108,7 @@ class BW_Emails {
                            . "{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
                            . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
                            . "I look forward to seeing you on the mat soon. 🤍\n\n"
-                           . "With warmth, 🌸\nHelena",
+                           . "With warmth,\nHelena 🌸",
             ],
             'cancellation' => [
                 'subject' => 'Cancellation: {course_title}',
@@ -141,7 +141,7 @@ class BW_Emails {
                            . "<li>Keep your camera turned on during the class. 📹</li></ul>\n"
                            . "If you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\n"
                            . "I’m looking forward to our upcoming session and sharing this practice with you. ✨\n\n"
-                           . "With gratitude, 🌸\nHelena",
+                           . "With gratitude,\nHelena 🌸",
             ],
             'admin_booking' => [
                 'subject' => 'New booking: {course_title}',

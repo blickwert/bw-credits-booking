@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.40.3] – 2026-10-05
+
+### Changed
+- Sign-off in the booking and access-details defaults: emoji now sits next to the name ("With warmth,\nHelena 🌸") instead of at the end of the greeting line.
+
 ## [0.40.2] – 2026-10-05
 
 ### Fixed
