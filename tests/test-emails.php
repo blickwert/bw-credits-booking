@@ -379,6 +379,11 @@ $GLOBALS['__terms'] = [];
 $ph = BW_Emails::placeholders(1, 42);
 check('placeholders(): session without terms -> empty {course_type}', $ph['{course_type}'] === '');
 unset($GLOBALS['__options']['woocommerce_email_from_address']);
+foreach ([0 => 'Before your class', 24 => 'One day before your class', 48 => 'Two days before your class', 72 => '3 days before your class', 1 => 'One hour before your class', 5 => '5 hours before your class'] as $h => $expected) {
+    $GLOBALS['__options']['bw_access_details_hours'] = $h;
+    check("placeholders(): {access_timing} for $h h", BW_Emails::placeholders(1, 42)['{access_timing}'] === $expected);
+}
+unset($GLOBALS['__options']['bw_access_details_hours']);
 
 /* ---------------------------------------------------------------
  * 9. on_booking_created(): hours = 0 keeps today's immediate send

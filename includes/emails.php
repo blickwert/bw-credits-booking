@@ -104,7 +104,7 @@ class BW_Emails {
                            . "I’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n"
                            . "<strong>Class Details 🧘‍♀️</strong>\n"
                            . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
-                           . "Two days before your class, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
+                           . "{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
                            . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
                            . "I look forward to seeing you on the mat soon. 🤍\n\n"
                            . "With warmth, 🌸\nHelena",
@@ -181,6 +181,8 @@ class BW_Emails {
             '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
             '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
             '{contact_email}'     => self::contact_email(),
+            // When the access details go out, from Settings → Online Access (e.g. "Two days before your class").
+            '{access_timing}'     => self::access_timing_phrase(BW_Metaboxes::get_access_details_hours()),
         ];
     }
 
@@ -203,6 +205,18 @@ class BW_Emails {
      * Address customers can write to: WooCommerce's sender address (WooCommerce → Settings → Emails),
      * else the site admin address. Overridable via the bw_email_contact_email filter.
      */
+    private static function access_timing_phrase(int $hours): string {
+        if ($hours <= 0) return __('Before your class', 'bw-credits-booking');
+        if ($hours % 24 === 0) {
+            $days = intdiv($hours, 24);
+            if ($days === 1) return __('One day before your class', 'bw-credits-booking');
+            if ($days === 2) return __('Two days before your class', 'bw-credits-booking');
+            return sprintf(__('%d days before your class', 'bw-credits-booking'), $days);
+        }
+        if ($hours === 1) return __('One hour before your class', 'bw-credits-booking');
+        return sprintf(__('%d hours before your class', 'bw-credits-booking'), $hours);
+    }
+
     private static function contact_email(): string {
         $address = (string) get_option('woocommerce_email_from_address', '');
         if (!is_email($address)) {
