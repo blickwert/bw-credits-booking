@@ -375,8 +375,8 @@ msgstr "Texte"
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:447
-#: includes/emails.php:660
+#: includes/emails.php:462
+#: includes/emails.php:675
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
@@ -1102,72 +1102,72 @@ msgstr "Admin-Kopie"
 msgid "Sent to the address set below for every new booking."
 msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse."
 
-#: includes/emails.php:466
+#: includes/emails.php:481
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:469
+#: includes/emails.php:484
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:612
-#: includes/emails.php:613
+#: includes/emails.php:627
+#: includes/emails.php:628
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:708
+#: includes/emails.php:723
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:718
+#: includes/emails.php:733
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:723
+#: includes/emails.php:738
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:799
+#: includes/emails.php:814
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:730
+#: includes/emails.php:745
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:742
+#: includes/emails.php:757
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:768
+#: includes/emails.php:783
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:774
+#: includes/emails.php:789
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:779
+#: includes/emails.php:794
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:787
+#: includes/emails.php:802
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:761
+#: includes/emails.php:776
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:758
+#: includes/emails.php:773
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:677
+#: includes/emails.php:692
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:669
+#: includes/emails.php:684
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 
@@ -1220,27 +1220,27 @@ msgstr "Wie viele Titel+Beschreibung-Paare pro Produkt erscheinen. Ein Verringer
 msgid "Meta key: %1$s — Shortcode: %2$s"
 msgstr "Meta-Key: %1$s — Shortcode: %2$s"
 
-#: includes/emails.php:209
+#: includes/emails.php:210
 msgid "Before your class"
 msgstr "Vor deiner Klasse"
 
-#: includes/emails.php:212
+#: includes/emails.php:213
 msgid "One day before your class"
 msgstr "Einen Tag vor deiner Klasse"
 
-#: includes/emails.php:213
+#: includes/emails.php:214
 msgid "Two days before your class"
 msgstr "Zwei Tage vor deiner Klasse"
 
-#: includes/emails.php:214
+#: includes/emails.php:215
 msgid "%d days before your class"
 msgstr "%d Tage vor deiner Klasse"
 
-#: includes/emails.php:216
+#: includes/emails.php:217
 msgid "One hour before your class"
 msgstr "Eine Stunde vor deiner Klasse"
 
-#: includes/emails.php:217
+#: includes/emails.php:218
 msgid "%d hours before your class"
 msgstr "%d Stunden vor deiner Klasse"
 
@@ -1251,8 +1251,8 @@ msgstr "Wir sehen uns bald auf der Matte! 🧘‍♀️"
 
 #. Default body of the "booking" email
 #: email:booking.body
-msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth, 🌸\nHelena"
-msgstr "Hallo {first_name} 🌿,\n\ndeine Klasse wurde erfolgreich gebucht! ✨\n\nIch freue mich darauf, dich willkommen zu heißen und diese Praxis mit dir zu teilen. 🤍\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\n{access_timing} erhältst du den Zoom-Link sowie alle weiteren Informationen, die du benötigst, um an der Sitzung teilzunehmen. 💻✨\n\nFalls du diese E-Mail nicht erhältst oder Schwierigkeiten beim Zugang zur Klasse hast, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌱\n\nIch freue mich darauf, dich bald auf der Matte zu sehen. 🤍\n\nMit Wärme, 🌸\nHelena"
+msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth, 🌸\nHelena"
+msgstr "Hallo {first_name} 🌿,\n\ndeine Klasse wurde erfolgreich gebucht! ✨\n\nIch freue mich darauf, dich willkommen zu heißen und diese Praxis mit dir zu teilen. 🤍\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\nDu kannst deine Buchung jederzeit in deinem Konto ansehen, verwalten oder stornieren: {account_link}\n\n{access_timing} erhältst du den Zoom-Link sowie alle weiteren Informationen, die du benötigst, um an der Sitzung teilzunehmen. 💻✨\n\nFalls du diese E-Mail nicht erhältst oder Schwierigkeiten beim Zugang zur Klasse hast, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌱\n\nIch freue mich darauf, dich bald auf der Matte zu sehen. 🤍\n\nMit Wärme, 🌸\nHelena"
 
 #. Default subject of the "cancellation" email
 #: email:cancellation.subject

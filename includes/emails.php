@@ -104,6 +104,7 @@ class BW_Emails {
                            . "I’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n"
                            . "<strong>Class Details 🧘‍♀️</strong>\n"
                            . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                           . "You can view, manage or cancel your booking anytime in your account: {account_link}\n\n"
                            . "{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
                            . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
                            . "I look forward to seeing you on the mat soon. 🤍\n\n"
@@ -322,6 +323,20 @@ class BW_Emails {
 
         if ($mailer) {
             $html          = $mailer->wrap_message($heading, $body);
+            // wrap_message() only renders the header/footer templates; the CSS
+            // (WooCommerce styles + Kadence Email Designer's colors, fonts, logo
+            // sizing) is normally inlined by WC_Email::style_inline() when a
+            // WooCommerce email is sent. Do the same here, otherwise the mail
+            // goes out unstyled.
+            $emails  = method_exists($mailer, 'get_emails') ? (array) $mailer->get_emails() : [];
+            $inliner = reset($emails);
+            if ($inliner && method_exists($inliner, 'style_inline')) {
+                try {
+                    $html = $inliner->style_inline($html);
+                } catch (\Throwable $e) {
+                    // keep the unstyled HTML rather than failing to send
+                }
+            }
             $plain_wrapped = $mailer->wrap_message($heading, $plain, true);
         } else {
             $html          = '<html><body style="font-family:sans-serif;line-height:1.5">' . $body . '</body></html>';
