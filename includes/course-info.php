@@ -8,7 +8,7 @@ if (!defined('ABSPATH')) exit;
  * [bw_credits_course_info field="…"] prints one value of a session, so the
  * single template can be built from plain Elementor widgets:
  *   type, type_description, level, level_description, language,
- *   start, date, time, duration, detail
+ *   start, date, time, duration, detail, calendar
  * Without course_id it uses the current post.
  *
  * Featured image: the image (ACF "img") of the session's course type becomes
@@ -49,6 +49,7 @@ class BW_Course_Info {
             case 'time':              return esc_html(self::start($slot_id, 'H:i'));
             case 'duration':          return esc_html(self::duration($slot_id));
             case 'detail':            return self::rich((string) get_post_field('post_content', $slot_id));
+            case 'calendar':          return self::calendar($slot_id);
         }
         return '';
     }
@@ -74,6 +75,28 @@ class BW_Course_Info {
     private static function start(int $slot_id, string $format): string {
         $start = BW_Credits_Bookings_MVP::get_slot_start_datetime($slot_id);
         return $start ? wp_date((string) apply_filters('bw_course_info_format', $format, $slot_id), $start->getTimestamp()) : '';
+    }
+
+    /**
+     * The calendar-leaf date block (weekday, day, month, time) — same markup
+     * and styles as in [bw_credits_course_list], so a single session looks
+     * like a row of the list.
+     */
+    private static function calendar(int $slot_id): string {
+        $start = BW_Credits_Bookings_MVP::get_slot_start_datetime($slot_id);
+        BW_Credits_Bookings_MVP::ensure_assets();
+
+        $html = '<div class="bw-course-slot-date">';
+        if ($start) {
+            $ts    = $start->getTimestamp();
+            $html .= '<span class="bw-course-slot-date__dow">' . esc_html(wp_date('D', $ts)) . '</span>'
+                   . '<span class="bw-course-slot-date__day">' . esc_html(wp_date('j', $ts)) . '</span>'
+                   . '<span class="bw-course-slot-date__month">' . esc_html(wp_date('M', $ts)) . '</span>'
+                   . '<span class="bw-course-slot-date__time">' . esc_html(wp_date('H:i', $ts)) . '</span>';
+        } else {
+            $html .= '<span class="bw-course-slot-date__day">—</span>';
+        }
+        return $html . '</div>';
     }
 
     private static function duration(int $slot_id): string {

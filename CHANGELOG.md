@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.44.0] – 2026-10-05
+
+### Added
+- `[bw_credits_course_info field="calendar"]` — the calendar-leaf date block (weekday, day, month, time) of a session, the same markup and styling as in the session list.
+
 ## [0.43.0] – 2026-10-05
 
 ### Added

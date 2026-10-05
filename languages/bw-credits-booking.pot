@@ -745,7 +745,7 @@ msgid "Available spots. Visible even without login."
 msgstr ""
 
 #: includes/admin-pages.php:912
-msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration."
+msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
 msgstr ""
 
 #: includes/admin-pages.php:917
@@ -915,7 +915,7 @@ msgstr ""
 msgid "No-show mark removed."
 msgstr ""
 
-#: includes/course-info.php:83
+#: includes/course-info.php:106
 msgid "%d min."
 msgstr ""
 

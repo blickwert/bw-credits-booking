@@ -44,6 +44,7 @@ function get_posts($args) { return $GLOBALS['__all_slots'] ?? []; }
 
 class BW_Settings { public static function get_slot_post_type() { return 'course_slot'; } }
 class BW_Credits_Bookings_MVP {
+    public static function ensure_assets() { $GLOBALS['__assets'] = true; }
     public static function resolve_course_id(int $id): int { return $id > 0 ? $id : 0; }
     public static function get_slot_start_datetime(int $id) {
         $raw = $GLOBALS['__postmeta'][$id]['start_datetime'] ?? '';
@@ -75,6 +76,10 @@ check('language: name', sc('language') === 'English');
 check('start / date / time', sc('start') === '12.09.2026 08:30' && sc('date') === '12.09.2026' && sc('time') === '08:30');
 check('duration: minutes', sc('duration') === '50 min.');
 check('duration: missing value prints nothing', sc('duration', 8) === '');
+$cal = sc('calendar');
+check('calendar: leaf markup with weekday, day, month and time', str_contains($cal, 'bw-course-slot-date__dow">Sat<') && str_contains($cal, '__day">12<') && str_contains($cal, '__month">Sep<') && str_contains($cal, '__time">08:30<'));
+check('calendar: enqueues the plugin styles', !empty($GLOBALS['__assets']));
+check('calendar: no start prints a dash placeholder', str_contains(sc('calendar', 8), '—'));
 check('detail: empty content prints nothing', sc('detail') === '');
 $GLOBALS['__content'][7] = 'More about the class';
 check('detail: content is printed', sc('detail') === '<p>More about the class</p>');
