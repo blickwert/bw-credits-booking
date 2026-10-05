@@ -40,6 +40,7 @@ class BW_Emails {
         add_action('bw_meeting_link_added', [__CLASS__, 'on_meeting_link_added'], 10, 1);
         add_action('admin_post_bw_resend_access', [__CLASS__, 'handle_resend_access']);
         add_action('admin_post_bw_reset_email', [__CLASS__, 'handle_reset_email']);
+        add_action('admin_post_bw_reset_all_emails', [__CLASS__, 'handle_reset_all_emails']);
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
         add_action(self::CRON_HOOK, [__CLASS__, 'run_access_details']);
@@ -694,6 +695,25 @@ class BW_Emails {
         ));
     }
 
+    private static function reset_all_url(): string {
+        return wp_nonce_url(admin_url('admin-post.php?action=bw_reset_all_emails'), 'bw_reset_all_emails');
+    }
+
+    /** Subject and body of every email type back to the default text. Active flags and the admin address stay as they are. */
+    public static function handle_reset_all_emails() {
+        if (!current_user_can(BW_Settings::CAPABILITY)) {
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
+        }
+        check_admin_referer('bw_reset_all_emails');
+
+        foreach (self::defaults() as $key => $default) {
+            update_option(self::opt_subject($key), $default['subject']);
+            update_option(self::opt_body($key), $default['body']);
+        }
+
+        self::redirect('ok:' . __('All emails reset to the default text.', 'bw-credits-booking'));
+    }
+
     private static function redirect(string $notice) {
         wp_safe_redirect(add_query_arg(
             ['page' => self::PAGE, 'bw_notice' => rawurlencode($notice)],
@@ -724,6 +744,13 @@ class BW_Emails {
 
             <?php self::notice(); ?>
 
+            <p>
+                <a class="button" href="<?php echo esc_url(self::reset_all_url()); ?>"
+                   onclick="return confirm('<?php echo esc_js(__('Reset ALL emails to the default text? Your saved changes to every subject and body will be lost.', 'bw-credits-booking')); ?>');">
+                    <?php esc_html_e('Reset all to default', 'bw-credits-booking'); ?>
+                </a>
+            </p>
+
             <?php if (has_action('wpml_register_single_string')) : ?>
                 <div class="notice notice-info inline">
                     <p>
@@ -743,8 +770,9 @@ class BW_Emails {
 
             <p>
                 <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
-                <code>{customer_name}</code> <code>{course_title}</code> <code>{date}</code>
-                <code>{time}</code> <code>{credits_remaining}</code>
+                <code>{customer_name}</code> <code>{first_name}</code> <code>{course_title}</code> <code>{date}</code>
+                <code>{time}</code> <code>{course_type}</code> <code>{course_level}</code> <code>{credits_remaining}</code>
+                <code>{contact_email}</code> <code>{access_timing}</code>
                 <code>{meeting_link}</code> <code>{access_details}</code>
                 <code>{course_link}</code> <code>{account_link}</code>
             </p>

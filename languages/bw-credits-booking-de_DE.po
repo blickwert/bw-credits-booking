@@ -375,8 +375,9 @@ msgstr "Texte"
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:462
-#: includes/emails.php:675
+#: includes/emails.php:463
+#: includes/emails.php:676
+#: includes/emails.php:705
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
@@ -1102,72 +1103,84 @@ msgstr "Admin-Kopie"
 msgid "Sent to the address set below for every new booking."
 msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse."
 
-#: includes/emails.php:481
+#: includes/emails.php:482
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:484
+#: includes/emails.php:485
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:627
 #: includes/emails.php:628
+#: includes/emails.php:629
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:723
+#: includes/emails.php:743
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:733
+#: includes/emails.php:760
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:738
+#: includes/emails.php:765
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:814
+#: includes/emails.php:842
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:745
+#: includes/emails.php:772
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:757
+#: includes/emails.php:785
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:783
+#: includes/emails.php:811
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:789
+#: includes/emails.php:817
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:794
+#: includes/emails.php:822
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:802
+#: includes/emails.php:830
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:776
+#: includes/emails.php:804
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:773
+#: includes/emails.php:750
+msgid "Reset all to default"
+msgstr "Alle auf Standard zurücksetzen"
+
+#: includes/emails.php:714
+msgid "All emails reset to the default text."
+msgstr "Alle E-Mails wurden auf den Standardtext zurückgesetzt."
+
+#: includes/emails.php:749
+msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
+msgstr "ALLE E-Mails auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen an allen Betreffs und Texten gehen verloren."
+
+#: includes/emails.php:801
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:692
+#: includes/emails.php:693
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:684
+#: includes/emails.php:685
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 
@@ -1220,27 +1233,27 @@ msgstr "Wie viele Titel+Beschreibung-Paare pro Produkt erscheinen. Ein Verringer
 msgid "Meta key: %1$s — Shortcode: %2$s"
 msgstr "Meta-Key: %1$s — Shortcode: %2$s"
 
-#: includes/emails.php:210
+#: includes/emails.php:211
 msgid "Before your class"
 msgstr "Vor deiner Klasse"
 
-#: includes/emails.php:213
+#: includes/emails.php:214
 msgid "One day before your class"
 msgstr "Einen Tag vor deiner Klasse"
 
-#: includes/emails.php:214
+#: includes/emails.php:215
 msgid "Two days before your class"
 msgstr "Zwei Tage vor deiner Klasse"
 
-#: includes/emails.php:215
+#: includes/emails.php:216
 msgid "%d days before your class"
 msgstr "%d Tage vor deiner Klasse"
 
-#: includes/emails.php:217
+#: includes/emails.php:218
 msgid "One hour before your class"
 msgstr "Eine Stunde vor deiner Klasse"
 
-#: includes/emails.php:218
+#: includes/emails.php:219
 msgid "%d hours before your class"
 msgstr "%d Stunden vor deiner Klasse"
 

@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.41.0] – 2026-10-05
+
+### Added
+- **Reset all to default** button on BW Credits → Emails: sets subject and body of every email type back to the default text in one step (with confirmation). The active flags and the admin-copy address stay untouched.
+- The placeholder list on that page now includes `{first_name}`, `{course_type}`, `{course_level}`, `{contact_email}` and `{access_timing}`.
+
 ## [0.40.3] – 2026-10-05
 
 ### Changed

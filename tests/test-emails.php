@@ -311,6 +311,23 @@ try { BW_Email_Language::handle_save_from_dashboard(); } catch (Exception $e) {}
 check('handle_save_from_dashboard(): invalid code is rejected, old value kept', get_user_meta(7, '_bw_email_language', true) === 'de');
 check('handle_save_from_dashboard(): redirects with an "err:" notice for an invalid code', str_contains($GLOBALS['__redirect'] ?? '', 'err%3A'));
 
+/* reset all: every subject/body back to the default, flags untouched */
+reset_state();
+$GLOBALS['__valid_nonce'] = true;
+$GLOBALS['__can'] = true;
+$GLOBALS['__options']['bw_email_booking_body'] = 'custom';
+$GLOBALS['__options']['bw_email_access_subject'] = 'custom';
+$GLOBALS['__options']['bw_email_booking_enabled'] = '0';
+try { BW_Emails::handle_reset_all_emails(); } catch (Exception $e) {}
+check('handle_reset_all_emails(): booking body reset to default', $GLOBALS['__options']['bw_email_booking_body'] === BW_Emails::defaults()['booking']['body']);
+check('handle_reset_all_emails(): access subject reset to default', $GLOBALS['__options']['bw_email_access_subject'] === BW_Emails::defaults()['access']['subject']);
+check('handle_reset_all_emails(): active flag untouched', ($GLOBALS['__options']['bw_email_booking_enabled'] ?? null) === '0');
+$GLOBALS['__can'] = false;
+$threw = false;
+try { BW_Emails::handle_reset_all_emails(); } catch (Exception $e) { $threw = str_starts_with($e->getMessage(), 'wp_die'); }
+check('handle_reset_all_emails(): requires the capability', $threw);
+$GLOBALS['__can'] = true;
+
 /* ---------------------------------------------------------------
  * 6. save_language_on_registration(): captures the active WPML
  *    language at signup as the initial preference
