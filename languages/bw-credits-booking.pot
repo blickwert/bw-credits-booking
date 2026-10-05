@@ -378,8 +378,8 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:390
-#: includes/emails.php:603
+#: includes/emails.php:433
+#: includes/emails.php:646
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr ""
@@ -1051,72 +1051,72 @@ msgstr ""
 msgid "Sent to the address set below for every new booking."
 msgstr ""
 
-#: includes/emails.php:409
+#: includes/emails.php:452
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:412
+#: includes/emails.php:455
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:555
-#: includes/emails.php:556
+#: includes/emails.php:598
+#: includes/emails.php:599
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:612
+#: includes/emails.php:655
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:620
+#: includes/emails.php:663
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:651
+#: includes/emails.php:694
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:661
+#: includes/emails.php:704
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:666
+#: includes/emails.php:709
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:673
+#: includes/emails.php:716
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:685
+#: includes/emails.php:728
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:701
+#: includes/emails.php:744
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:704
+#: includes/emails.php:747
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:711
+#: includes/emails.php:754
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:717
+#: includes/emails.php:760
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:722
+#: includes/emails.php:765
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:730
+#: includes/emails.php:773
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:742
+#: includes/emails.php:785
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1260,12 +1260,12 @@ msgstr ""
 
 #. Default subject of the "booking" email
 #: email:booking.subject
-msgid "Booking confirmation: {course_title}"
+msgid "See You on the Mat Soon! 🧘‍♀️"
 msgstr ""
 
 #. Default body of the "booking" email
 #: email:booking.body
-msgid "Hi {customer_name},\n\nyour booking is confirmed:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nSee you soon!"
+msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nTwo days before your class, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth, 🌸\nHelena"
 msgstr ""
 
 #. Default subject of the "cancellation" email
@@ -1290,12 +1290,12 @@ msgstr ""
 
 #. Default subject of the "access" email
 #: email:access.subject
-msgid "Access details: {course_title} on {date}"
+msgid "Your Class Link & Joining Details 💻✨"
 msgstr ""
 
 #. Default body of the "access" email
 #: email:access.body
-msgid "Hi {customer_name},\n\nhere are the access details for your online session:\n\n{course_title}\n{date} at {time}\n\nLink: {meeting_link}\n\n{access_details}"
+msgid "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find all the details you need to join the session and prepare for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Zoom Details 💻</strong>\nJoin Link: {meeting_link}\n{access_details}\n\nTo join the class, you can either click directly on the Zoom link above, or open Zoom and enter the Meeting ID and Passcode manually. 🌱\n\nTo ensure a smooth and welcoming experience for everyone, please make sure to:<ul><li>Join using your real first and last name, so I can confirm your identity and welcome you into the session. 🤍</li><li>Keep your camera turned on during the class. 📹</li></ul>\nIf you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\nI’m looking forward to our upcoming session and sharing this practice with you. ✨\n\nWith gratitude, 🌸\nHelena"
 msgstr ""
 
 #. Default subject of the "admin_booking" email

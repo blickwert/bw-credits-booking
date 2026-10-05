@@ -129,6 +129,12 @@ function home_url($path = '/') { return 'https://example.test' . $path; }
 function get_userdata($id) {
     return $id > 0 ? (object) ['display_name' => 'Jane Doe', 'user_email' => 'jane@example.test'] : false;
 }
+// Taxonomies of a session ({course_type} / {course_level}): $GLOBALS['__terms'][slot_id][taxonomy] = [names…]
+function taxonomy_exists($t) { return in_array($t, $GLOBALS['__taxonomies'] ?? ['course_type', 'course_level'], true); }
+function get_the_terms($id, $tax) {
+    $names = $GLOBALS['__terms'][$id][$tax] ?? [];
+    return $names ? array_map(fn($n) => (object) ['name' => $n], $names) : false;
+}
 // Overridable per-test via $GLOBALS['__slot_title'] — defaults to a plain
 // title so existing assertions below are unaffected; the title-escaping
 // regression test further down sets this to an already-HTML-escaped
@@ -209,7 +215,7 @@ function reset_state() {
 }
 
 function access_mails(): array {
-    return array_values(array_filter($GLOBALS['__mails'], fn($m) => str_starts_with($m['subject'], 'Access details')));
+    return array_values(array_filter($GLOBALS['__mails'], fn($m) => str_starts_with($m['subject'], 'Your Class Link')));
 }
 function slot_starts_in(int $slot_id, string $offset) {
     $GLOBALS['__postmeta'][$slot_id]['_bw_start_dt'] = (new DateTime('now'))->modify($offset)->format('Y-m-d H:i:s');
@@ -250,7 +256,7 @@ update_user_meta(1, '_bw_email_language', 'en');
 $GLOBALS['__mails'] = [];
 BW_Emails::send('booking', 1, 42, 'jane@example.test');
 $sent = $GLOBALS['__mails'][0] ?? null;
-check('send(): customer with "en" preference gets the English default (no locale switch needed)', $sent && $sent['subject'] === 'Booking confirmation: Hatha Yoga');
+check('send(): customer with "en" preference gets the English default (no locale switch needed)', $sent && $sent['subject'] === 'See You on the Mat Soon! 🧘‍♀️');
 
 /* ---------------------------------------------------------------
  * 3. send(): admin_booking always uses the WPML default language,
@@ -326,6 +332,9 @@ check('save_language_on_registration(): no-op without WPML', get_user_meta(100, 
  * --------------------------------------------------------------- */
 reset_state();
 $GLOBALS['__slot_title'] = 'Ground &amp; Connect';
+// The default texts no longer contain {course_title}; the escaping path is the same for a saved override.
+$GLOBALS['__options']['bw_email_booking_subject'] = 'Booking confirmation: {course_title}';
+$GLOBALS['__options']['bw_email_booking_body']    = 'Hi, you booked {course_title}.';
 $GLOBALS['__mails'] = [];
 BW_Emails::send('booking', 1, 42, 'jane@example.test');
 $sent = $GLOBALS['__mails'][0] ?? null;
@@ -358,6 +367,18 @@ check('get_access_info(): the session\'s own details win', BW_Metaboxes::get_acc
 unset($GLOBALS['__postmeta'][42]['_bw_meeting_link'], $GLOBALS['__postmeta'][42]['_bw_access_info']);
 $ph = BW_Emails::placeholders(1, 42);
 check('placeholders(): {meeting_link}/{access_details} use the defaults', $ph['{meeting_link}'] === 'https://zoom.test/default' && $ph['{access_details}'] === 'Default PIN 1234');
+
+$GLOBALS['__terms'][42] = ['course_type' => ['Hatha', 'Yin'], 'course_level' => ['All levels']];
+$GLOBALS['__options']['woocommerce_email_from_address'] = 'hello@example.test';
+$ph = BW_Emails::placeholders(1, 42);
+check('placeholders(): {course_type} lists the session\'s terms', $ph['{course_type}'] === 'Hatha, Yin');
+check('placeholders(): {course_level} lists the session\'s terms', $ph['{course_level}'] === 'All levels');
+check('placeholders(): {first_name} falls back to the display name', $ph['{first_name}'] === 'Jane Doe');
+check('placeholders(): {contact_email} uses the WooCommerce from address', $ph['{contact_email}'] === 'hello@example.test');
+$GLOBALS['__terms'] = [];
+$ph = BW_Emails::placeholders(1, 42);
+check('placeholders(): session without terms -> empty {course_type}', $ph['{course_type}'] === '');
+unset($GLOBALS['__options']['woocommerce_email_from_address']);
 
 /* ---------------------------------------------------------------
  * 9. on_booking_created(): hours = 0 keeps today's immediate send
