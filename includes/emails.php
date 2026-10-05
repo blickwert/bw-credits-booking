@@ -26,7 +26,8 @@ class BW_Emails {
             'cancellation'  => [__('Cancellation confirmation', 'bw-credits-booking'), __('Sent to the customer after a cancellation.', 'bw-credits-booking')],
             'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
             'access'        => [__('Access details', 'bw-credits-booking'), __('Meeting link and access details for online sessions — timing set in Settings → Online Access.', 'bw-credits-booking')],
-            'admin_booking' => [__('Admin copy', 'bw-credits-booking'), __('Sent to the address set below for every new booking.', 'bw-credits-booking')],
+            'admin_booking' => [__('Admin: new booking', 'bw-credits-booking'), __('Sent to the address set below for every new booking, with the current number of participants.', 'bw-credits-booking')],
+            'admin_cancellation' => [__('Admin: cancellation', 'bw-credits-booking'), __('Sent to the address set below whenever a participant cancels, with the current number of participants.', 'bw-credits-booking')],
         ];
     }
 
@@ -40,6 +41,7 @@ class BW_Emails {
         add_action('bw_meeting_link_added', [__CLASS__, 'on_meeting_link_added'], 10, 1);
         add_action('admin_post_bw_resend_access', [__CLASS__, 'handle_resend_access']);
         add_action('admin_post_bw_reset_email', [__CLASS__, 'handle_reset_email']);
+        add_action('admin_post_bw_reset_all_emails', [__CLASS__, 'handle_reset_all_emails']);
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
         add_action(self::CRON_HOOK, [__CLASS__, 'run_access_details']);
@@ -56,7 +58,7 @@ class BW_Emails {
     private static function opt_body(string $key): string    { return 'bw_email_' . $key . '_body'; }
 
     public static function is_enabled(string $key): bool {
-        return (bool) get_option(self::opt_enabled($key), $key === 'admin_booking' ? 0 : 1);
+        return (bool) get_option(self::opt_enabled($key), 1);
     }
 
     public static function get_subject(string $key): string {
@@ -144,9 +146,18 @@ class BW_Emails {
                            . "With gratitude,\nHelena 🌸",
             ],
             'admin_booking' => [
-                'subject' => 'New booking: {course_title}',
-                'body'    => "{customer_name} booked:\n\n"
-                           . "{course_title}\n{date} at {time}",
+                'subject' => 'New booking: {course_title} ({booked_count}/{capacity})',
+                'body'    => "{customer_name} ({customer_email}) booked:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Participants now: {booked_count} of {capacity}\n"
+                           . "Participant list: {admin_link}",
+            ],
+            'admin_cancellation' => [
+                'subject' => 'Cancellation: {course_title} ({booked_count}/{capacity})',
+                'body'    => "{customer_name} ({customer_email}) cancelled:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Participants now: {booked_count} of {capacity}\n"
+                           . "Participant list: {admin_link}",
             ],
         ];
     }
@@ -182,9 +193,19 @@ class BW_Emails {
             '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
             '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
             '{contact_email}'     => self::contact_email(),
+            // For the admin mails: current number of participants / capacity and the participant list of the session in the plugin.
+            '{customer_email}'    => $user ? (string) $user->user_email : '',
+            '{booked_count}'      => $slot_id > 0 ? (string) max(0, (int) get_post_meta($slot_id, BW_Credits_Bookings_MVP::META_BOOKED_CNT, true)) : '',
+            '{capacity}'          => $slot_id > 0 ? self::slot_capacity($slot_id) : '',
+            '{admin_link}'        => $slot_id > 0 ? admin_url('admin.php?page=' . BW_Admin_Pages::PAGE_BOOKINGS . '&slot_id=' . $slot_id) : '',
             // When the access details go out, from Settings → Online Access (e.g. "Two days before your class").
             '{access_timing}'     => self::access_timing_phrase(BW_Metaboxes::get_access_details_hours()),
         ];
+    }
+
+    private static function slot_capacity(int $slot_id): string {
+        $raw = get_post_meta($slot_id, BW_Credits_Bookings_MVP::META_CAPACITY, true);
+        return (string) (($raw === '' || $raw === null) ? BW_Settings::get_default_capacity() : max(0, (int) $raw));
     }
 
     /**
@@ -255,7 +276,7 @@ class BW_Emails {
         // WPML language — see BW_Email_Language. The admin copy ignores the
         // customer entirely and always goes out in the site's default
         // language, since it's read by the studio, not the customer.
-        $lang = ($key === 'admin_booking')
+        $lang = (strpos($key, 'admin_') === 0)
             ? (string) apply_filters('wpml_default_language', null)
             : BW_Email_Language::get_user_language($user_id);
 
@@ -383,6 +404,11 @@ class BW_Emails {
 
     public static function on_booking_cancelled($booking_id, $user_id, $slot_id) {
         self::send('cancellation', (int) $user_id, (int) $slot_id);
+
+        $admin_to = (string) get_option(self::OPT_ADMIN_TO, get_option('admin_email'));
+        if (is_email($admin_to)) {
+            self::send('admin_cancellation', (int) $user_id, (int) $slot_id, $admin_to);
+        }
     }
 
     /* =========================================================
@@ -694,6 +720,25 @@ class BW_Emails {
         ));
     }
 
+    private static function reset_all_url(): string {
+        return wp_nonce_url(admin_url('admin-post.php?action=bw_reset_all_emails'), 'bw_reset_all_emails');
+    }
+
+    /** Subject and body of every email type back to the default text. Active flags and the admin address stay as they are. */
+    public static function handle_reset_all_emails() {
+        if (!current_user_can(BW_Settings::CAPABILITY)) {
+            wp_die(__('Not authorized.', 'bw-credits-booking'));
+        }
+        check_admin_referer('bw_reset_all_emails');
+
+        foreach (self::defaults() as $key => $default) {
+            update_option(self::opt_subject($key), $default['subject']);
+            update_option(self::opt_body($key), $default['body']);
+        }
+
+        self::redirect('ok:' . __('All emails reset to the default text.', 'bw-credits-booking'));
+    }
+
     private static function redirect(string $notice) {
         wp_safe_redirect(add_query_arg(
             ['page' => self::PAGE, 'bw_notice' => rawurlencode($notice)],
@@ -724,6 +769,13 @@ class BW_Emails {
 
             <?php self::notice(); ?>
 
+            <p>
+                <a class="button" href="<?php echo esc_url(self::reset_all_url()); ?>"
+                   onclick="return confirm('<?php echo esc_js(__('Reset ALL emails to the default text? Your saved changes to every subject and body will be lost.', 'bw-credits-booking')); ?>');">
+                    <?php esc_html_e('Reset all to default', 'bw-credits-booking'); ?>
+                </a>
+            </p>
+
             <?php if (has_action('wpml_register_single_string')) : ?>
                 <div class="notice notice-info inline">
                     <p>
@@ -743,8 +795,9 @@ class BW_Emails {
 
             <p>
                 <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
-                <code>{customer_name}</code> <code>{course_title}</code> <code>{date}</code>
-                <code>{time}</code> <code>{credits_remaining}</code>
+                <code>{customer_name}</code> <code>{first_name}</code> <code>{course_title}</code> <code>{date}</code>
+                <code>{time}</code> <code>{course_type}</code> <code>{course_level}</code> <code>{credits_remaining}</code>
+                <code>{contact_email}</code> <code>{access_timing}</code>
                 <code>{meeting_link}</code> <code>{access_details}</code>
                 <code>{course_link}</code> <code>{account_link}</code>
             </p>

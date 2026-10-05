@@ -173,12 +173,16 @@ $GLOBALS['wpdb'] = new Test_WPDB();
 
 class BW_Credits_Bookings_MVP {
     const META_START_DT  = '_bw_start_dt';
+    const META_CAPACITY  = 'capacity';
+    const META_BOOKED_CNT = 'booked_count';
     const BOOKINGS_TABLE = 'bw_bookings';
     public static function get_available_credits($user_id) { return 3; }
     public static function my_account_url() { return 'https://example.test/my-account/'; }
 }
+class BW_Admin_Pages { const PAGE_BOOKINGS = 'bw-credits-bookings'; }
 class BW_Settings {
     const CAPABILITY = 'manage_options';
+    public static function get_default_capacity() { return 10; }
     public static function get_reminder_hours() { return 24; }
     const MENU_SLUG = 'bw-credits';
 }
@@ -266,7 +270,6 @@ reset_state();
 $defaults = BW_Emails::defaults();
 $GLOBALS['__gettext']['de_DE'][$defaults['admin_booking']['subject']] = 'Neue Buchung: {course_title}';
 $GLOBALS['__wpml_default_lang'] = 'de'; // site default is German
-$GLOBALS['__options']['bw_email_admin_booking_enabled'] = 1; // off by default
 update_user_meta(1, '_bw_email_language', 'en'); // but this customer prefers English
 
 $GLOBALS['__mails'] = [];
@@ -310,6 +313,43 @@ $GLOBALS['__redirect'] = null;
 try { BW_Email_Language::handle_save_from_dashboard(); } catch (Exception $e) {}
 check('handle_save_from_dashboard(): invalid code is rejected, old value kept', get_user_meta(7, '_bw_email_language', true) === 'de');
 check('handle_save_from_dashboard(): redirects with an "err:" notice for an invalid code', str_contains($GLOBALS['__redirect'] ?? '', 'err%3A'));
+
+/* reset all: every subject/body back to the default, flags untouched */
+reset_state();
+$GLOBALS['__valid_nonce'] = true;
+$GLOBALS['__can'] = true;
+$GLOBALS['__options']['bw_email_booking_body'] = 'custom';
+$GLOBALS['__options']['bw_email_access_subject'] = 'custom';
+$GLOBALS['__options']['bw_email_booking_enabled'] = '0';
+try { BW_Emails::handle_reset_all_emails(); } catch (Exception $e) {}
+check('handle_reset_all_emails(): booking body reset to default', $GLOBALS['__options']['bw_email_booking_body'] === BW_Emails::defaults()['booking']['body']);
+check('handle_reset_all_emails(): access subject reset to default', $GLOBALS['__options']['bw_email_access_subject'] === BW_Emails::defaults()['access']['subject']);
+check('handle_reset_all_emails(): active flag untouched', ($GLOBALS['__options']['bw_email_booking_enabled'] ?? null) === '0');
+$GLOBALS['__can'] = false;
+$threw = false;
+try { BW_Emails::handle_reset_all_emails(); } catch (Exception $e) { $threw = str_starts_with($e->getMessage(), 'wp_die'); }
+check('handle_reset_all_emails(): requires the capability', $threw);
+$GLOBALS['__can'] = true;
+
+/* admin mails: participant count + link to the participant list */
+reset_state();
+$GLOBALS['__postmeta'][42]['booked_count'] = 3;
+$GLOBALS['__postmeta'][42]['capacity'] = 8;
+$ph = BW_Emails::placeholders(1, 42);
+check('placeholders(): {booked_count} / {capacity}', $ph['{booked_count}'] === '3' && $ph['{capacity}'] === '8');
+check('placeholders(): {admin_link} points to the participant list of the session', str_contains($ph['{admin_link}'], 'page=bw-credits-bookings') && str_ends_with($ph['{admin_link}'], 'slot_id=42'));
+unset($GLOBALS['__postmeta'][42]['capacity']);
+check('placeholders(): {capacity} falls back to the default capacity', BW_Emails::placeholders(1, 42)['{capacity}'] === '10');
+check('admin mails are on by default', BW_Emails::is_enabled('admin_booking') && BW_Emails::is_enabled('admin_cancellation'));
+
+$GLOBALS['__options']['admin_email'] = 'admin@example.test';
+$GLOBALS['__mails'] = [];
+BW_Emails::on_booking_cancelled(900, 1, 42);
+$subjects = array_column($GLOBALS['__mails'], 'subject');
+check('on_booking_cancelled(): customer cancellation mail and admin notification both go out', count($GLOBALS['__mails']) === 2);
+check('on_booking_cancelled(): admin subject carries the count', in_array('Cancellation: Hatha Yoga (3/10)', $subjects, true));
+$admin = array_values(array_filter($GLOBALS['__mails'], fn($m) => str_contains($m['subject'], '(3/10)')))[0] ?? null;
+check('on_booking_cancelled(): admin body has the participant list link', $admin && str_contains($admin['message'], 'slot_id=42'));
 
 /* ---------------------------------------------------------------
  * 6. save_language_on_registration(): captures the active WPML

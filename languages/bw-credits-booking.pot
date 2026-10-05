@@ -378,8 +378,9 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:462
-#: includes/emails.php:675
+#: includes/emails.php:488
+#: includes/emails.php:701
+#: includes/emails.php:730
 #: includes/email-language.php:139
 msgid "Not authorized."
 msgstr ""
@@ -1044,103 +1045,123 @@ msgid "Meeting link and access details for online sessions — timing set in Set
 msgstr ""
 
 #: includes/emails.php:29
-msgid "Admin copy"
+msgid "Admin: new booking"
 msgstr ""
 
 #: includes/emails.php:29
-msgid "Sent to the address set below for every new booking."
+msgid "Sent to the address set below for every new booking, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:210
+#: includes/emails.php:30
+msgid "Admin: cancellation"
+msgstr ""
+
+#: includes/emails.php:30
+msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
+msgstr ""
+
+#: includes/emails.php:231
 msgid "Before your class"
 msgstr ""
 
-#: includes/emails.php:213
+#: includes/emails.php:234
 msgid "One day before your class"
 msgstr ""
 
-#: includes/emails.php:214
+#: includes/emails.php:235
 msgid "Two days before your class"
 msgstr ""
 
-#: includes/emails.php:215
+#: includes/emails.php:236
 msgid "%d days before your class"
 msgstr ""
 
-#: includes/emails.php:217
+#: includes/emails.php:238
 msgid "One hour before your class"
 msgstr ""
 
-#: includes/emails.php:218
+#: includes/emails.php:239
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:481
+#: includes/emails.php:507
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:484
+#: includes/emails.php:510
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:627
-#: includes/emails.php:628
+#: includes/emails.php:653
+#: includes/emails.php:654
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:684
+#: includes/emails.php:710
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:692
+#: includes/emails.php:718
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:723
+#: includes/emails.php:739
+msgid "All emails reset to the default text."
+msgstr ""
+
+#: includes/emails.php:768
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:733
+#: includes/emails.php:774
+msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
+msgstr ""
+
+#: includes/emails.php:775
+msgid "Reset all to default"
+msgstr ""
+
+#: includes/emails.php:785
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:738
+#: includes/emails.php:790
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:745
+#: includes/emails.php:797
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:757
+#: includes/emails.php:810
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:773
+#: includes/emails.php:826
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:776
+#: includes/emails.php:829
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:783
+#: includes/emails.php:836
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:789
+#: includes/emails.php:842
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:794
+#: includes/emails.php:847
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:802
+#: includes/emails.php:855
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:814
+#: includes/emails.php:867
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1324,11 +1345,21 @@ msgstr ""
 
 #. Default subject of the "admin_booking" email
 #: email:admin_booking.subject
-msgid "New booking: {course_title}"
+msgid "New booking: {course_title} ({booked_count}/{capacity})"
 msgstr ""
 
 #. Default body of the "admin_booking" email
 #: email:admin_booking.body
-msgid "{customer_name} booked:\n\n{course_title}\n{date} at {time}"
+msgid "{customer_name} ({customer_email}) booked:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}"
+msgstr ""
+
+#. Default subject of the "admin_cancellation" email
+#: email:admin_cancellation.subject
+msgid "Cancellation: {course_title} ({booked_count}/{capacity})"
+msgstr ""
+
+#. Default body of the "admin_cancellation" email
+#: email:admin_cancellation.body
+msgid "{customer_name} ({customer_email}) cancelled:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}"
 msgstr ""
 

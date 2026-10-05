@@ -5,6 +5,22 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.42.0] – 2026-10-05
+
+### Added
+- **Admin notification on cancellation** — new email type *Admin: cancellation*, sent to the admin address whenever a participant cancels (the admin mail for new bookings already existed).
+- Both admin mails now show how many participants the session has (`{booked_count}` of `{capacity}`) and link to the participant list of that session in the plugin (`{admin_link}` → BW Credits → Bookings filtered by the session). New placeholders: `{booked_count}`, `{capacity}`, `{admin_link}`, `{customer_email}`.
+
+### Changed
+- The admin mails (*Admin: new booking* — formerly *Admin copy* — and *Admin: cancellation*) are now **on by default** (until now the booking copy was off unless switched on). Anyone who saved the setting keeps their choice. The address is the one set on BW Credits → Emails (the site admin e-mail if empty); the texts use the site default language.
+- New default text for the admin booking mail; use *Reset to default* / *Reset all to default* to adopt it.
+
+## [0.41.0] – 2026-10-05
+
+### Added
+- **Reset all to default** button on BW Credits → Emails: sets subject and body of every email type back to the default text in one step (with confirmation). The active flags and the admin-copy address stay untouched.
+- The placeholder list on that page now includes `{first_name}`, `{course_type}`, `{course_level}`, `{contact_email}` and `{access_timing}`.
+
 ## [0.40.3] – 2026-10-05
 
 ### Changed
