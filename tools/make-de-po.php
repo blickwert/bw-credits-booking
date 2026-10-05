@@ -359,8 +359,10 @@ const ENGLISH_TO_GERMAN = [
         'Leer lassen, um den Standardwert aus den Einstellungen zu verwenden (grau angezeigt).',
     'The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away.' =>
         'Die Zugangsdaten werden automatisch %d Stunden vor Kursbeginn an alle Teilnehmer verschickt. Wer später bucht, erhält sie sofort.',
-    'Admin copy' => 'Admin-Kopie',
-    'Sent to the address set below for every new booking.' => 'Bei jeder neuen Buchung an die unten hinterlegte Adresse.',
+    'Admin: new booking' => 'Admin: Neue Buchung',
+    'Sent to the address set below for every new booking, with the current number of participants.' => 'Bei jeder neuen Buchung an die unten hinterlegte Adresse, mit der aktuellen Teilnehmerzahl.',
+    'Admin: cancellation' => 'Admin: Stornierung',
+    'Sent to the address set below whenever a participant cancels, with the current number of participants.' => 'Bei jeder Stornierung an die unten hinterlegte Adresse, mit der aktuellen Teilnehmerzahl.',
     'Access details sent to %d participants.' => 'Zugangsdaten an %d Teilnehmer verschickt.',
     'Nothing sent — meeting link is missing or there are no active bookings.' => 'Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen.',
     'Emails' => 'E-Mails',
@@ -427,9 +429,12 @@ const ENGLISH_TO_GERMAN = [
     "Your Class Link & Joining Details 💻✨" => "Dein Klassen-Link & Teilnahmeinformationen 💻✨",
     "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find all the details you need to join the session and prepare for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Zoom Details 💻</strong>\nJoin Link: {meeting_link}\n{access_details}\n\nTo join the class, you can either click directly on the Zoom link above, or open Zoom and enter the Meeting ID and Passcode manually. 🌱\n\nTo ensure a smooth and welcoming experience for everyone, please make sure to:<ul><li>Join using your real first and last name, so I can confirm your identity and welcome you into the session. 🤍</li><li>Keep your camera turned on during the class. 📹</li></ul>\nIf you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\nI’m looking forward to our upcoming session and sharing this practice with you. ✨\n\nWith gratitude,\nHelena 🌸" =>
         "Ein achtsames Hallo {first_name} 🌿,\n\ndeine Klasse findet bald statt. ✨ Nachfolgend findest du alle Informationen, die du benötigst, um an der Sitzung teilzunehmen und dich auf deine Praxis vorzubereiten.\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\n<strong>Zoom-Details 💻</strong>\nTeilnahmelink: {meeting_link}\n{access_details}\n\nUm an der Klasse teilzunehmen, kannst du entweder direkt auf den Zoom-Link oben klicken oder Zoom öffnen und die Meeting-ID sowie das Passwort manuell eingeben. 🌱\n\nDamit die Teilnahme für alle reibungslos und angenehm verläuft, bitte ich dich, Folgendes zu beachten:<ul><li>Trete mit deinem echten Vor- und Nachnamen bei, damit ich deine Identität bestätigen und dich persönlich in der Sitzung begrüßen kann. 🤍</li><li>Bitte lasse deine Kamera während der Klasse eingeschaltet. 📹</li></ul>\nFalls du Schwierigkeiten beim Beitreten hast oder Fragen auftreten, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌿\n\nIch freue mich auf unsere gemeinsame Praxis und darauf, diese Erfahrung mit dir zu teilen. ✨\n\nMit Dankbarkeit,\nHelena 🌸",
-    'New booking: {course_title}' => 'Neue Buchung: {course_title}',
-    "{customer_name} booked:\n\n{course_title}\n{date} at {time}" =>
-        "{customer_name} hat gebucht:\n\n{course_title}\n{date} um {time}",
+    'New booking: {course_title} ({booked_count}/{capacity})' => 'Neue Buchung: {course_title} ({booked_count}/{capacity})',
+    "{customer_name} ({customer_email}) booked:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}" =>
+        "{customer_name} ({customer_email}) hat gebucht:\n\n{course_title}\n{date} um {time}\n\nTeilnehmer jetzt: {booked_count} von {capacity}\nTeilnehmerliste: {admin_link}",
+    'Cancellation: {course_title} ({booked_count}/{capacity})' => 'Stornierung: {course_title} ({booked_count}/{capacity})',
+    "{customer_name} ({customer_email}) cancelled:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}" =>
+        "{customer_name} ({customer_email}) hat storniert:\n\n{course_title}\n{date} um {time}\n\nTeilnehmer jetzt: {booked_count} von {capacity}\nTeilnehmerliste: {admin_link}",
 
     /* =====================================================
      * includes/templates.php — template registry descriptions
