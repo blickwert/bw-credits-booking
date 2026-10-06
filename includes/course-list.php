@@ -178,11 +178,7 @@ class BW_Course_List {
         foreach ($selected as $taxonomy => $slug) {
             if (!taxonomy_exists($taxonomy)) continue;
 
-            $tax_query[] = [
-                'taxonomy' => $taxonomy,
-                'field'    => 'slug',
-                'terms'    => $slug,
-            ];
+            $tax_query[] = self::term_clause($taxonomy, $slug);
         }
 
         $args = [
@@ -207,6 +203,23 @@ class BW_Course_List {
         return get_posts($args);
     }
 
+    /**
+     * tax_query clause for a selected term (slug). Sessions keep the term of the language they were
+     * saved in, while the filter offers terms of the current WPML language — so the clause matches
+     * the term in the default language as well as the selected one.
+     */
+    private static function term_clause(string $taxonomy, string $slug): array {
+        $term = has_filter('wpml_object_id') ? get_term_by('slug', $slug, $taxonomy) : false;
+        if (!$term || is_wp_error($term)) {
+            return ['taxonomy' => $taxonomy, 'field' => 'slug', 'terms' => $slug];
+        }
+
+        $source = bw_cs_translate_term($term, apply_filters('wpml_default_language', null) ?: null);
+        $ids    = array_unique([(int) $term->term_taxonomy_id, (int) $source->term_taxonomy_id]);
+
+        return ['taxonomy' => $taxonomy, 'field' => 'term_taxonomy_id', 'terms' => $ids];
+    }
+
     /* ---------------------------------------------------------
      * Filter form — data for the template, no markup here
      * --------------------------------------------------------- */
@@ -217,8 +230,18 @@ class BW_Course_List {
         foreach (self::taxonomies() as $taxonomy => $label) {
             if (!taxonomy_exists($taxonomy)) continue;
 
-            $terms = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => true]);
+            $terms = get_terms(['taxonomy' => $taxonomy, 'hide_empty' => !has_filter('wpml_object_id')]);
             if (is_wp_error($terms) || empty($terms)) continue;
+
+            if (has_filter('wpml_object_id')) {
+                // Sessions are assigned the default-language term, so a translated term counts as used
+                // when its default-language counterpart is.
+                $default = apply_filters('wpml_default_language', null) ?: null;
+                $terms   = array_values(array_filter($terms, static function ($t) use ($default) {
+                    return (int) bw_cs_translate_term($t, $default)->count > 0;
+                }));
+                if (!$terms) continue;
+            }
 
             $available[$taxonomy] = ['label' => $label, 'terms' => $terms];
         }

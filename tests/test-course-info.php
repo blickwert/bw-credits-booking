@@ -26,12 +26,16 @@ function __($t, $d = null) { return $t; }
 function wp_kses_post($t) { return $t; }
 function wpautop($t) { return '<p>' . str_replace(["\r\n", "\n"], '<br />', trim($t)) . '</p>'; }
 function wp_date($f, $ts) { return gmdate($f, $ts); }
-function apply_filters($n, $v, ...$a) { return $v; }
+function apply_filters($n, $v, ...$a) {
+    if ($n === 'wpml_object_id' && isset($GLOBALS['__wpml_map'][$v])) return $GLOBALS['__wpml_map'][$v];
+    return $v;
+}
+function has_filter($n) { return $n === 'wpml_object_id' && !empty($GLOBALS['__wpml_map']); }
 function is_wp_error($x) { return false; }
 function taxonomy_exists($t) { return true; }
 function get_the_terms($id, $tax) { return $GLOBALS['__terms'][$id][$tax] ?? false; }
 function get_term_meta($id, $key, $single = false) { return $GLOBALS['__termmeta'][$id][$key] ?? ''; }
-function get_term($id, $tax) { return (object) ['term_id' => $id]; }
+function get_term($id, $tax) { return $GLOBALS['__term_objs'][$id] ?? (object) ['term_id' => $id, 'taxonomy' => $tax]; }
 function get_post_meta($id, $key, $single = false) { return $GLOBALS['__postmeta'][$id][$key] ?? ''; }
 function update_post_meta($id, $key, $v) { $GLOBALS['__postmeta'][$id][$key] = $v; }
 function get_post_field($f, $id) { return $GLOBALS['__content'][$id] ?? ''; }
@@ -52,6 +56,7 @@ class BW_Credits_Bookings_MVP {
     }
 }
 
+require __DIR__ . '/../includes/wpml-terms.php';
 require __DIR__ . '/../includes/course-info.php';
 
 $pass = 0; $fail = 0;
@@ -62,9 +67,9 @@ function check($label, $cond) {
 function sc($field, $id = 7) { return BW_Course_Info::render(['course_id' => $id, 'field' => $field]); }
 
 $GLOBALS['__terms'][7] = [
-    'course_type'  => [(object) ['term_id' => 31, 'name' => 'Hatha Yoga - Ground &amp; Connect', 'description' => "A calm practice.\r\nFor everyone."]],
-    'course_level' => [(object) ['term_id' => 30, 'name' => 'Soulful Beginning', 'description' => '']],
-    'course_lang'  => [(object) ['term_id' => 45, 'name' => 'English', 'description' => '']],
+    'course_type'  => [(object) ['taxonomy' => 'course_type', 'term_id' => 31, 'name' => 'Hatha Yoga - Ground &amp; Connect', 'description' => "A calm practice.\r\nFor everyone."]],
+    'course_level' => [(object) ['taxonomy' => 'course_level', 'term_id' => 30, 'name' => 'Soulful Beginning', 'description' => '']],
+    'course_lang'  => [(object) ['taxonomy' => 'course_lang', 'term_id' => 45, 'name' => 'English', 'description' => '']],
 ];
 $GLOBALS['__postmeta'][7] = ['start_datetime' => '2026-09-12 08:30:00', 'duration' => '50'];
 
@@ -85,6 +90,19 @@ $GLOBALS['__content'][7] = 'More about the class';
 check('detail: content is printed', sc('detail') === '<p>More about the class</p>');
 check('unknown field prints nothing', sc('nope') === '');
 check('no session (course_id 0 outside a session) prints nothing', BW_Course_Info::render(['field' => 'type']) === '');
+
+/* WPML: sessions keep the term they were saved with, outputs show its translation */
+$GLOBALS['__wpml_map']  = [31 => 77, 30 => 82];
+$GLOBALS['__term_objs'] = [
+    77 => (object) ['term_id' => 77, 'taxonomy' => 'course_type', 'name' => 'Hatha Yoga - Erdung &amp; Verbindung', 'description' => 'Eine ruhige Praxis.'],
+    82 => (object) ['term_id' => 82, 'taxonomy' => 'course_level', 'name' => 'Sanfter Einstieg', 'description' => ''],
+];
+check('WPML: type name comes from the translated term', sc('type') === 'Hatha Yoga - Erdung &amp; Verbindung');
+check('WPML: type description comes from the translated term', sc('type_description') === '<p>Eine ruhige Praxis.</p>');
+check('WPML: level name comes from the translated term', sc('level') === 'Sanfter Einstieg');
+check('WPML: a term without translation stays as it is', sc('language') === 'English');
+$GLOBALS['__wpml_map'] = []; $GLOBALS['__term_objs'] = [];
+check('without WPML the assigned term is shown', sc('type') === 'Hatha Yoga - Ground &amp; Connect');
 
 /* featured image from the type */
 $GLOBALS['__termmeta'][31]['img'] = 230;

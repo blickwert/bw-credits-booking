@@ -84,7 +84,8 @@ add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
     if (!empty($running[$post_id])) return;
     $running[$post_id] = true;
 
-    $course_type = bw_cs_first_term($post_id, 'course_type');
+    // Stored in the site's default language; the front end shows it in the current language (the_title filter below).
+    $course_type = bw_cs_first_term($post_id, 'course_type', apply_filters('wpml_default_language', null) ?: null);
     if ($course_type === '') { $running[$post_id] = false; return; }
 
     $title = apply_filters('bw_slot_title', $course_type, $post_id);
@@ -97,6 +98,19 @@ add_action('acf/save_post', function ($post_id) use ($bw_slot_pt) {
 
     $running[$post_id] = false;
 }, 20);
+
+/* =========================================================
+ * Course session: show the title in the current language
+ * The stored title is the type's name in the default language; with WPML the
+ * type is translated, so the front end shows the translated name.
+ * ========================================================= */
+
+add_filter('the_title', function ($title, $post_id = 0) use ($bw_slot_pt) {
+    if (is_admin() || !$post_id || !has_filter('wpml_object_id') || get_post_type($post_id) !== $bw_slot_pt) return $title;
+
+    $type = bw_cs_first_term((int) $post_id, 'course_type');
+    return $type === '' ? $title : esc_html((string) apply_filters('bw_slot_title', $type, $post_id));
+}, 10, 2);
 
 /* =========================================================
  * Edit course sessions in the Classic Editor
@@ -216,12 +230,14 @@ add_filter('posts_clauses', function ($clauses, $query) use ($bw_slot_pt) {
  * ========================================================= */
 
 if (!function_exists('bw_cs_first_term')) {
-    function bw_cs_first_term(int $post_id, string $taxonomy): string {
+    /** Name of the session's first term in a taxonomy, in the current WPML language (or $lang). */
+    function bw_cs_first_term(int $post_id, string $taxonomy, ?string $lang = null): string {
         $terms = get_the_terms($post_id, $taxonomy);
         if (empty($terms) || is_wp_error($terms)) return '';
+        $term = bw_cs_translate_term($terms[0], $lang);
         // WordPress stores term names entity-escaped ("Ground &amp; Connect");
         // return raw text so callers escape exactly once and the auto-title
         // doesn't persist a literal "&amp;" into post_title.
-        return html_entity_decode($terms[0]->name ?? '', ENT_QUOTES, 'UTF-8');
+        return html_entity_decode($term->name ?? '', ENT_QUOTES, 'UTF-8');
     }
 }
