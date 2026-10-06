@@ -219,7 +219,7 @@ class BW_Emails {
         if (!is_array($terms) || !$terms) return '';
 
         return implode(', ', array_map(function ($term) {
-            return html_entity_decode($term->name, ENT_QUOTES);
+            return html_entity_decode(bw_cs_translate_term($term)->name, ENT_QUOTES);
         }, $terms));
     }
 
@@ -299,7 +299,14 @@ class BW_Emails {
             restore_previous_locale();
         }
 
+        // Term names (type, level, language) come out in the customer's language: switch WPML for the placeholders.
+        $wpml_before = apply_filters('wpml_current_language', null);
+        $wpml_switch = $lang !== '' && $wpml_before && $lang !== $wpml_before;
+        if ($wpml_switch) do_action('wpml_switch_language', $lang);
+
         $placeholders = self::placeholders($user_id, $slot_id);
+
+        if ($wpml_switch) do_action('wpml_switch_language', $wpml_before);
 
         $subject = strtr($subject_tpl, $placeholders);
 

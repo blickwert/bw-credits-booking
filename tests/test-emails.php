@@ -187,6 +187,7 @@ class BW_Settings {
     const MENU_SLUG = 'bw-credits';
 }
 
+require __DIR__ . '/../includes/wpml-terms.php';
 require __DIR__ . '/../includes/metaboxes.php';
 require __DIR__ . '/../includes/emails.php';
 require __DIR__ . '/../includes/email-language.php';

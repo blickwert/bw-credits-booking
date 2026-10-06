@@ -167,6 +167,8 @@ One value of a session, so the single-session Elementor template can be built fr
 
 `field`: `type`, `type_description`, `level`, `level_description`, `language` (names and descriptions of the taxonomy terms), `start` (`d.m.Y H:i`), `date`, `time`, `duration`, `detail` (the session's content), `calendar` (the calendar-leaf date block, as in the session list). Empty values print nothing. `course_id`
 
+**WPML:** with the taxonomies `course_type`, `course_level` and `course_lang` set to *translatable*, names and descriptions come out in the current language while the sessions themselves stay untranslated.
+
 **Featured image:** a session's featured image is taken from its course type (the term's ACF image `img`) when the session is saved and when the type's image changes; existing sessions are filled once after the update. A featured image chosen by hand is never replaced.
 
 #### `[bw_credits_course_access]`

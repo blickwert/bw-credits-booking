@@ -5,6 +5,14 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.45.0] – 2026-10-06
+
+### Added
+- **Course types, levels and languages follow WPML.** Sessions stay untranslated and keep the term they were saved with; every output now maps that term to the current WPML language (`bw_cs_translate_term()` in `includes/wpml-terms.php`): the single-session shortcode `[bw_credits_course_info]`, the session list, My Account, and the e-mail placeholders `{course_type}` / `{course_level}`.
+- The session **title** is shown in the current language on the front end (the stored title stays the type name in the default language).
+- **E-mails:** WPML is switched to the customer's language while the placeholders are built, so type and level come out in the language of the mail.
+- **Session list filter:** the filter offers the terms of the current language and matches sessions assigned the default-language term; a translated term counts as used when its default-language counterpart is.
+
 ## [0.44.0] – 2026-10-05
 
 ### Added

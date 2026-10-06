@@ -60,7 +60,8 @@ class BW_Course_Info {
         $terms = get_the_terms($slot_id, $taxonomy);
         if (empty($terms) || is_wp_error($terms)) return '';
 
-        $value = (string) ($terms[0]->$what ?? '');
+        $term  = bw_cs_translate_term($terms[0]);
+        $value = (string) ($term->$what ?? '');
         // Names are stored entity-escaped ("Ground &amp; Connect"): decode so
         // esc_html() escapes exactly once.
         return $what === 'name' ? html_entity_decode($value, ENT_QUOTES, 'UTF-8') : $value;
