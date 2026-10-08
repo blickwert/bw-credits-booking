@@ -5,6 +5,16 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.46.0] – 2026-10-08
+
+### Added
+- **Session content from its data.** Sessions keep type, level, language, date and duration in terms and meta, so the post content stayed empty — SEO plugins, search engines, the WP search and the REST API saw an empty page. On save the content is now generated from that data (`BW_Course_Info::sync_content()`): type, level and language, date and duration, and the type and level descriptions. Terms are used as saved (default language); the access data (meeting link, passcode) is never part of it.
+- Content written by hand is never replaced: only empty content, or content that is still the generated one (tracked via `_bw_content_auto`), follows the data. Editing a type, level or language updates the content of its sessions; existing sessions are filled once after the update.
+- Filters `bw_course_content_enabled` (switch it off) and `bw_course_content_html` (change the generated HTML).
+
+### Changed
+- `[bw_credits_course_info field="detail"]` prints only text written by hand, not the generated content (it would repeat what the other fields show).
+
 ## [0.45.0] – 2026-10-06
 
 ### Added

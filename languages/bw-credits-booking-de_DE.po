@@ -1173,7 +1173,7 @@ msgstr "Auf Standard zurücksetzen"
 msgid "Reset all to default"
 msgstr "Alle auf Standard zurücksetzen"
 
-#: includes/course-info.php:107
+#: includes/course-info.php:119
 msgid "%d min."
 msgstr "%d Min."
 
