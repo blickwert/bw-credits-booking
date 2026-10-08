@@ -915,7 +915,7 @@ msgstr ""
 msgid "No-show mark removed."
 msgstr ""
 
-#: includes/course-info.php:107
+#: includes/course-info.php:119
 msgid "%d min."
 msgstr ""
 

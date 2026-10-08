@@ -14,15 +14,27 @@ if (!defined('ABSPATH')) exit;
  * Featured image: the image (ACF "img") of the session's course type becomes
  * the session's featured image on save — and when the type's image changes.
  * A featured image chosen by hand is never replaced.
+ *
+ * Post content: sessions keep their data in terms and meta, so the post
+ * content stayed empty — search engines, SEO plugins, the WP search and the
+ * REST API saw an empty page. On save the content is generated from that data
+ * (type, level, language, date, duration and the descriptions). Text written
+ * by hand is never replaced; the access data (meeting link, passcode) is
+ * never part of it.
  */
 class BW_Course_Info {
 
-    const META_AUTO_THUMB = '_bw_thumb_auto';
-    const OPT_BACKFILL    = 'bw_thumb_backfill_done';
+    const META_AUTO_THUMB   = '_bw_thumb_auto';
+    const OPT_BACKFILL      = 'bw_thumb_backfill_done';
+    const META_AUTO_CONTENT = '_bw_content_auto';
+    const OPT_BACKFILL_TEXT = 'bw_content_backfill_done';
 
     public static function init() {
         add_action('acf/save_post', [__CLASS__, 'on_acf_save'], 30);
+        add_action('save_post', [__CLASS__, 'on_save_post'], 99, 2);
+        add_action('edited_term', [__CLASS__, 'on_term_edited'], 30, 3);
         add_action('admin_init', [__CLASS__, 'backfill_once']);
+        add_action('admin_init', [__CLASS__, 'backfill_content_once']);
     }
 
     /* ---------------------------------------------------------
@@ -48,7 +60,7 @@ class BW_Course_Info {
             case 'date':              return esc_html(self::start($slot_id, 'd.m.Y'));
             case 'time':              return esc_html(self::start($slot_id, 'H:i'));
             case 'duration':          return esc_html(self::duration($slot_id));
-            case 'detail':            return self::rich((string) get_post_field('post_content', $slot_id));
+            case 'detail':            return self::is_auto_content($slot_id) ? '' : self::rich((string) get_post_field('post_content', $slot_id));
             case 'calendar':          return self::calendar($slot_id);
         }
         return '';
@@ -117,6 +129,22 @@ class BW_Course_Info {
             return;
         }
         self::sync_slot((int) $post_id);
+        self::sync_content((int) $post_id);
+    }
+
+    /** Saves outside the ACF form (REST, quick edit, import). */
+    public static function on_save_post($post_id, $post = null) {
+        if (wp_is_post_revision($post_id) || wp_is_post_autosave($post_id)) return;
+        self::sync_content((int) $post_id);
+    }
+
+    /** A type, level or language was edited (e.g. its description) → update the content of its sessions. */
+    public static function on_term_edited($term_id, $tt_id = 0, $taxonomy = '') {
+        if (!in_array($taxonomy, ['course_type', 'course_level', 'course_lang'], true)) return;
+
+        foreach (self::slot_ids(['taxonomy' => $taxonomy, 'field' => 'term_id', 'terms' => [(int) $term_id]]) as $slot_id) {
+            self::sync_content((int) $slot_id);
+        }
     }
 
     /** Sets the slot's featured image from its type unless one was chosen by hand. */
@@ -147,6 +175,81 @@ class BW_Course_Info {
         foreach (self::slot_ids(['taxonomy' => 'course_type', 'field' => 'term_id', 'terms' => [$term_id]]) as $slot_id) {
             self::sync_slot((int) $slot_id);
         }
+    }
+
+    /* ---------------------------------------------------------
+     * Post content from the session's data
+     * --------------------------------------------------------- */
+
+    /**
+     * Generates the session's content (type, level, language, date, duration, descriptions).
+     * Empty content, or content that is still the one generated earlier, follows the data;
+     * text written by hand is never replaced. Returns true when the content was written.
+     */
+    public static function sync_content(int $slot_id): bool {
+        if ($slot_id <= 0 || get_post_type($slot_id) !== BW_Settings::get_slot_post_type()) return false;
+        if (in_array(get_post_status($slot_id), ['auto-draft', 'trash', 'inherit'], true)) return false;
+        if (!apply_filters('bw_course_content_enabled', true, $slot_id)) return false;
+
+        $html = trim((string) apply_filters('bw_course_content_html', self::build_content($slot_id), $slot_id));
+        if ($html === '') return false;
+
+        $current = (string) get_post_field('post_content', $slot_id);
+        if ($current === $html) return false;
+        if ($current !== '' && !self::is_auto_content($slot_id)) return false;
+
+        global $wpdb;
+        $wpdb->update($wpdb->posts, ['post_content' => $html], ['ID' => $slot_id]);
+        clean_post_cache($slot_id);
+        update_post_meta($slot_id, self::META_AUTO_CONTENT, md5($html));
+        return true;
+    }
+
+    /** True while the post content is the generated one (so it is not "detail" text written by hand). */
+    private static function is_auto_content(int $slot_id): bool {
+        $content = (string) get_post_field('post_content', $slot_id);
+        $auto    = (string) get_post_meta($slot_id, self::META_AUTO_CONTENT, true);
+        return $content !== '' && $auto !== '' && md5($content) === $auto;
+    }
+
+    /**
+     * Content from the terms as saved (default-language names — sessions are not translated)
+     * and the session's meta. Never contains the access data (meeting link, passcode).
+     */
+    private static function build_content(int $slot_id): string {
+        $name = static function (string $taxonomy) use ($slot_id): string {
+            $terms = taxonomy_exists($taxonomy) ? get_the_terms($slot_id, $taxonomy) : false;
+            return (empty($terms) || is_wp_error($terms)) ? '' : trim(html_entity_decode((string) $terms[0]->name, ENT_QUOTES, 'UTF-8'));
+        };
+        $text = static function (string $taxonomy) use ($slot_id): string {
+            $terms = taxonomy_exists($taxonomy) ? get_the_terms($slot_id, $taxonomy) : false;
+            return (empty($terms) || is_wp_error($terms)) ? '' : trim((string) $terms[0]->description);
+        };
+
+        $title = implode(' – ', array_filter([$name('course_type'), $name('course_level')]));
+        $lang  = $name('course_lang');
+        if ($lang !== '') $title .= ($title !== '' ? ' ' : '') . '(' . $lang . ')';
+
+        $when = trim(self::start($slot_id, 'd.m.Y H:i') . ' · ' . self::duration($slot_id), ' ·');
+
+        $html = '';
+        foreach ([$title, $when] as $line) {
+            if ($line !== '') $html .= '<p>' . esc_html($line) . '</p>';
+        }
+        foreach ([$text('course_type'), $text('course_level')] as $description) {
+            if ($description !== '') $html .= wp_kses_post(wpautop($description));
+        }
+        return $html;
+    }
+
+    /** One run after installing/updating: sessions that already exist get their content too. */
+    public static function backfill_content_once() {
+        if (get_option(self::OPT_BACKFILL_TEXT)) return;
+
+        foreach (self::slot_ids() as $slot_id) {
+            self::sync_content((int) $slot_id);
+        }
+        update_option(self::OPT_BACKFILL_TEXT, 1);
     }
 
     /** One run after installing/updating: sessions that already exist get their image too. */
