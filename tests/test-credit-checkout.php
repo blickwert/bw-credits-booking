@@ -129,6 +129,16 @@ check('shop button: other products keep AJAX', $args['class'] === 'button ajax_a
 $GLOBALS['__direct'] = false;
 check('switched off: redirect, quantity and button unchanged', BW_Credit_Checkout::redirect_to_checkout(false, new Fake_Product(10)) === false && BW_Credit_Checkout::sold_individually(false, new Fake_Product(10)) === false && BW_Credit_Checkout::loop_button_args(['class' => 'ajax_add_to_cart'], new Fake_Product(10))['class'] === 'ajax_add_to_cart');
 
+/* --- button label --- */
+reset_state();
+check('button: credit product says "buy now" (single page and loop)', BW_Credit_Checkout::button_text('Add to cart', new Fake_Product(10)) === '[cart.credit_button]');
+check('button: other products keep their label', BW_Credit_Checkout::button_text('Add to cart', new Fake_Product(20)) === 'Add to cart');
+$GLOBALS['__direct'] = false;
+check('button: switched off → label unchanged', BW_Credit_Checkout::button_text('Add to cart', new Fake_Product(10)) === 'Add to cart');
+foreach (['woocommerce_product_single_add_to_cart_text', 'woocommerce_product_add_to_cart_text'] as $h) {
+    check("hook registered: $h", !empty($GLOBALS['__hooks'][$h]));
+}
+
 /* --- cart check --- */
 reset_state(); cart_with([10, 20]); BW_Credit_Checkout::check_cart();
 check('mixed cart: an error blocks the checkout', $GLOBALS['__notices'] === [['error', '[cart.credit_only]']]);

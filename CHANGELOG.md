@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.48.1] – 2026-10-12
+
+### Changed
+- The add-to-cart button of a credit product says "Buy now" ("Jetzt kaufen") instead of "Add to cart", on the product page and in shop lists — it leads straight to the checkout. Text catalogue key `cart.credit_button`; follows the "Direct checkout" switch.
+
 ## [0.48.0] – 2026-10-12
 
 ### Added

@@ -235,6 +235,9 @@ class BW_Text {
             'cart.credit_replaced' => [
                 'Your cart was replaced by the selected credit package.', 'Notice at the checkout when another item was in the cart', 'cart',
             ],
+            'cart.credit_button' => [
+                'Buy now', 'Label of the add-to-cart button of a credit product (it leads straight to the checkout)', 'cart',
+            ],
             'cart.credit_only' => [
                 'A credit package can only be ordered on its own. Please complete this order first or empty your cart.', 'Error when a credit product and another product would be in one cart', 'cart',
             ],

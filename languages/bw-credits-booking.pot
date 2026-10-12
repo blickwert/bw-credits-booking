@@ -283,6 +283,11 @@ msgstr ""
 msgid "Your cart was replaced by the selected credit package."
 msgstr ""
 
+#. Label of the add-to-cart button of a credit product (it leads straight to the checkout)
+#: catalogue:cart.credit_button
+msgid "Buy now"
+msgstr ""
+
 #. Error when a credit product and another product would be in one cart
 #: catalogue:cart.credit_only
 msgid "A credit package can only be ordered on its own. Please complete this order first or empty your cart."
@@ -1310,7 +1315,7 @@ msgstr ""
 msgid "No changelog information available."
 msgstr ""
 
-#: includes/credit-checkout.php:182
+#: includes/credit-checkout.php:192
 msgid "Completed automatically: the order consists only of credit products."
 msgstr ""
 

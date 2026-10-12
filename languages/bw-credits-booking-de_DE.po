@@ -55,6 +55,11 @@ msgstr "Du hast keine Credits."
 msgid "Top up now"
 msgstr "Jetzt aufladen"
 
+#. Label of the add-to-cart button of a credit product (it leads straight to the checkout)
+#: catalogue:cart.credit_button
+msgid "Buy now"
+msgstr "Jetzt kaufen"
+
 #. Notice at the checkout when another item was in the cart
 #: catalogue:cart.credit_replaced
 msgid "Your cart was replaced by the selected credit package."
@@ -97,7 +102,7 @@ msgstr "Bestellungen, die nur Guthaben-Produkte enthalten, nach der Zahlung absc
 msgid "Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are."
 msgstr "Das Guthaben wird beim Abschluss einer Bestellung gutgeschrieben. So erhalten Kundinnen es direkt nach der Zahlung. Bestellungen von Gästen und Bestellungen mit anderen Produkten bleiben unverändert."
 
-#: includes/credit-checkout.php:182
+#: includes/credit-checkout.php:192
 msgid "Completed automatically: the order consists only of credit products."
 msgstr "Automatisch abgeschlossen: Die Bestellung enthält nur Guthaben-Produkte."
 
