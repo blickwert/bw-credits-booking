@@ -1263,52 +1263,52 @@ msgstr ""
 msgid "No changelog information available."
 msgstr ""
 
-#: bw-credits-booking.php:213
+#: bw-credits-booking.php:214
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:215
+#: bw-credits-booking.php:216
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:217
+#: bw-credits-booking.php:218
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:475
-#: bw-credits-booking.php:703
+#: bw-credits-booking.php:476
+#: bw-credits-booking.php:704
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:478
+#: bw-credits-booking.php:479
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:488
+#: bw-credits-booking.php:489
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:507
+#: bw-credits-booking.php:508
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1062
+#: bw-credits-booking.php:1063
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1585
+#: bw-credits-booking.php:1586
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1592
+#: bw-credits-booking.php:1593
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1600
+#: bw-credits-booking.php:1601
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1607
+#: bw-credits-booking.php:1608
 msgid "Cancelled."
 msgstr ""
 
