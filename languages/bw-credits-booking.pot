@@ -1296,19 +1296,19 @@ msgstr ""
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1586
+#: bw-credits-booking.php:1591
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1593
+#: bw-credits-booking.php:1598
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1601
+#: bw-credits-booking.php:1606
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1608
+#: bw-credits-booking.php:1613
 msgid "Cancelled."
 msgstr ""
 
