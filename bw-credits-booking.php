@@ -1469,6 +1469,11 @@ class BW_Credits_Bookings_MVP {
         $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
 
+        // A session that has started or is over has no spots to show — only the
+        // "session is over" note of the booking button remains.
+        $start = self::get_slot_start_datetime($slot_id);
+        if ($start && $start <= new DateTime('now', wp_timezone())) return '';
+
         self::ensure_assets();
 
         $free = self::get_free_spots($slot_id);

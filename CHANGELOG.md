@@ -10,6 +10,9 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 ### Fixed
 - **Lazy views inside Elementor popups stayed empty.** Elementor copies the hidden content of a popup; the copy carried the `data-bw-loading` attribute set while the original's request was still on the way, so it was never loaded (the session list in the "Upcoming classes" popup showed no spots and no book button). The in-flight state is now kept in memory (`WeakSet`) instead of an attribute, so a copy of a placeholder is picked up by the next scan.
 
+### Changed
+- `[bw_credits_course_availability]` prints nothing for a session that has started or is over (it used to show "more than 5 spots available" next to "This session is over."). Booking was already refused server-side for such sessions (`book_slot()`), and the book button shows only the "over" note.
+
 ## [0.47.0] – 2026-10-12
 
 ### Added
