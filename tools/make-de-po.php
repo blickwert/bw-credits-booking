@@ -50,6 +50,7 @@ const ENGLISH_TO_GERMAN = [
     'You are booked for this session.' => 'Du bist für diesen Termin angemeldet.',
     'You have no credits.' => 'Du hast keine Credits.',
     'Top up now' => 'Jetzt aufladen',
+    'Buy now' => 'Jetzt kaufen',
     'Your cart was replaced by the selected credit package.' => 'Dein Warenkorb wurde durch das gewählte Guthaben-Paket ersetzt.',
     'A credit package can only be ordered on its own. Please complete this order first or empty your cart.' => 'Ein Guthaben-Paket kann nur einzeln bestellt werden. Bitte schließe zuerst diese Bestellung ab oder leere deinen Warenkorb.',
     'Credit products in the shop' => 'Guthaben-Produkte im Shop',

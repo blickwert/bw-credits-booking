@@ -32,6 +32,8 @@ class BW_Credit_Checkout {
         add_filter('woocommerce_is_sold_individually', [__CLASS__, 'sold_individually'], 10, 2);
         add_filter('woocommerce_loop_add_to_cart_args', [__CLASS__, 'loop_button_args'], 10, 2);
         add_action('woocommerce_check_cart_items', [__CLASS__, 'check_cart']);
+        add_filter('woocommerce_product_single_add_to_cart_text', [__CLASS__, 'button_text'], 10, 2);
+        add_filter('woocommerce_product_add_to_cart_text', [__CLASS__, 'button_text'], 10, 2);
 
         // 3: order
         add_filter('woocommerce_payment_complete_order_status', [__CLASS__, 'payment_complete_status'], 10, 3);
@@ -141,6 +143,14 @@ class BW_Credit_Checkout {
             $args['class'] = trim(str_replace('ajax_add_to_cart', '', (string) $args['class']));
         }
         return $args;
+    }
+
+    /** The button leads to the checkout, so it says so ("Buy now" instead of "Add to cart"). */
+    public static function button_text($text, $product = null) {
+        if (!BW_Settings::get_credit_direct_checkout() || !is_object($product) || !method_exists($product, 'get_id')) {
+            return $text;
+        }
+        return self::is_credit_product((int) $product->get_id()) ? bw_text('cart.credit_button') : $text;
     }
 
     /** An already mixed cart (e.g. from an old session) can't be checked out. */
