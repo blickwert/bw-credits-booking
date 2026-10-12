@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.47.1] – 2026-10-12
+
+### Fixed
+- **Lazy views inside Elementor popups stayed empty.** Elementor copies the hidden content of a popup; the copy carried the `data-bw-loading` attribute set while the original's request was still on the way, so it was never loaded (the session list in the "Upcoming classes" popup showed no spots and no book button). The in-flight state is now kept in memory (`WeakSet`) instead of an attribute, so a copy of a placeholder is picked up by the next scan.
+
 ## [0.47.0] – 2026-10-12
 
 ### Added
