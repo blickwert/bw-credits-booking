@@ -11,6 +11,10 @@
 
 const LAZY_CHUNK = 30; // max items per request, matches the server limit
 
+// Nodes whose request is on its way. Kept in memory, not as an attribute: page builders
+// (Elementor popups) copy hidden content, and a copied "loading" attribute would leave the copy empty for good.
+const lazyBusy = new WeakSet();
+
 function lazyRequest(items) {
   const cfg = getCfg();
   const send = function (withNonce) {
@@ -50,20 +54,23 @@ async function hydrateChunk(groups) {
   groups.forEach(function (g, i) {
     const result = views && views["v" + i];
     g.nodes.forEach(function (node) {
-      node.removeAttribute("data-bw-loading");
+      lazyBusy.delete(node);
       if (!result || !result.ok) {
-        node.dataset.bwError = "1";
+        node.dataset.bwError = "1"; // not retried in a loop; a copy of the node is tried afresh
         return;
       }
       node.innerHTML = result.html;
       node.removeAttribute("aria-busy");
+      node.removeAttribute("data-bw-error");
     });
   });
 }
 
 /** Loads all pending placeholders below root (default: the whole page). */
 async function hydrateViews(root) {
-  const nodes = qsa('.bw-lazy-view[aria-busy="true"]:not([data-bw-loading]):not([data-bw-error])', root);
+  const nodes = qsa('.bw-lazy-view[aria-busy="true"]:not([data-bw-error])', root).filter(function (node) {
+    return !lazyBusy.has(node);
+  });
   if (!nodes.length) return;
 
   // Identical placeholders (e.g. the same balance twice) are requested only once.
@@ -74,7 +81,7 @@ async function hydrateViews(root) {
     const payload = node.dataset.bwView || "";
     if (!sig || !payload) return;
 
-    node.dataset.bwLoading = "1";
+    lazyBusy.add(node);
     if (!bySig[sig]) {
       bySig[sig] = { payload: payload, sig: sig, nodes: [] };
       groups.push(bySig[sig]);
