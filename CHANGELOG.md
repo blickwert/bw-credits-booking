@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.47.2] – 2026-10-12
+
+### Changed
+- `[bw_credits_course_availability]` prints nothing for a session that has started or is over (it used to show "more than 5 spots available" next to "This session is over."). Booking was already refused server-side for such sessions (`book_slot()`), and the book button shows only the "over" note.
+
 ## [0.47.1] – 2026-10-12
 
 ### Fixed

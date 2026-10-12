@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.47.1
+ * Version: 0.47.2
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.47.1');
+define('BW_CREDITS_BOOKING_VERSION', '0.47.2');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -1468,6 +1468,11 @@ class BW_Credits_Bookings_MVP {
 
         $slot_id = self::resolve_course_id((int) ($atts['course_id'] ?: $atts['slot_id']));
         if ($slot_id <= 0) return '';
+
+        // A session that has started or is over has no spots to show — only the
+        // "session is over" note of the booking button remains.
+        $start = self::get_slot_start_datetime($slot_id);
+        if ($start && $start <= new DateTime('now', wp_timezone())) return '';
 
         self::ensure_assets();
 
