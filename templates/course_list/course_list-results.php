@@ -63,12 +63,14 @@ if (!defined('ABSPATH')) exit;
                         <?php endif; ?>
 
                         <?php
-                        // Direct calls instead of do_shortcode — saves parsing per row
+                        // Free spots and the book button depend on the visitor and the
+                        // moment: placeholders that JS fills in, so the list stays cacheable
+                        // (see includes/lazy-views.php). Direct calls instead of do_shortcode.
                         if ($show_avail) {
-                            echo BW_Credits_Bookings_MVP::sc_availability(['slot_id' => $slot->ID]);
+                            echo BW_Lazy_Views::render('bw_credits_course_availability', ['course_id' => $slot->ID]);
                         }
                         if ($show_action) {
-                            echo BW_Credits_Bookings_MVP::sc_slot_action(['slot_id' => $slot->ID]);
+                            echo BW_Lazy_Views::render('bw_credits_course_booking', ['course_id' => $slot->ID]);
                         }
                         ?>
                     </div>

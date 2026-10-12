@@ -32,6 +32,8 @@ class BW_Course_List {
         ];
     }
 
+    const SIG_PREFIX = 'course_list|';
+
     const ATTS_DEFAULTS = [
         'limit'        => 20,
         'type'         => '',
@@ -52,19 +54,22 @@ class BW_Course_List {
 
         BW_Credits_Bookings_MVP::ensure_assets();
 
+        $atts_json = wp_json_encode([
+            'limit'        => (int) $atts['limit'],
+            'days'         => (int) $atts['days'],
+            'type'         => $atts['type'],
+            'level'        => $atts['level'],
+            'lang'         => $atts['lang'],
+            'show_action'  => $atts['show_action'],
+            'availability' => $atts['availability'],
+            'empty'        => $atts['empty'],
+        ]);
+
         ob_start();
         bw_get_template('course_list/course_list.php', [
             'results_html' => self::render_results($atts, $selected),
-            'atts_json'    => wp_json_encode([
-                'limit'        => (int) $atts['limit'],
-                'days'         => (int) $atts['days'],
-                'type'         => $atts['type'],
-                'level'        => $atts['level'],
-                'lang'         => $atts['lang'],
-                'show_action'  => $atts['show_action'],
-                'availability' => $atts['availability'],
-                'empty'        => $atts['empty'],
-            ]),
+            'atts_json'    => $atts_json,
+            'atts_sig'     => BW_Lazy_Views::sign(self::SIG_PREFIX . $atts_json),
             'show_filter'  => $show_filter,
             'filter'       => $show_filter ? self::build_filter_data($selected) : [],
         ]);
@@ -293,7 +298,16 @@ class BW_Course_List {
     }
 
     public static function rest_course_list(WP_REST_Request $req) {
-        $atts = shortcode_atts(self::ATTS_DEFAULTS, $req->get_params(), 'bw_credits_course_list');
+        // Only trust the shortcode attributes if the signature on the page matches.
+        // Otherwise (manipulated or missing, e.g. an old theme override) the
+        // defaults apply — the client can't set limit, texts or the like.
+        $json    = (string) $req->get_param('bw_atts');
+        $trusted = strlen($json) <= 2000 && BW_Lazy_Views::verify(self::SIG_PREFIX . $json, (string) $req->get_param('bw_sig'));
+        $given   = $trusted ? json_decode($json, true) : [];
+
+        $atts = shortcode_atts(self::ATTS_DEFAULTS, BW_Lazy_Views::clean_atts(is_array($given) ? $given : []), 'bw_credits_course_list');
+        $atts['limit'] = max(1, min(100, (int) $atts['limit']));
+        $atts['days']  = max(0, min(3650, (int) $atts['days']));
 
         $overrides = [];
         foreach (['bw_type', 'bw_level', 'bw_lang'] as $param) {

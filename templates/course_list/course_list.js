@@ -11,14 +11,6 @@ function courseListWrap(el) {
   return el.closest("[data-bw-course-list]");
 }
 
-function courseListAtts(wrap) {
-  try {
-    return JSON.parse(wrap.dataset.bwAtts || "{}");
-  } catch (e) {
-    return {};
-  }
-}
-
 async function fetchCourseList(wrap) {
   const results = qs("[data-bw-course-list-results]", wrap);
   if (!results) return;
@@ -27,8 +19,9 @@ async function fetchCourseList(wrap) {
   const msg = qs("[data-bw-msg]", wrap);
 
   const params = new URLSearchParams();
-  const atts = courseListAtts(wrap);
-  Object.keys(atts).forEach(function (key) { params.set(key, String(atts[key])); });
+  // The shortcode attributes travel as signed JSON — the server ignores them if they were altered.
+  params.set("bw_atts", wrap.dataset.bwAtts || "{}");
+  params.set("bw_sig", wrap.dataset.bwAttsSig || "");
   if (form) {
     new FormData(form).forEach(function (value, key) {
       if (key.indexOf("bw_") === 0) params.set(key, value);
@@ -56,6 +49,7 @@ async function fetchCourseList(wrap) {
     }
 
     results.innerHTML = json.html;
+    hydrateViews(results);
     updateCourseListUrl(params);
   } catch (err) {
     setMsg(msg, "❌ " + err.message, true);

@@ -13,6 +13,7 @@
  *
  * @var string $results_html  pre-rendered HTML from course_list-results.php
  * @var string $atts_json     JSON-encoded non-filter shortcode attributes
+ * @var string $atts_sig      Signature of $atts_json (the REST route only trusts signed attributes)
  *                             (limit, days, type, level, lang, show_action,
  *                             availability, empty) — resent by the AJAX
  *                             filter on every request so it can rebuild
@@ -30,7 +31,7 @@
  */
 if (!defined('ABSPATH')) exit;
 ?>
-<div class="bw-course-slots" data-bw-course-list data-bw-atts="<?php echo esc_attr($atts_json); ?>">
+<div class="bw-course-slots" data-bw-course-list data-bw-atts="<?php echo esc_attr($atts_json); ?>" data-bw-atts-sig="<?php echo esc_attr($atts_sig ?? ''); ?>">
     <?php if ($show_filter && !empty($filter['available'])) : ?>
         <form class="bw-course-filter" method="get">
             <?php foreach ($filter['hidden'] as $key => $value) : ?>

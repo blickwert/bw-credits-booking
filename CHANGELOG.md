@@ -5,6 +5,20 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.47.0] – 2026-10-12
+
+### Added
+- **Lazy views: visitor- and time-dependent shortcodes load via JS, so a page cache can't freeze them.** Free spots, book/cancel button, credit balance, credit details, booking list, account overview and access details (`bw_credits_course_availability`, `_course_booking`, `_course_access`, `_user_balance`, `_user_credits`, `_user_bookings`, `_view_overview`) now print an empty placeholder; `assets/lazy-views.js` collects all placeholders of a page, requests them in one `POST /wp-json/bw-credits/v1/views` and inserts the answer. The page itself holds no personal data and no spot counts and can be cached (WP Super Cache, WP Rocket, CDN); session pages no longer need to be excluded from the cache. Placeholders are `display: contents`, so the layout is unchanged. Content added later (popups, filter results) is picked up too; `bw:views-loaded` fires after each load.
+- Session list: free spots and the book button of each row are placeholders as well (also in the AJAX filter result).
+- Page builder editor/preview and the admin render directly as before. Switch off with `add_filter('bw_lazy_views_enabled', '__return_false')` or `define('BW_LAZY_VIEWS_DISABLED', true)`.
+- `tests/test-lazy-views.php`.
+
+### Security
+- **Signed placeholders.** Tag, attributes and language are signed with an HMAC (server secret); the route discards any payload that was changed (`hash_equals`), so the client can't pick another session or other attributes. Only the seven views above can be requested, even with a valid signature. Items per request (30) and payload size (4000 bytes) are capped; answers carry `Cache-Control: no-store`.
+- Nothing about the user comes from the client: the views use the logged-in user; WordPress' cookie + nonce check applies as before (expired nonce: refreshed for logged-in users, guests continue without).
+- **Session list AJAX filter:** the shortcode attributes (`limit`, `days`, `empty`, …) are now signed; an altered or missing signature falls back to the defaults. `limit` is capped at 100.
+- Booking and cancelling are unchanged: separate routes, login + nonce, checked in `book_slot()` / `cancel_booking()`.
+
 ## [0.46.0] – 2026-10-08
 
 ### Added
