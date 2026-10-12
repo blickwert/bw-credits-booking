@@ -55,6 +55,52 @@ msgstr "Du hast keine Credits."
 msgid "Top up now"
 msgstr "Jetzt aufladen"
 
+#. Notice at the checkout when another item was in the cart
+#: catalogue:cart.credit_replaced
+msgid "Your cart was replaced by the selected credit package."
+msgstr "Dein Warenkorb wurde durch das gewählte Guthaben-Paket ersetzt."
+
+#. Error when a credit product and another product would be in one cart
+#: catalogue:cart.credit_only
+msgid "A credit package can only be ordered on its own. Please complete this order first or empty your cart."
+msgstr "Ein Guthaben-Paket kann nur einzeln bestellt werden. Bitte schließe zuerst diese Bestellung ab oder leere deinen Warenkorb."
+
+#: includes/settings.php:130
+msgid "Credit products in the shop"
+msgstr "Guthaben-Produkte im Shop"
+
+#: includes/settings.php:131
+msgid "A credit product is a product with a credit amount greater than 0 (product data › General)."
+msgstr "Ein Guthaben-Produkt ist ein Produkt mit einem Guthaben-Betrag größer 0 (Produktdaten › Allgemein)."
+
+#: includes/settings.php:134
+msgid "Direct checkout"
+msgstr "Direkt zur Kasse"
+
+#: includes/settings.php:135
+msgid "Complete after payment"
+msgstr "Nach Zahlung abschließen"
+
+#: includes/settings.php:227
+msgid "Straight to the checkout, replace the cart, quantity 1"
+msgstr "Direkt zur Kasse, Warenkorb ersetzen, Menge 1"
+
+#: includes/settings.php:229
+msgid "Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart."
+msgstr "Beim Kauf eines Guthaben-Produkts entfällt die Warenkorb-Seite, und der bisherige Warenkorb wird ersetzt. Guthaben-Produkte und andere Produkte liegen nie gemeinsam im Warenkorb."
+
+#: includes/settings.php:237
+msgid "Complete orders with credit products only once they are paid"
+msgstr "Bestellungen, die nur Guthaben-Produkte enthalten, nach der Zahlung abschließen"
+
+#: includes/settings.php:239
+msgid "Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are."
+msgstr "Das Guthaben wird beim Abschluss einer Bestellung gutgeschrieben. So erhalten Kundinnen es direkt nach der Zahlung. Bestellungen von Gästen und Bestellungen mit anderen Produkten bleiben unverändert."
+
+#: includes/credit-checkout.php:182
+msgid "Completed automatically: the order consists only of credit products."
+msgstr "Automatisch abgeschlossen: Die Bestellung enthält nur Guthaben-Produkte."
+
 #. Placeholder {free} is replaced with the number — up to the threshold from the settings
 #: catalogue:availability.free
 msgid "{free} spots available"
@@ -302,6 +348,11 @@ msgstr "Beginn"
 #: includes/admin.php:135
 msgid "Type"
 msgstr "Typ"
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.cart
+msgid "Cart and Checkout"
+msgstr "Warenkorb und Kasse"
 
 #. Text-Katalog group heading
 #: catalogue:GROUPS.booking
@@ -885,65 +936,65 @@ msgstr "Als nicht erschienen markiert."
 msgid "No-show mark removed."
 msgstr "Markierung zurückgenommen."
 
-#: includes/settings.php:72
-#: includes/settings.php:73
-#: includes/settings.php:199
+#: includes/settings.php:84
+#: includes/settings.php:85
+#: includes/settings.php:250
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: includes/settings.php:100
+#: includes/settings.php:120
 msgid "General"
 msgstr "Allgemein"
 
-#: includes/settings.php:101
+#: includes/settings.php:121
 msgid "General settings for sessions and bookings."
 msgstr "Grundeinstellungen für Kurstermine und Buchungen."
 
-#: includes/settings.php:104
+#: includes/settings.php:124
 msgid "Course session post type"
 msgstr "Kurstermin-Inhaltstyp"
 
-#: includes/settings.php:105
+#: includes/settings.php:125
 msgid "Default capacity"
 msgstr "Standard-Kapazität"
 
-#: includes/settings.php:106
+#: includes/settings.php:126
 msgid "Cancellation deadline (hours)"
 msgstr "Storno-Frist (Stunden)"
 
-#: includes/settings.php:107
+#: includes/settings.php:127
 msgid "Reminder (hours before)"
 msgstr "Erinnerung (Stunden vorher)"
 
-#: includes/settings.php:108
+#: includes/settings.php:128
 msgid "Availability threshold"
 msgstr "Verfügbarkeits-Schwelle"
 
-#: includes/settings.php:140
+#: includes/settings.php:171
 msgid "Which post type holds the course sessions. Bookings, participant lists, and capacity all refer to this type."
 msgstr "Welcher Inhaltstyp die Kurstermine enthält. Buchungen, Teilnehmerlisten und Kapazität beziehen sich auf diesen Typ."
 
-#: includes/settings.php:145
+#: includes/settings.php:176
 msgid "Warning:"
 msgstr "Achtung:"
 
-#: includes/settings.php:148
+#: includes/settings.php:179
 msgid "The saved type %s is not currently registered."
 msgstr "Der gespeicherte Typ %s ist aktuell nicht registriert."
 
-#: includes/settings.php:161
+#: includes/settings.php:192
 msgid "Used when no capacity is set for the session itself."
 msgstr "Wird verwendet wenn beim Termin keine eigene Kapazität eingetragen ist."
 
-#: includes/settings.php:170
+#: includes/settings.php:201
 msgid "How many hours before the session start customers may cancel on their own."
 msgstr "Bis wie viele Stunden vor Kursbeginn Kunden selbst stornieren dürfen."
 
-#: includes/settings.php:179
+#: includes/settings.php:210
 msgid "When the reminder email is sent. 0 = no reminder."
 msgstr "Wann die Erinnerungs-E-Mail verschickt wird. 0 = keine Erinnerung."
 
-#: includes/settings.php:188
+#: includes/settings.php:219
 msgid "From how many free spots onward only \"more than N spots available\" is shown instead of the exact number. 0 = always show the exact number."
 msgstr "Ab wie vielen freien Plätzen nur noch „mehr als N Plätze frei\" statt der genauen Zahl angezeigt wird. 0 = immer die genaue Zahl."
 
@@ -983,52 +1034,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:214
+#: bw-credits-booking.php:215
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:216
+#: bw-credits-booking.php:217
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:218
+#: bw-credits-booking.php:219
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:476
-#: bw-credits-booking.php:704
+#: bw-credits-booking.php:477
+#: bw-credits-booking.php:705
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:479
+#: bw-credits-booking.php:480
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:489
+#: bw-credits-booking.php:490
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:508
+#: bw-credits-booking.php:509
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1063
+#: bw-credits-booking.php:1064
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1591
+#: bw-credits-booking.php:1592
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1598
+#: bw-credits-booking.php:1599
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1606
+#: bw-credits-booking.php:1607
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1613
+#: bw-credits-booking.php:1614
 msgid "Cancelled."
 msgstr "Storniert."
 

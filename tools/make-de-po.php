@@ -50,6 +50,17 @@ const ENGLISH_TO_GERMAN = [
     'You are booked for this session.' => 'Du bist für diesen Termin angemeldet.',
     'You have no credits.' => 'Du hast keine Credits.',
     'Top up now' => 'Jetzt aufladen',
+    'Your cart was replaced by the selected credit package.' => 'Dein Warenkorb wurde durch das gewählte Guthaben-Paket ersetzt.',
+    'A credit package can only be ordered on its own. Please complete this order first or empty your cart.' => 'Ein Guthaben-Paket kann nur einzeln bestellt werden. Bitte schließe zuerst diese Bestellung ab oder leere deinen Warenkorb.',
+    'Credit products in the shop' => 'Guthaben-Produkte im Shop',
+    'A credit product is a product with a credit amount greater than 0 (product data › General).' => 'Ein Guthaben-Produkt ist ein Produkt mit einem Guthaben-Betrag größer 0 (Produktdaten › Allgemein).',
+    'Direct checkout' => 'Direkt zur Kasse',
+    'Complete after payment' => 'Nach Zahlung abschließen',
+    'Straight to the checkout, replace the cart, quantity 1' => 'Direkt zur Kasse, Warenkorb ersetzen, Menge 1',
+    'Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart.' => 'Beim Kauf eines Guthaben-Produkts entfällt die Warenkorb-Seite, und der bisherige Warenkorb wird ersetzt. Guthaben-Produkte und andere Produkte liegen nie gemeinsam im Warenkorb.',
+    'Complete orders with credit products only once they are paid' => 'Bestellungen, die nur Guthaben-Produkte enthalten, nach der Zahlung abschließen',
+    'Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are.' => 'Das Guthaben wird beim Abschluss einer Bestellung gutgeschrieben. So erhalten Kundinnen es direkt nach der Zahlung. Bestellungen von Gästen und Bestellungen mit anderen Produkten bleiben unverändert.',
+    'Completed automatically: the order consists only of credit products.' => 'Automatisch abgeschlossen: Die Bestellung enthält nur Guthaben-Produkte.',
 
     '{free} spots available' => '{free} freie Plätze',
     'more than {n} spots available' => 'mehr als {n} Plätze frei',
@@ -121,6 +132,7 @@ const ENGLISH_TO_GERMAN = [
     /* =====================================================
      * includes/text.php — BW_Text::GROUPS headings (10 entries)
      * ===================================================== */
+    'Cart and Checkout' => 'Warenkorb und Kasse',
     'Booking and Cancelling' => 'Buchen und Stornieren',
     'Availability' => 'Verfügbarkeit',
     'Credit Balance' => 'Guthaben',

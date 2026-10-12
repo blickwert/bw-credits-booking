@@ -172,6 +172,7 @@ function bw_scan_default_files(): array {
         'includes/product-features.php',
         'includes/templates.php',
         'includes/updater.php',
+        'includes/credit-checkout.php',
         'bw-credits-booking.php',
     ];
 }

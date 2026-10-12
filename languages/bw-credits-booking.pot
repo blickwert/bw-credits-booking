@@ -278,6 +278,16 @@ msgstr ""
 msgid "The action could not be completed."
 msgstr ""
 
+#. Notice at the checkout when another item was in the cart
+#: catalogue:cart.credit_replaced
+msgid "Your cart was replaced by the selected credit package."
+msgstr ""
+
+#. Error when a credit product and another product would be in one cart
+#: catalogue:cart.credit_only
+msgid "A credit package can only be ordered on its own. Please complete this order first or empty your cart."
+msgstr ""
+
 #. Heading in the WooCommerce order email when credits were added
 #: catalogue:order_email.heading
 msgid "Your credit balance has been topped up"
@@ -336,6 +346,11 @@ msgstr ""
 #. Text-Katalog group heading
 #: catalogue:GROUPS.order_email
 msgid "Order Confirmation Email"
+msgstr ""
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.cart
+msgid "Cart and Checkout"
 msgstr ""
 
 #: includes/admin-pages.php:40
@@ -919,66 +934,98 @@ msgstr ""
 msgid "%d min."
 msgstr ""
 
-#: includes/settings.php:72
-#: includes/settings.php:73
-#: includes/settings.php:199
+#: includes/settings.php:84
+#: includes/settings.php:85
+#: includes/settings.php:250
 msgid "Settings"
 msgstr ""
 
-#: includes/settings.php:100
+#: includes/settings.php:120
 msgid "General"
 msgstr ""
 
-#: includes/settings.php:101
+#: includes/settings.php:121
 msgid "General settings for sessions and bookings."
 msgstr ""
 
-#: includes/settings.php:104
+#: includes/settings.php:124
 msgid "Course session post type"
 msgstr ""
 
-#: includes/settings.php:105
+#: includes/settings.php:125
 msgid "Default capacity"
 msgstr ""
 
-#: includes/settings.php:106
+#: includes/settings.php:126
 msgid "Cancellation deadline (hours)"
 msgstr ""
 
-#: includes/settings.php:107
+#: includes/settings.php:127
 msgid "Reminder (hours before)"
 msgstr ""
 
-#: includes/settings.php:108
+#: includes/settings.php:128
 msgid "Availability threshold"
 msgstr ""
 
-#: includes/settings.php:140
+#: includes/settings.php:130
+msgid "Credit products in the shop"
+msgstr ""
+
+#: includes/settings.php:131
+msgid "A credit product is a product with a credit amount greater than 0 (product data › General)."
+msgstr ""
+
+#: includes/settings.php:134
+msgid "Direct checkout"
+msgstr ""
+
+#: includes/settings.php:135
+msgid "Complete after payment"
+msgstr ""
+
+#: includes/settings.php:171
 msgid "Which post type holds the course sessions. Bookings, participant lists, and capacity all refer to this type."
 msgstr ""
 
-#: includes/settings.php:145
+#: includes/settings.php:176
 msgid "Warning:"
 msgstr ""
 
-#: includes/settings.php:148
+#: includes/settings.php:179
 msgid "The saved type %s is not currently registered."
 msgstr ""
 
-#: includes/settings.php:161
+#: includes/settings.php:192
 msgid "Used when no capacity is set for the session itself."
 msgstr ""
 
-#: includes/settings.php:170
+#: includes/settings.php:201
 msgid "How many hours before the session start customers may cancel on their own."
 msgstr ""
 
-#: includes/settings.php:179
+#: includes/settings.php:210
 msgid "When the reminder email is sent. 0 = no reminder."
 msgstr ""
 
-#: includes/settings.php:188
+#: includes/settings.php:219
 msgid "From how many free spots onward only \"more than N spots available\" is shown instead of the exact number. 0 = always show the exact number."
+msgstr ""
+
+#: includes/settings.php:227
+msgid "Straight to the checkout, replace the cart, quantity 1"
+msgstr ""
+
+#: includes/settings.php:229
+msgid "Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart."
+msgstr ""
+
+#: includes/settings.php:237
+msgid "Complete orders with credit products only once they are paid"
+msgstr ""
+
+#: includes/settings.php:239
+msgid "Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are."
 msgstr ""
 
 #: includes/admin.php:14
@@ -1263,52 +1310,56 @@ msgstr ""
 msgid "No changelog information available."
 msgstr ""
 
-#: bw-credits-booking.php:214
+#: includes/credit-checkout.php:182
+msgid "Completed automatically: the order consists only of credit products."
+msgstr ""
+
+#: bw-credits-booking.php:215
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:216
+#: bw-credits-booking.php:217
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:218
+#: bw-credits-booking.php:219
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:476
-#: bw-credits-booking.php:704
+#: bw-credits-booking.php:477
+#: bw-credits-booking.php:705
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:479
+#: bw-credits-booking.php:480
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:489
+#: bw-credits-booking.php:490
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:508
+#: bw-credits-booking.php:509
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1063
+#: bw-credits-booking.php:1064
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1591
+#: bw-credits-booking.php:1592
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1598
+#: bw-credits-booking.php:1599
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1606
+#: bw-credits-booking.php:1607
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1613
+#: bw-credits-booking.php:1614
 msgid "Cancelled."
 msgstr ""
 

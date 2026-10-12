@@ -33,6 +33,7 @@ class BW_Text {
         'overview'     => 'Account Overview',
         'error'        => 'Error Messages',
         'order_email'  => 'Order Confirmation Email',
+        'cart'         => 'Cart and Checkout',
     ];
 
     /**
@@ -230,6 +231,14 @@ class BW_Text {
             ],
 
             /* --- Order Confirmation Email --- */
+            /* --- Cart and checkout --- */
+            'cart.credit_replaced' => [
+                'Your cart was replaced by the selected credit package.', 'Notice at the checkout when another item was in the cart', 'cart',
+            ],
+            'cart.credit_only' => [
+                'A credit package can only be ordered on its own. Please complete this order first or empty your cart.', 'Error when a credit product and another product would be in one cart', 'cart',
+            ],
+
             'order_email.heading' => [
                 'Your credit balance has been topped up', 'Heading in the WooCommerce order email when credits were added', 'order_email',
             ],

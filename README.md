@@ -232,6 +232,15 @@ Shortcodes that depend on the visitor or the moment (free spots, book/cancel but
 - **Switch off:** `add_filter('bw_lazy_views_enabled', '__return_false');` or `define('BW_LAZY_VIEWS_DISABLED', true);`.
 - **Own JS:** listen for the `bw:views-loaded` event; placeholders added to the DOM later (popups, tabs) are picked up automatically.
 
+### Credit products in the shop
+
+A **credit product** is a WooCommerce product with a credit amount greater than 0 (product data › General) — the category doesn't matter. Two switches in *BW Credits › Settings › Credit products in the shop* (default: on):
+
+- **Direct checkout:** "add to cart" on a credit product leads straight to the checkout. The cart is replaced (with a notice), the quantity is 1, and credit products and other products are never mixed in one cart.
+- **Complete after payment:** an order that consists only of credit products and belongs to a customer account is completed once it is paid (Stripe/PayPal via `payment_complete()`, or set to "processing" by hand). Credits are granted when an order is completed, so customers get them immediately. The "processing" mail is skipped for these orders; the "completed" mail carries the credit note. Guest orders and orders with other products stay as they are.
+
+Filters: `bw_credit_direct_checkout`, `bw_credit_auto_complete`. Texts: catalogue group "Cart and Checkout".
+
 ## Customizing templates
 
 Every shortcode has exactly one template file, named after the shortcode itself — overridable in the theme, following the same pattern as WooCommerce:
