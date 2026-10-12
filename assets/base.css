@@ -51,3 +51,6 @@
 .bw-bwallet-msg[data-state="ok"] {
   color: var(--bw-color-success, #116611);
 }
+
+/* Placeholders for lazily loaded views (includes/lazy-views.php): no box of their own, the layout stays as if the content were inline */
+.bw-lazy-view { display: contents; }

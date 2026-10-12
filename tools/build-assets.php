@@ -72,7 +72,10 @@ function bw_assets_indent(string $text): string {
 }
 
 function bw_assets_build_js(): string {
-    $parts = [rtrim(bw_assets_read_body(BW_ASSETS_ROOT . '/assets/base.js'))];
+    $parts = [
+        rtrim(bw_assets_read_body(BW_ASSETS_ROOT . '/assets/base.js')),
+        rtrim(bw_assets_read_body(BW_ASSETS_ROOT . '/assets/lazy-views.js')),
+    ];
 
     $course_list_js = BW_ASSETS_ROOT . '/templates/course_list/course_list.js';
     if (is_file($course_list_js)) {

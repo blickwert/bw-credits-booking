@@ -223,6 +223,15 @@ Credit balance, a short list of upcoming sessions (with availability and a book/
 
 `show_balance`, `show_next`, `next_limit` (default 5), `show_links`, `list_url`
 
+### Page cache: lazy views
+
+Shortcodes that depend on the visitor or the moment (free spots, book/cancel button, balance, booking list, account overview, access details) print an empty placeholder; JS (`assets/lazy-views.js`) loads all of them in a single `POST /bw-credits/v1/views` and inserts the answer. A page cache can therefore cache the pages that contain them — including session pages — without showing outdated spots or another user's state.
+
+- **Signed:** tag, attributes and language of a placeholder are signed (HMAC with the site's salt). A changed payload is discarded; only the views listed in `BW_Lazy_Views::views()` are served. The session list's AJAX filter signs its shortcode attributes the same way.
+- **Server-side:** user and permissions come only from the logged-in session (WordPress cookie + `X-WP-Nonce`); booking and cancelling remain separate, server-checked routes. Answers are `no-store`.
+- **Switch off:** `add_filter('bw_lazy_views_enabled', '__return_false');` or `define('BW_LAZY_VIEWS_DISABLED', true);`.
+- **Own JS:** listen for the `bw:views-loaded` event; placeholders added to the DOM later (popups, tabs) are picked up automatically.
+
 ## Customizing templates
 
 Every shortcode has exactly one template file, named after the shortcode itself — overridable in the theme, following the same pattern as WooCommerce:
@@ -324,7 +333,8 @@ All endpoints under `/wp-json/bw-credits/v1/`:
 | POST | `/book` | Book a slot (`slot_id`) |
 | POST | `/cancel` | Cancel a booking (`booking_id`) |
 | GET | `/balance` | Credit balance of the logged-in user |
-| GET | `/course-list` | Powers the AJAX filter on `[bw_credits_course_list]` — same attributes as the shortcode plus `bw_type`/`bw_level`/`bw_lang`, returns `{ "html": "…" }` |
+| GET | `/course-list` | Powers the AJAX filter on `[bw_credits_course_list]` — signed attributes (`bw_atts` + `bw_sig`, defaults if altered) plus `bw_type`/`bw_level`/`bw_lang`, returns `{ "html": "…" }` |
+| POST | `/views` | Fills the lazy-view placeholders (see *Page cache: lazy views*): `{ "items": [{ "id", "p": payload, "s": signature }] }` → `{ "views": { id: { "ok", "html" } } }`. Public, no-store; unsigned or altered items are discarded |
 
 `/book`, `/cancel`, and `/balance` require a logged-in user. `/course-list` is public — logged-out visitors can filter the session list too. All of them still expect a `nonce` header (`X-WP-Nonce`) from a logged-in browser session; it's simply not required for a logged-out one.
 

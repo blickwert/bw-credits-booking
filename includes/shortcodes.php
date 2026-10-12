@@ -33,8 +33,12 @@ class BW_Shortcodes {
     }
 
     public static function init() {
+        $lazy = BW_Lazy_Views::views();
+
         foreach (self::map() as $tag => $callback) {
-            add_shortcode($tag, $callback);
+            // User- and time-dependent views are loaded via JS (see includes/lazy-views.php),
+            // so a page cache can't freeze them.
+            add_shortcode($tag, isset($lazy[$tag]) ? BW_Lazy_Views::shortcode_callback($tag) : $callback);
         }
     }
 }

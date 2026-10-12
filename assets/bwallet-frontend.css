@@ -53,6 +53,9 @@
   color: var(--bw-color-success, #116611);
 }
 
+/* Placeholders for lazily loaded views (includes/lazy-views.php): no box of their own, the layout stays as if the content were inline */
+.bw-lazy-view { display: contents; }
+
 /* ==== course_access ==== */
 /* Access details [bw_credits_course_access] */
 .bw-access {
