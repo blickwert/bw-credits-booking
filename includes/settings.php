@@ -17,6 +17,8 @@ class BW_Settings {
     const OPT_CUTOFF_HOURS     = 'bw_booking_cancel_cutoff_hours';
     const OPT_REMINDER_HOURS   = 'bw_reminder_hours';
     const OPT_AVAILABILITY_CAP = 'bw_availability_cap';
+    const OPT_CREDIT_DIRECT    = 'bw_credit_direct_checkout';
+    const OPT_CREDIT_COMPLETE  = 'bw_credit_auto_complete';
 
     public static function init() {
         add_action('admin_menu', [__CLASS__, 'register_menu']);
@@ -50,6 +52,16 @@ class BW_Settings {
      */
     public static function get_availability_cap(): int {
         return max(0, (int) get_option(self::OPT_AVAILABILITY_CAP, 5));
+    }
+
+    /** Credit products: straight to the checkout, cart replaced, quantity 1 (default: on). */
+    public static function get_credit_direct_checkout(): bool {
+        return (bool) apply_filters('bw_credit_direct_checkout', (bool) get_option(self::OPT_CREDIT_DIRECT, 1));
+    }
+
+    /** Orders with credit products only are completed after payment (default: on). */
+    public static function get_credit_auto_complete(): bool {
+        return (bool) apply_filters('bw_credit_auto_complete', (bool) get_option(self::OPT_CREDIT_COMPLETE, 1));
     }
 
     /* ---------------------------------------------------------
@@ -97,6 +109,14 @@ class BW_Settings {
             ]);
         }
 
+        foreach ([self::OPT_CREDIT_DIRECT, self::OPT_CREDIT_COMPLETE] as $key) {
+            register_setting($group, $key, [
+                'type'              => 'integer',
+                'sanitize_callback' => [__CLASS__, 'sanitize_checkbox'],
+                'default'           => 1,
+            ]);
+        }
+
         add_settings_section('bw_general', __('General', 'bw-credits-booking'), function () {
             echo '<p>' . esc_html__('General settings for sessions and bookings.', 'bw-credits-booking') . '</p>';
         }, self::MENU_SLUG);
@@ -106,6 +126,17 @@ class BW_Settings {
         add_settings_field(self::OPT_CUTOFF_HOURS, __('Cancellation deadline (hours)', 'bw-credits-booking'), [__CLASS__, 'field_cutoff_hours'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_REMINDER_HOURS, __('Reminder (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_reminder_hours'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_AVAILABILITY_CAP, __('Availability threshold', 'bw-credits-booking'), [__CLASS__, 'field_availability_cap'], self::MENU_SLUG, 'bw_general');
+
+        add_settings_section('bw_checkout', __('Credit products in the shop', 'bw-credits-booking'), function () {
+            echo '<p>' . esc_html__('A credit product is a product with a credit amount greater than 0 (product data › General).', 'bw-credits-booking') . '</p>';
+        }, self::MENU_SLUG);
+
+        add_settings_field(self::OPT_CREDIT_DIRECT, __('Direct checkout', 'bw-credits-booking'), [__CLASS__, 'field_credit_direct'], self::MENU_SLUG, 'bw_checkout');
+        add_settings_field(self::OPT_CREDIT_COMPLETE, __('Complete after payment', 'bw-credits-booking'), [__CLASS__, 'field_credit_complete'], self::MENU_SLUG, 'bw_checkout');
+    }
+
+    public static function sanitize_checkbox($value): int {
+        return empty($value) ? 0 : 1;
     }
 
     public static function sanitize_post_type($value): string {
@@ -186,6 +217,26 @@ class BW_Settings {
             self::get_availability_cap()
         );
         echo '<p class="description">' . esc_html__('From how many free spots onward only "more than N spots available" is shown instead of the exact number. 0 = always show the exact number.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_credit_direct() {
+        printf(
+            '<label><input type="checkbox" name="%s" value="1"%s> %s</label>',
+            esc_attr(self::OPT_CREDIT_DIRECT),
+            checked(self::get_credit_direct_checkout(), true, false),
+            esc_html__('Straight to the checkout, replace the cart, quantity 1', 'bw-credits-booking')
+        );
+        echo '<p class="description">' . esc_html__('Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_credit_complete() {
+        printf(
+            '<label><input type="checkbox" name="%s" value="1"%s> %s</label>',
+            esc_attr(self::OPT_CREDIT_COMPLETE),
+            checked(self::get_credit_auto_complete(), true, false),
+            esc_html__('Complete orders with credit products only once they are paid', 'bw-credits-booking')
+        );
+        echo '<p class="description">' . esc_html__('Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------
