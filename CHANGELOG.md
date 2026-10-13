@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.48.2] – 2026-10-13
+
+### Fixed
+- **Emails could come out in the wrong language, or half and half.** A booking confirmation to a customer who prefers German went out in English with one German sentence ("Einen Tag vor deiner Klasse, you will receive the Zoom link …"). The plugin's translations were whatever WordPress had loaded for the request — for a logged-in customer that is their own locale, not the language of the email. `BW_Emails::send()` now loads the plugin text domain explicitly for the customer's language, resolves the subject, body **and** the placeholders (access timing phrase) in it, and restores the request's own translations afterwards.
+- **A customer's email language is taken from the order** when they register while ordering. WooCommerce's ajax checkout does not always carry the page language when the account is created; the order does (WPML stores it). After checkout the order's language replaces the guess made at registration for an account created in that checkout, and is used for customers who never set one. A language chosen in the account is never overwritten.
+- Tests in `tests/test-emails.php` for both (they fail on 0.48.1).
+
 ## [0.48.1] – 2026-10-12
 
 ### Changed
