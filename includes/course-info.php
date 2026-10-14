@@ -56,9 +56,9 @@ class BW_Course_Info {
             case 'level':             return esc_html(self::term_field($slot_id, 'course_level', 'name'));
             case 'level_description': return self::rich(self::term_field($slot_id, 'course_level', 'description'));
             case 'language':          return esc_html(self::term_field($slot_id, 'course_lang', 'name'));
-            case 'start':             return esc_html(self::start($slot_id, 'd.m.Y H:i'));
+            case 'start':             return self::start_html($slot_id, 'd.m.Y H:i');
             case 'date':              return esc_html(self::start($slot_id, 'd.m.Y'));
-            case 'time':              return esc_html(self::start($slot_id, 'H:i'));
+            case 'time':              return self::start_html($slot_id, 'H:i');
             case 'duration':          return esc_html(self::duration($slot_id));
             case 'detail':            return self::is_auto_content($slot_id) ? '' : self::rich((string) get_post_field('post_content', $slot_id));
             case 'calendar':          return self::calendar($slot_id);
@@ -90,6 +90,16 @@ class BW_Course_Info {
         return $start ? wp_date((string) apply_filters('bw_course_info_format', $format, $slot_id), $start->getTimestamp()) : '';
     }
 
+    /** Date/time with the time zone named and a <time> element the browser adds the visitor's own time to. */
+    private static function start_html(int $slot_id, string $format): string {
+        $start = BW_Credits_Bookings_MVP::get_slot_start_datetime($slot_id);
+        if (!$start) return '';
+
+        BW_Credits_Bookings_MVP::ensure_assets();
+        $text = wp_date((string) apply_filters('bw_course_info_format', $format, $slot_id), $start->getTimestamp());
+        return BW_Time_Zone::time_tag($start, esc_html($text)) . BW_Time_Zone::zone_html();
+    }
+
     /**
      * The calendar-leaf date block (weekday, day, month, time) — same markup
      * and styles as in [bw_credits_course_list], so a single session looks
@@ -105,7 +115,8 @@ class BW_Course_Info {
             $html .= '<span class="bw-course-slot-date__dow">' . esc_html(wp_date('D', $ts)) . '</span>'
                    . '<span class="bw-course-slot-date__day">' . esc_html(wp_date('j', $ts)) . '</span>'
                    . '<span class="bw-course-slot-date__month">' . esc_html(wp_date('M', $ts)) . '</span>'
-                   . '<span class="bw-course-slot-date__time">' . esc_html(wp_date('H:i', $ts)) . '</span>';
+                   . BW_Time_Zone::time_tag($start, esc_html(wp_date('H:i', $ts)), 'bw-course-slot-date__time')
+                   . '<span class="bw-course-slot-date__zone">' . esc_html(BW_Time_Zone::site_city()) . '</span>';
         } else {
             $html .= '<span class="bw-course-slot-date__day">—</span>';
         }

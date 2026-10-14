@@ -34,6 +34,7 @@ class BW_Text {
         'error'        => 'Error Messages',
         'order_email'  => 'Order Confirmation Email',
         'cart'         => 'Cart and Checkout',
+        'time'         => 'Time Zone',
     ];
 
     /**
@@ -68,6 +69,15 @@ class BW_Text {
             ],
             'booking.note.no_credits' => [
                 'You have no credits.', 'Credit balance used up, shown before the top-up link — also fits customers with no prior booking', 'booking',
+            ],
+            'booking.cancel_until' => [
+                'You can cancel until {deadline}; your credit is refunded.', 'Cancellation rule next to the booking button and in the confirmation email ({deadline} = date, time and time zone)', 'booking',
+            ],
+            'booking.cancel_closed' => [
+                'Cancellation is no longer possible (less than {hours} hours before the start).', 'Shown for a booking whose cancellation deadline has passed', 'booking',
+            ],
+            'booking.cancel_late_hint' => [
+                'If you book now, you can no longer cancel (less than {hours} hours before the start).', 'Shown before booking a session that starts within the cancellation deadline', 'booking',
             ],
             'booking.link.topup' => [
                 'Top up now', 'Label of the link to the shop page', 'booking',
@@ -228,6 +238,14 @@ class BW_Text {
             ],
             'error.generic' => [
                 'The action could not be completed.', 'Unexpected error while booking or cancelling', 'error',
+            ],
+
+            /* --- Time Zone --- */
+            'time.zone_label' => [
+                '{city} time', 'Name of the time zone next to session times ({city} = city of the site time zone, Settings → General)', 'time',
+            ],
+            'time.local' => [
+                '{time} in your time zone ({zone})', "The customer's own time in emails, shown when it differs from the session time", 'time',
             ],
 
             /* --- Order Confirmation Email --- */

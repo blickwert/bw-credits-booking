@@ -82,13 +82,13 @@ class BW_Emails {
     private static function subject_source(string $key, string $locale = ''): string {
         $default = self::defaults()[$key]['subject'] ?? '';
         $v       = (string) get_option(self::opt_subject($key), '');
-        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : self::default_translation($default, $locale);
+        return ($v !== '' && !self::is_untouched($v, $default, $key, 'subject')) ? $v : self::default_translation($default, $locale);
     }
 
     private static function body_source(string $key, string $locale = ''): string {
         $default = self::defaults()[$key]['body'] ?? '';
         $v       = (string) get_option(self::opt_body($key), '');
-        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : self::default_translation($default, $locale);
+        return ($v !== '' && !self::is_untouched($v, $default, $key, 'body')) ? $v : self::default_translation($default, $locale);
     }
 
     /** Compiled translations per locale (null = file missing or not readable). */
@@ -130,8 +130,35 @@ class BW_Emails {
      * translated through WPML String Translation, so customers got the English default instead of
      * the .mo translation. Compared as plain text, whitespace collapsed.
      */
-    private static function is_untouched(string $saved, string $default): bool {
-        return self::plain_text($saved) === self::plain_text($default);
+    private static function is_untouched(string $saved, string $default, string $key = '', string $part = ''): bool {
+        $saved = self::plain_text($saved);
+        if ($saved === self::plain_text($default)) return true;
+
+        foreach (self::legacy_defaults()[$key][$part] ?? [] as $old) {
+            if ($saved === self::plain_text($old)) return true;
+        }
+        return false;
+    }
+
+    /**
+     * English defaults of earlier versions. A text saved while one of them was the default (by saving the Emails
+     * page or "Reset") is untouched too, so a changed default reaches those sites instead of leaving them on the old text.
+     */
+    private static function legacy_defaults(): array {
+        return [
+            'booking' => ['body' => [
+                "Greetings {first_name} 🌿,\n\n"
+                                           . "Your class has been successfully booked! ✨\n\n"
+                                           . "I’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n"
+                                           . "<strong>Class Details 🧘‍♀️</strong>\n"
+                                           . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                                           . "You can view, manage or cancel your booking anytime in your account: {account_link}\n\n"
+                                           . "{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
+                                           . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
+                                           . "I look forward to seeing you on the mat soon. 🤍\n\n"
+                                           . "With warmth,\nHelena 🌸",
+            ]],
+        ];
     }
 
     private static function plain_text(string $html): string {
@@ -158,7 +185,7 @@ class BW_Emails {
                            . "I’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n"
                            . "<strong>Class Details 🧘‍♀️</strong>\n"
                            . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
-                           . "You can view, manage or cancel your booking anytime in your account: {account_link}\n\n"
+                           . "You can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\n"
                            . "{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\n"
                            . "If you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
                            . "I look forward to seeing you on the mat soon. 🤍\n\n"
@@ -218,7 +245,7 @@ class BW_Emails {
      * Placeholders
      * ========================================================= */
 
-    public static function placeholders(int $user_id, int $slot_id): array {
+    public static function placeholders(int $user_id, int $slot_id, bool $customer = true): array {
         $user  = get_userdata($user_id);
         $start = self::slot_start($slot_id);
 
@@ -235,7 +262,12 @@ class BW_Emails {
             // before output, not zero and not two.
             '{course_title}'      => html_entity_decode(get_the_title($slot_id) ?: '', ENT_QUOTES),
             '{date}'              => $start ? wp_date('d.m.Y', $start->getTimestamp()) : '',
-            '{time}'              => $start ? wp_date('H:i', $start->getTimestamp()) : '',
+            // For customers the time says which time zone it is in, and shows their own time when it differs
+            // (the zone they use is stored per customer — emails have no browser to ask). The studio's mails stay plain.
+            '{time}'              => $start ? ($customer ? BW_Time_Zone::time_with_zone($start, $user_id) : wp_date('H:i', $start->getTimestamp())) : '',
+            '{timezone}'          => BW_Time_Zone::site_label(),
+            // The cancellation rule as a sentence ("You can cancel until …"), '' without a rule.
+            '{cancel_note}'       => $slot_id > 0 ? BW_Credits_Bookings_MVP::cancel_note_text($slot_id) : '',
             '{credits_remaining}' => (string) BW_Credits_Bookings_MVP::get_available_credits($user_id),
             // Terms of the session's taxonomies (comma separated); empty if the taxonomy doesn't exist.
             '{course_type}'       => self::slot_terms($slot_id, (string) apply_filters('bw_email_course_type_taxonomy', 'course_type')),
@@ -273,6 +305,58 @@ class BW_Emails {
         return implode(', ', array_map(function ($term) {
             return html_entity_decode(bw_cs_translate_term($term)->name, ENT_QUOTES);
         }, $terms));
+    }
+
+    /**
+     * The .ics file for the booking and access mails: the session in UTC (every calendar shows it in the
+     * customer's own time zone), with the Zoom details when they may be shared by now. A booking mail sent
+     * long before the class carries no link — same rule as the mail text ("access details N hours before").
+     */
+    /** Strings the calendar file looks up per customer locale (default_translation) — listed so the .pot picks them up. */
+    private static function calendar_strings(): array {
+        return [
+            __('Zoom link:', 'bw-credits-booking'),
+            __('The access details follow by email before the class.', 'bw-credits-booking'),
+        ];
+    }
+
+    private static function calendar_attachment(int $user_id, int $slot_id, string $key, string $locale): ?array {
+        $start = self::slot_start($slot_id);
+        if (!$start) return null;
+
+        $minutes = (int) get_post_meta($slot_id, 'duration', true);
+        $end     = (clone $start)->modify('+' . ($minutes > 0 ? $minutes : 60) . ' minutes');
+        $title   = html_entity_decode(get_the_title($slot_id) ?: '', ENT_QUOTES);
+
+        $link  = BW_Metaboxes::get_meeting_link($slot_id);
+        $info  = BW_Metaboxes::get_access_info($slot_id);
+        $open  = $key === 'access' || BW_Metaboxes::get_access_details_hours() <= 0 || self::access_due($slot_id);
+        $share = $open && $link !== '';
+
+        $lines = [BW_Time_Zone::time_with_zone($start, $user_id)];
+        if ($share) {
+            $lines[] = '';
+            $lines[] = self::default_translation('Zoom link:', $locale) . ' ' . $link;
+            if ($info !== '') $lines[] = $info;
+        } elseif ($link !== '') {
+            $lines[] = '';
+            $lines[] = self::default_translation('The access details follow by email before the class.', $locale);
+        }
+
+        $host = (string) wp_parse_url(home_url(), PHP_URL_HOST);
+        $ics  = BW_Calendar_File::build([
+            'uid'           => 'bw-' . $slot_id . '-' . $user_id . '@' . ($host !== '' ? $host : 'localhost'),
+            'summary'       => $title,
+            'start'         => $start,
+            'end'           => $end,
+            'description'   => implode("\n", $lines),
+            'location'      => $share ? $link : '',
+            'url'           => $share ? $link : (string) get_permalink($slot_id),
+            'alarm_minutes' => 60,
+        ]);
+
+        $name = sanitize_file_name($title !== '' ? $title : 'class');
+        return ['content' => $ics, 'filename' => ($name !== '' ? $name : 'class') . '.ics'];
     }
 
     /**
@@ -354,7 +438,8 @@ class BW_Emails {
         $wpml_switch = $lang !== '' && $wpml_before && $lang !== $wpml_before;
         if ($wpml_switch) do_action('wpml_switch_language', $lang);
 
-        $placeholders = self::placeholders($user_id, $slot_id);
+        $placeholders = self::placeholders($user_id, $slot_id, strpos($key, 'admin_') !== 0);
+        $ics          = in_array($key, ['booking', 'access'], true) ? self::calendar_attachment($user_id, $slot_id, $key, $locale) : null;
 
         if ($wpml_switch) do_action('wpml_switch_language', $wpml_before);
 
@@ -372,7 +457,7 @@ class BW_Emails {
         // the template itself. nl2br() stays for bodies saved before the
         // WYSIWYG editor existed (plain text with literal newlines).
         $escaped = array_map('esc_html', $placeholders);
-        $body    = nl2br(strtr($body_tpl, $escaped));
+        $body    = nl2br(preg_replace("/\n{3,}/", "\n\n", strtr($body_tpl, $escaped))); // an empty placeholder (e.g. {cancel_note}) leaves no gap
 
         // Every URL-shaped placeholder value becomes clickable — applies
         // to meeting_link, course_link, and account_link alike
@@ -432,11 +517,17 @@ class BW_Emails {
             $phpmailer->AltBody = $plain_wrapped;
         };
 
+        $attach_ics = function ($phpmailer) use ($ics) {
+            $phpmailer->addStringAttachment($ics['content'], $ics['filename'], 'base64', 'text/calendar; charset=utf-8; method=PUBLISH');
+        };
+
         add_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         add_action('phpmailer_init', $set_alt_body);
+        if ($ics) add_action('phpmailer_init', $attach_ics);
         $sent = wp_mail($to, $subject, $html);
         remove_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         remove_action('phpmailer_init', $set_alt_body);
+        remove_action('phpmailer_init', $attach_ics);
 
         return (bool) $sent;
     }
@@ -877,7 +968,7 @@ class BW_Emails {
                 <?php esc_html_e('Available placeholders:', 'bw-credits-booking'); ?>
                 <code>{customer_name}</code> <code>{first_name}</code> <code>{course_title}</code> <code>{date}</code>
                 <code>{time}</code> <code>{course_type}</code> <code>{course_level}</code> <code>{credits_remaining}</code>
-                <code>{contact_email}</code> <code>{access_timing}</code>
+                <code>{contact_email}</code> <code>{access_timing}</code> <code>{timezone}</code> <code>{cancel_note}</code>
                 <code>{meeting_link}</code> <code>{access_details}</code>
                 <code>{course_link}</code> <code>{account_link}</code>
             </p>

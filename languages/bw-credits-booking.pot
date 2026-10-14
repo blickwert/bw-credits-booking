@@ -48,6 +48,21 @@ msgstr ""
 msgid "You have no credits."
 msgstr ""
 
+#. Cancellation rule next to the booking button and in the confirmation email ({deadline} = date, time and time zone)
+#: catalogue:booking.cancel_until
+msgid "You can cancel until {deadline}; your credit is refunded."
+msgstr ""
+
+#. Shown for a booking whose cancellation deadline has passed
+#: catalogue:booking.cancel_closed
+msgid "Cancellation is no longer possible (less than {hours} hours before the start)."
+msgstr ""
+
+#. Shown before booking a session that starts within the cancellation deadline
+#: catalogue:booking.cancel_late_hint
+msgid "If you book now, you can no longer cancel (less than {hours} hours before the start)."
+msgstr ""
+
 #. Label of the link to the shop page
 #: catalogue:booking.link.topup
 msgid "Top up now"
@@ -278,6 +293,16 @@ msgstr ""
 msgid "The action could not be completed."
 msgstr ""
 
+#. Name of the time zone next to session times ({city} = city of the site time zone, Settings → General)
+#: catalogue:time.zone_label
+msgid "{city} time"
+msgstr ""
+
+#. The customer's own time in emails, shown when it differs from the session time
+#: catalogue:time.local
+msgid "{time} in your time zone ({zone})"
+msgstr ""
+
 #. Notice at the checkout when another item was in the cart
 #: catalogue:cart.credit_replaced
 msgid "Your cart was replaced by the selected credit package."
@@ -358,6 +383,11 @@ msgstr ""
 msgid "Cart and Checkout"
 msgstr ""
 
+#. Text-Katalog group heading
+#: catalogue:GROUPS.time
+msgid "Time Zone"
+msgstr ""
+
 #: includes/admin-pages.php:40
 #: includes/admin-pages.php:40
 #: includes/admin-pages.php:132
@@ -398,9 +428,9 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:552
-#: includes/emails.php:781
-#: includes/emails.php:810
+#: includes/emails.php:643
+#: includes/emails.php:872
+#: includes/emails.php:901
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr ""
@@ -935,7 +965,7 @@ msgstr ""
 msgid "No-show mark removed."
 msgstr ""
 
-#: includes/course-info.php:119
+#: includes/course-info.php:130
 msgid "%d min."
 msgstr ""
 
@@ -1121,108 +1151,116 @@ msgstr ""
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:283
+#: includes/emails.php:318
+msgid "Zoom link:"
+msgstr ""
+
+#: includes/emails.php:319
+msgid "The access details follow by email before the class."
+msgstr ""
+
+#: includes/emails.php:367
 msgid "Before your class"
 msgstr ""
 
-#: includes/emails.php:286
+#: includes/emails.php:370
 msgid "One day before your class"
 msgstr ""
 
-#: includes/emails.php:287
+#: includes/emails.php:371
 msgid "Two days before your class"
 msgstr ""
 
-#: includes/emails.php:288
+#: includes/emails.php:372
 msgid "%d days before your class"
 msgstr ""
 
-#: includes/emails.php:290
+#: includes/emails.php:374
 msgid "One hour before your class"
 msgstr ""
 
-#: includes/emails.php:291
+#: includes/emails.php:375
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:571
+#: includes/emails.php:662
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:574
+#: includes/emails.php:665
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:733
-#: includes/emails.php:734
+#: includes/emails.php:824
+#: includes/emails.php:825
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:790
+#: includes/emails.php:881
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:798
+#: includes/emails.php:889
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:819
+#: includes/emails.php:910
 msgid "All emails reset to the default text."
 msgstr ""
 
-#: includes/emails.php:848
+#: includes/emails.php:939
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:854
+#: includes/emails.php:945
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr ""
 
-#: includes/emails.php:855
+#: includes/emails.php:946
 msgid "Reset all to default"
 msgstr ""
 
-#: includes/emails.php:865
+#: includes/emails.php:956
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:870
+#: includes/emails.php:961
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:877
+#: includes/emails.php:968
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:890
+#: includes/emails.php:981
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:906
+#: includes/emails.php:997
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:909
+#: includes/emails.php:1000
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:916
+#: includes/emails.php:1007
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:922
+#: includes/emails.php:1013
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:927
+#: includes/emails.php:1018
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:935
+#: includes/emails.php:1026
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:947
+#: includes/emails.php:1038
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1240,6 +1278,18 @@ msgstr ""
 
 #: includes/email-language.php:204
 msgid "Unknown language."
+msgstr ""
+
+#: includes/time-zone.php:164
+msgid "Time zone"
+msgstr ""
+
+#: includes/time-zone.php:166
+msgid "Automatic (from your browser)"
+msgstr ""
+
+#: includes/time-zone.php:173
+msgid "Session times are shown in your time zone too — on the website and in emails."
 msgstr ""
 
 #: includes/product-features.php:65
@@ -1319,52 +1369,60 @@ msgstr ""
 msgid "Completed automatically: the order consists only of credit products."
 msgstr ""
 
-#: bw-credits-booking.php:215
+#: bw-credits-booking.php:217
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:217
+#: bw-credits-booking.php:220
+msgid "%s your time"
+msgstr ""
+
+#: bw-credits-booking.php:221
+msgid "Your local time"
+msgstr ""
+
+#: bw-credits-booking.php:222
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:219
+#: bw-credits-booking.php:224
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:477
-#: bw-credits-booking.php:705
+#: bw-credits-booking.php:482
+#: bw-credits-booking.php:710
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:480
+#: bw-credits-booking.php:485
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:490
+#: bw-credits-booking.php:495
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:509
+#: bw-credits-booking.php:514
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1064
+#: bw-credits-booking.php:1069
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1592
+#: bw-credits-booking.php:1633
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1599
+#: bw-credits-booking.php:1640
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1607
+#: bw-credits-booking.php:1648
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1614
+#: bw-credits-booking.php:1655
 msgid "Cancelled."
 msgstr ""
 
@@ -1375,7 +1433,7 @@ msgstr ""
 
 #. Default body of the "booking" email
 #: email:booking.body
-msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸"
+msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸"
 msgstr ""
 
 #. Default subject of the "cancellation" email

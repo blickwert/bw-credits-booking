@@ -135,6 +135,7 @@ const ENGLISH_TO_GERMAN = [
      * ===================================================== */
     'Cart and Checkout' => 'Warenkorb und Kasse',
     'Booking and Cancelling' => 'Buchen und Stornieren',
+    'Time Zone' => 'Zeitzone',
     'Availability' => 'Verfügbarkeit',
     'Credit Balance' => 'Guthaben',
     'Credit Balance Details' => 'Guthaben im Detail',
@@ -433,8 +434,21 @@ const ENGLISH_TO_GERMAN = [
     "One hour before your class" => "Eine Stunde vor deiner Klasse",
     "%d hours before your class" => "%d Stunden vor deiner Klasse",
     "See You on the Mat Soon! 🧘‍♀️" => "Wir sehen uns bald auf der Matte! 🧘‍♀️",
-    "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸" =>
-        "Hallo {first_name} 🌿,\n\ndeine Klasse wurde erfolgreich gebucht! ✨\n\nIch freue mich darauf, dich willkommen zu heißen und diese Praxis mit dir zu teilen. 🤍\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\nDu kannst deine Buchung jederzeit in deinem Konto ansehen, verwalten oder stornieren: {account_link}\n\n{access_timing} erhältst du den Zoom-Link sowie alle weiteren Informationen, die du benötigst, um an der Sitzung teilzunehmen. 💻✨\n\nFalls du diese E-Mail nicht erhältst oder Schwierigkeiten beim Zugang zur Klasse hast, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌱\n\nIch freue mich darauf, dich bald auf der Matte zu sehen. 🤍\n\nMit Wärme,\nHelena 🌸",
+    "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸" =>
+        "Hallo {first_name} 🌿,\n\ndeine Klasse wurde erfolgreich gebucht! ✨\n\nIch freue mich darauf, dich willkommen zu heißen und diese Praxis mit dir zu teilen. 🤍\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\nDu kannst deine Buchung jederzeit in deinem Konto ansehen, verwalten oder stornieren: {account_link}\n{cancel_note}\n\n{access_timing} erhältst du den Zoom-Link sowie alle weiteren Informationen, die du benötigst, um an der Sitzung teilzunehmen. 💻✨\n\nFalls du diese E-Mail nicht erhältst oder Schwierigkeiten beim Zugang zur Klasse hast, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌱\n\nIch freue mich darauf, dich bald auf der Matte zu sehen. 🤍\n\nMit Wärme,\nHelena 🌸",
+    // Time zones (0.49.0)
+    '{city} time' => '{city}-Zeit',
+    '{time} in your time zone ({zone})' => '{time} in deiner Zeitzone ({zone})',
+    'You can cancel until {deadline}; your credit is refunded.' => 'Du kannst bis {deadline} stornieren, dein Credit wird dir gutgeschrieben.',
+    'Cancellation is no longer possible (less than {hours} hours before the start).' => 'Eine Stornierung ist nicht mehr möglich (weniger als {hours} Stunden vor Beginn).',
+    'If you book now, you can no longer cancel (less than {hours} hours before the start).' => 'Wenn du jetzt buchst, ist keine Stornierung mehr möglich (weniger als {hours} Stunden vor Beginn).',
+    'Time zone' => 'Zeitzone',
+    'Automatic (from your browser)' => 'Automatisch (aus deinem Browser)',
+    'Session times are shown in your time zone too — on the website and in emails.' => 'Kurszeiten werden dir auch in deiner Zeitzone angezeigt — auf der Website und in E-Mails.',
+    '%s your time' => '%s bei dir',
+    'Your local time' => 'Deine Ortszeit',
+    'Zoom link:' => 'Zoom-Link:',
+    'The access details follow by email before the class.' => 'Die Zugangsdaten bekommst du vor dem Kurs per E-Mail.',
     'Cancellation: {course_title}' => 'Stornierung: {course_title}',
     "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}" =>
         "Hallo {customer_name},\n\ndeine Buchung wurde storniert:\n\n{course_title}\n{date} um {time}\n\nVerbleibende Credits: {credits_remaining}\n\nDeine Buchungen verwaltest du hier: {account_link}",

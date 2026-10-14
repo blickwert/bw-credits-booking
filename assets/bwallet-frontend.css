@@ -56,6 +56,15 @@
 /* Placeholders for lazily loaded views (includes/lazy-views.php): no box of their own, the layout stays as if the content were inline */
 .bw-lazy-view { display: contents; }
 
+/* Session times: zone name next to the time, the visitor's own time when it differs (assets/base.js) */
+.bw-time__zone,
+.bw-time__local {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+.bw-time__local { margin-left: 0.4em; white-space: nowrap; }
+.bw-time__local::before { content: "· "; }
+
 /* ==== course_access ==== */
 /* Access details [bw_credits_course_access] */
 .bw-access {
@@ -221,6 +230,20 @@
   font-variant-numeric: tabular-nums;
   color: var(--bw-color-text, #1e1e1e);
   border-top: 1px solid rgba(0,0,0,.08);
+}
+
+.bw-course-slot-date__zone,
+.bw-course-slot-date__local {
+  display: block;
+  width: 100%;
+  font-size: 0.65rem;
+  line-height: 1.2;
+  color: var(--bw-color-secondary, #666);
+}
+
+.bw-course-slot-date__local {
+  font-variant-numeric: tabular-nums;
+  color: var(--bw-color-primary, #2271b1);
 }
 
 .bw-course-slot-main {

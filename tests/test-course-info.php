@@ -56,6 +56,27 @@ class BW_Credits_Bookings_MVP {
     }
 }
 
+// time-zone.php needs these
+function wp_timezone_string() { return 'Europe/Madrid'; }
+function esc_attr($t) { return htmlspecialchars((string) $t, ENT_QUOTES); }
+function bw_text(string $key, array $vars = []): string {
+    $d = [
+        'time.zone_label'          => '{city} time',
+        'time.local'               => '{time} in your time zone ({zone})',
+        'booking.cancel_until'     => 'You can cancel until {deadline}; your credit is refunded.',
+        'booking.cancel_closed'    => 'Cancellation is no longer possible (less than {hours} hours before the start).',
+        'booking.cancel_late_hint' => 'If you book now, you can no longer cancel (less than {hours} hours before the start).',
+    ];
+    $text = $d[$key] ?? $key;
+    foreach ($vars as $k => $v) $text = str_replace('{' . $k . '}', (string) $v, $text);
+    return $text;
+}
+function get_user_meta($u, $k, $s = false) { return ''; }
+function update_user_meta($u, $k, $v) {}
+function delete_user_meta($u, $k) {}
+function register_rest_route(...$a) {}
+function wp_timezone() { return new DateTimeZone('Europe/Madrid'); }
+require __DIR__ . '/../includes/time-zone.php';
 require __DIR__ . '/../includes/wpml-terms.php';
 require __DIR__ . '/../includes/course-info.php';
 
@@ -78,11 +99,15 @@ check('type_description: line breaks become paragraph markup', sc('type_descript
 check('level: name', sc('level') === 'Soulful Beginning');
 check('level_description: empty description prints nothing', sc('level_description') === '');
 check('language: name', sc('language') === 'English');
-check('start / date / time', sc('start') === '12.09.2026 08:30' && sc('date') === '12.09.2026' && sc('time') === '08:30');
+$st = sc('start'); $tm = sc('time');
+check('date: plain text', sc('date') === '12.09.2026');
+check('start / time: the zone is named and the time sits in <time> with its offset (the browser adds the visitor\'s time)',
+    str_contains($st, '>12.09.2026 08:30</time>') && str_contains($st, 'datetime="2026-09-12T08:30:00+00:00"') && str_contains($st, '(Madrid time)')
+    && str_contains($tm, '>08:30</time>') && str_contains($tm, 'class="bw-time__zone"'));
 check('duration: minutes', sc('duration') === '50 min.');
 check('duration: missing value prints nothing', sc('duration', 8) === '');
 $cal = sc('calendar');
-check('calendar: leaf markup with weekday, day, month and time', str_contains($cal, 'bw-course-slot-date__dow">Sat<') && str_contains($cal, '__day">12<') && str_contains($cal, '__month">Sep<') && str_contains($cal, '__time">08:30<'));
+check('calendar: leaf markup with weekday, day, month and time', str_contains($cal, 'bw-course-slot-date__dow">Sat<') && str_contains($cal, '__day">12<') && str_contains($cal, '__month">Sep<') && str_contains($cal, 'bw-course-slot-date__time') && str_contains($cal, '>08:30</time>') && str_contains($cal, '__zone">Madrid<'));
 check('calendar: enqueues the plugin styles', !empty($GLOBALS['__assets']));
 check('calendar: no start prints a dash placeholder', str_contains(sc('calendar', 8), '—'));
 check('detail: empty content prints nothing', sc('detail') === '');
