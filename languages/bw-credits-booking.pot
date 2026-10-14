@@ -428,9 +428,9 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:389
 #: includes/metaboxes.php:434
-#: includes/emails.php:643
-#: includes/emails.php:872
-#: includes/emails.php:901
+#: includes/emails.php:659
+#: includes/emails.php:888
+#: includes/emails.php:917
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr ""
@@ -1183,84 +1183,84 @@ msgstr ""
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:662
+#: includes/emails.php:678
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:665
+#: includes/emails.php:681
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:824
-#: includes/emails.php:825
+#: includes/emails.php:840
+#: includes/emails.php:841
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:881
+#: includes/emails.php:897
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:889
+#: includes/emails.php:905
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:910
+#: includes/emails.php:926
 msgid "All emails reset to the default text."
 msgstr ""
 
-#: includes/emails.php:939
+#: includes/emails.php:955
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:945
+#: includes/emails.php:961
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr ""
 
-#: includes/emails.php:946
+#: includes/emails.php:962
 msgid "Reset all to default"
 msgstr ""
 
-#: includes/emails.php:956
+#: includes/emails.php:972
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:961
+#: includes/emails.php:977
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:968
+#: includes/emails.php:984
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:981
+#: includes/emails.php:997
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:997
+#: includes/emails.php:1013
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:1000
+#: includes/emails.php:1016
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:1007
+#: includes/emails.php:1023
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:1013
+#: includes/emails.php:1029
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:1018
+#: includes/emails.php:1034
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:1026
+#: includes/emails.php:1042
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:1038
+#: includes/emails.php:1054
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 

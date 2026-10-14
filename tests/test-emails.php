@@ -177,10 +177,17 @@ function wp_schedule_event(...$a) {}
 function wp_unschedule_event(...$a) {}
 function get_edit_post_link($id, $ctx = 'raw') { return 'https://example.test/edit/' . $id; }
 
-function wp_mail($to, $subject, $message) {
-    $GLOBALS['__mails'][] = compact('to', 'subject', 'message');
+function wp_mail($to, $subject, $message, $headers = '', $attachments = []) {
+    // the attachment files vanish after sending: read them now
+    $files = [];
+    foreach ((array) $attachments as $path) $files[basename($path)] = file_get_contents($path);
+    $GLOBALS['__mails'][] = compact('to', 'subject', 'message', 'files');
     return true;
 }
+if (!function_exists('trailingslashit')) { function trailingslashit($s) { return rtrim($s, '/') . '/'; } }
+if (!function_exists('get_temp_dir')) { function get_temp_dir() { return sys_get_temp_dir() . '/'; } }
+if (!function_exists('wp_generate_password')) { function wp_generate_password($n = 12, $special = true) { return substr(md5(uniqid('', true)), 0, $n); } }
+if (!function_exists('wp_mkdir_p')) { function wp_mkdir_p($d) { return is_dir($d) || mkdir($d, 0777, true); } }
 
 date_default_timezone_set('UTC');
 if (!defined('ARRAY_A')) define('ARRAY_A', 'ARRAY_A');
@@ -663,6 +670,8 @@ $GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
 slot_starts_in(42, '+5 days');
 BW_Emails::on_booking_created(500, 1, 42);
 check('on_booking_created(): hours=0 + default link -> access details sent right away', count(access_mails()) === 1);
+$with_ics = array_filter($GLOBALS['__mails'], function ($m) { return $m['files'] && substr(key($m['files']), -4) === '.ics'; });
+check('send(): the calendar file travels as a wp_mail attachment (works with API mailers too)', count($with_ics) === 2 && strpos(reset(reset($with_ics)['files']), 'BEGIN:VCALENDAR') === 0);
 check('on_booking_created(): ... and the booking is marked as sent', $GLOBALS['wpdb']->updates === [500]);
 
 reset_state();

@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.49.1] – 2026-10-14
+
+### Fixed
+- **The calendar file (.ics) now reaches customers on sites with an API mailer** (Brevo, …). It was attached through `phpmailer_init`, which mail plugins that replace `wp_mail()` never run. It is now passed as wp_mail's `$attachments` argument (a short-lived temp file), which every mailer honours.
+
 ## [0.49.0] – 2026-10-14
 
 ### Added
