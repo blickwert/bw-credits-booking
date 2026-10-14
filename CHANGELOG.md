@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.50.1] – 2026-10-14
+
+### Changed
+- German cancellation note next to the booking button and in the booking e-mail: "…dein **Guthaben** wird dir gutgeschrieben" instead of "dein Credit".
+
 ## [0.50.0] – 2026-10-14
 
 ### Added
