@@ -5,6 +5,14 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.50.0] – 2026-10-14
+
+### Added
+- **"Same access for every session"** (Settings → Online Access): a tick box for studios that use one Zoom room for everything. When ticked, the default meeting link and access details are copied into the own fields of every newly created session (editable per session), and sessions without values of their own use them too. Unticked, the stored defaults are ignored.
+
+### Changed
+- Installations that already had a default link or access details saved keep today's behaviour (the box counts as ticked until the settings are saved once).
+
 ## [0.49.1] – 2026-10-14
 
 ### Fixed

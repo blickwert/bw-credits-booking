@@ -169,6 +169,8 @@ function get_the_terms($id, $tax) {
 // value, matching what WordPress actually stores for a term name
 // containing "&" (e.g. post_title saved as "Ground &amp; Connect").
 function get_the_title($id) { return $GLOBALS['__slot_title'] ?? 'Hatha Yoga'; }
+if (!class_exists('WP_Post')) { class WP_Post { public $post_type = ''; } }
+function update_post_meta($id, $key, $value) { $GLOBALS['__postmeta'][$id][$key] = $value; return true; }
 function get_post_meta($id, $key, $single = false) { return $GLOBALS['__postmeta'][$id][$key] ?? ''; }
 function get_permalink($id) { return 'https://example.test/session/' . $id; }
 
@@ -219,6 +221,7 @@ class BW_Admin_Pages { const PAGE_BOOKINGS = 'bw-credits-bookings'; }
 class BW_Settings {
     const CAPABILITY = 'manage_options';
     public static function get_default_capacity() { return 10; }
+    public static function get_slot_post_type() { return 'course_slot'; }
     public static function get_reminder_hours() { return 24; }
     const MENU_SLUG = 'bw-credits';
 }
@@ -644,6 +647,27 @@ check('get_access_info(): the session\'s own details win', BW_Metaboxes::get_acc
 unset($GLOBALS['__postmeta'][42]['_bw_meeting_link'], $GLOBALS['__postmeta'][42]['_bw_access_info']);
 $ph = BW_Emails::placeholders(1, 42);
 check('placeholders(): {meeting_link}/{access_details} use the defaults', $ph['{meeting_link}'] === 'https://zoom.test/default' && $ph['{access_details}'] === 'Default PIN 1234');
+
+// Tick box "same access for every session": off ignores the stored defaults, on prefills new sessions
+$GLOBALS['__options']['bw_use_default_access'] = '0';
+check('use_default_access(): switched off -> the stored defaults are ignored', BW_Metaboxes::get_meeting_link(42) === '' && BW_Metaboxes::get_access_info(42) === '');
+$GLOBALS['__options']['bw_use_default_access'] = '1';
+$new = new WP_Post(); $new->post_type = 'course_slot';
+BW_Metaboxes::prefill_new_session(77, $new, false);
+check('prefill_new_session(): a new session gets the default link and details in its own fields',
+    ($GLOBALS['__postmeta'][77]['_bw_meeting_link'] ?? '') === 'https://zoom.test/default' && ($GLOBALS['__postmeta'][77]['_bw_access_info'] ?? '') === 'Default PIN 1234');
+$GLOBALS['__postmeta'][78]['_bw_meeting_link'] = 'https://zoom.test/own';
+BW_Metaboxes::prefill_new_session(78, $new, false);
+check('prefill_new_session(): an existing value is never overwritten', $GLOBALS['__postmeta'][78]['_bw_meeting_link'] === 'https://zoom.test/own');
+BW_Metaboxes::prefill_new_session(79, $new, true);
+check('prefill_new_session(): updates of existing posts are left alone', !isset($GLOBALS['__postmeta'][79]));
+$other = new WP_Post(); $other->post_type = 'post';
+BW_Metaboxes::prefill_new_session(80, $other, false);
+check('prefill_new_session(): other post types are left alone', !isset($GLOBALS['__postmeta'][80]));
+$GLOBALS['__options']['bw_use_default_access'] = '0';
+BW_Metaboxes::prefill_new_session(81, $new, false);
+check('prefill_new_session(): switched off -> nothing is copied', !isset($GLOBALS['__postmeta'][81]));
+unset($GLOBALS['__options']['bw_use_default_access'], $GLOBALS['__postmeta'][77], $GLOBALS['__postmeta'][78]);
 
 $GLOBALS['__terms'][42] = ['course_type' => ['Hatha', 'Yin'], 'course_level' => ['All levels']];
 $GLOBALS['__options']['woocommerce_email_from_address'] = 'hello@example.test';

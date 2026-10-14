@@ -14,6 +14,7 @@ class BW_Metaboxes {
     const META_MEETING_LINK = '_bw_meeting_link';
     const META_ACCESS_INFO  = '_bw_access_info';
 
+    const OPT_USE_DEFAULT_ACCESS   = 'bw_use_default_access';
     const OPT_DEFAULT_MEETING_LINK = 'bw_default_meeting_link';
     const OPT_DEFAULT_ACCESS_INFO  = 'bw_default_access_info';
     const OPT_ACCESS_HOURS         = 'bw_access_details_hours';
@@ -23,6 +24,7 @@ class BW_Metaboxes {
     public static function init() {
         add_action('add_meta_boxes', [__CLASS__, 'register']);
         add_action('save_post',      [__CLASS__, 'save'], 10, 2);
+        add_action('wp_insert_post', [__CLASS__, 'prefill_new_session'], 10, 3);
         add_action('admin_init',     [__CLASS__, 'register_settings']);
 
         // Print the nonce independently of the meta boxes — otherwise
@@ -44,12 +46,44 @@ class BW_Metaboxes {
      * Online access: global defaults + per-session resolution
      * --------------------------------------------------------- */
 
+    /**
+     * Whether the same access details are used for every session (Settings → Online Access).
+     * Before the tick box existed, filled-in defaults were simply used — an unsaved option keeps that behaviour.
+     */
+    public static function use_default_access(): bool {
+        $saved = get_option(self::OPT_USE_DEFAULT_ACCESS, null);
+        if ($saved === null || $saved === false) {
+            return trim((string) get_option(self::OPT_DEFAULT_MEETING_LINK, '')) !== ''
+                || trim((string) get_option(self::OPT_DEFAULT_ACCESS_INFO, '')) !== '';
+        }
+        return (string) $saved === '1';
+    }
+
     public static function get_default_meeting_link(): string {
-        return (string) get_option(self::OPT_DEFAULT_MEETING_LINK, '');
+        return self::use_default_access() ? (string) get_option(self::OPT_DEFAULT_MEETING_LINK, '') : '';
     }
 
     public static function get_default_access_info(): string {
-        return (string) get_option(self::OPT_DEFAULT_ACCESS_INFO, '');
+        return self::use_default_access() ? (string) get_option(self::OPT_DEFAULT_ACCESS_INFO, '') : '';
+    }
+
+    /**
+     * A newly created session starts with the default link and access details in its own fields,
+     * so they can be adjusted per session. Existing values are never touched.
+     */
+    public static function prefill_new_session($post_id, $post, $update) {
+        if ($update || !($post instanceof WP_Post) || $post->post_type !== self::post_type()) return;
+        if (!self::use_default_access()) return;
+
+        $defaults = [
+            self::META_MEETING_LINK => self::get_default_meeting_link(),
+            self::META_ACCESS_INFO  => self::get_default_access_info(),
+        ];
+        foreach ($defaults as $key => $value) {
+            if ($value !== '' && (string) get_post_meta($post_id, $key, true) === '') {
+                update_post_meta($post_id, $key, $value);
+            }
+        }
     }
 
     /** 0 = send as soon as a link is available; N = send N hours before the start. */
@@ -72,6 +106,10 @@ class BW_Metaboxes {
     public static function register_settings() {
         $group = 'bw_credits_settings';
 
+        register_setting($group, self::OPT_USE_DEFAULT_ACCESS, [
+            'type'              => 'string',
+            'sanitize_callback' => function ($value) { return $value ? '1' : '0'; },
+        ]);
         register_setting($group, self::OPT_DEFAULT_MEETING_LINK, [
             'type'              => 'string',
             'sanitize_callback' => 'esc_url_raw',
@@ -89,16 +127,28 @@ class BW_Metaboxes {
             echo '<p>' . esc_html__('Defaults for online sessions. A meeting link or access details entered on a session itself take precedence.', 'bw-credits-booking') . '</p>';
         }, BW_Settings::MENU_SLUG);
 
+        add_settings_field(self::OPT_USE_DEFAULT_ACCESS, __('Same access for every session', 'bw-credits-booking'), [__CLASS__, 'field_use_default_access'], BW_Settings::MENU_SLUG, 'bw_online_access');
         add_settings_field(self::OPT_DEFAULT_MEETING_LINK, __('Default meeting link', 'bw-credits-booking'), [__CLASS__, 'field_default_meeting_link'], BW_Settings::MENU_SLUG, 'bw_online_access');
         add_settings_field(self::OPT_DEFAULT_ACCESS_INFO, __('Default access details / notes', 'bw-credits-booking'), [__CLASS__, 'field_default_access_info'], BW_Settings::MENU_SLUG, 'bw_online_access');
         add_settings_field(self::OPT_ACCESS_HOURS, __('Send access details (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_access_hours'], BW_Settings::MENU_SLUG, 'bw_online_access');
+    }
+
+    public static function field_use_default_access() {
+        echo '<input type="hidden" name="' . esc_attr(self::OPT_USE_DEFAULT_ACCESS) . '" value="0">';
+        printf(
+            '<label><input type="checkbox" name="%s" value="1"%s> %s</label>',
+            esc_attr(self::OPT_USE_DEFAULT_ACCESS),
+            checked(self::use_default_access(), true, false),
+            esc_html__('Use the meeting link and access details below for all sessions', 'bw-credits-booking')
+        );
+        echo '<p class="description">' . esc_html__('New sessions start with these values in their own fields; sessions without values of their own use them as well. Untick if every session has its own link.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_default_meeting_link() {
         printf(
             '<input type="url" name="%s" value="%s" class="regular-text" placeholder="https://zoom.us/j/...">',
             esc_attr(self::OPT_DEFAULT_MEETING_LINK),
-            esc_attr(self::get_default_meeting_link())
+            esc_attr((string) get_option(self::OPT_DEFAULT_MEETING_LINK, ''))
         );
         echo '<p class="description">' . esc_html__('Used for every session that has no meeting link of its own.', 'bw-credits-booking') . '</p>';
     }
@@ -108,7 +158,7 @@ class BW_Metaboxes {
             '<textarea name="%s" rows="4" class="large-text" placeholder="%s">%s</textarea>',
             esc_attr(self::OPT_DEFAULT_ACCESS_INFO),
             esc_attr__('Meeting ID, password, dial-in numbers …', 'bw-credits-booking'),
-            esc_textarea(self::get_default_access_info())
+            esc_textarea((string) get_option(self::OPT_DEFAULT_ACCESS_INFO, ''))
         );
         echo '<p class="description">' . esc_html__('Used for every session that has no access details of its own.', 'bw-credits-booking') . '</p>';
     }
