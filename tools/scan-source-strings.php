@@ -165,6 +165,7 @@ function bw_scan_default_files(): array {
         'includes/admin-pages.php',
         'includes/metaboxes.php',
         'includes/course-info.php',
+        'includes/purchase-limit.php',
         'includes/settings.php',
         'includes/admin.php',
         'includes/emails.php',

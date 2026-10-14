@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.51.0] – 2026-10-14
+
+### Added
+- **Only once per customer** — a checkbox on the WooCommerce product screen (General tab) for offers such as an introductory package. Whoever already has an order with the product (processing, completed or on hold; filter `bw_once_per_customer_statuses`) can't buy it again: customers with an account are stopped at *Add to cart* (and a leftover item is removed from the cart with a notice); the checkout also checks the billing e-mail address (guests, a second account) and blocks the order with a notice. The product in the cart carries the hint "Only available once per person". Language versions (WPML) count as one product.
+
 ## [0.50.1] – 2026-10-14
 
 ### Changed
