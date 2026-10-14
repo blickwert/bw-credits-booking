@@ -144,6 +144,16 @@ function wc_get_orders($args) {
     return array_map(fn($m) => new Test_Order($uid, $m), array_slice($GLOBALS['__orders'][$uid] ?? [], 0, (int) ($args['limit'] ?? 10)));
 }
 
+// WordPress's MO reader: $GLOBALS['__mo'][locale][msgid] = msgstr (the compiled file of that locale)
+class MO {
+    private $locale = '';
+    public function import_from_file($file) {
+        $this->locale = preg_match('/-([a-z]{2}_[A-Z]{2})\.mo$/', $file, $m) ? $m[1] : '';
+        return isset($GLOBALS['__mo'][$this->locale]);
+    }
+    public function translate($text) { return $GLOBALS['__mo'][$this->locale][$text] ?? $text; }
+}
+
 function get_userdata($id) {
     return $id > 0 ? (object) ['display_name' => 'Jane Doe', 'user_email' => 'jane@example.test'] : false;
 }
@@ -370,6 +380,32 @@ $GLOBALS['__mails'] = [];
 BW_Emails::send('booking', 1, 42, 'jane@example.test');
 $sent = $GLOBALS['__mails'][0] ?? null;
 check('send(): a customised subject is kept as saved', $sent && $sent['subject'] === 'Dein Termin: Hatha Yoga');
+
+/* ---------------------------------------------------------------
+ * 4e. The default texts are read straight from the customer's .mo, not
+ *     through whatever gettext translations the request has loaded
+ *     (cron run, ajax booking: no page language, no browser).
+ * --------------------------------------------------------------- */
+reset_state();
+$defaults = BW_Emails::defaults();
+$GLOBALS['__mo'] = ['de_DE' => [$defaults['reminder']['subject'] => 'Erinnerung: {course_title}', $defaults['reminder']['body'] => 'Hallo {customer_name}, dein Kurs steht an.']];
+$cache = new ReflectionProperty(BW_Emails::class, 'mo_cache'); // earlier cases cached "no file" for de_DE
+$cache->setAccessible(true);
+$cache->setValue(null, []);
+update_user_meta(1, '_bw_email_language', 'de');
+$GLOBALS['__locale']    = 'en_US';
+$GLOBALS['__td_locale'] = 'en_US'; // the request has English loaded, gettext knows nothing German
+$GLOBALS['__mails'] = [];
+BW_Emails::send('reminder', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): default text comes from the customer\'s .mo, independent of the request\'s translations', $sent && $sent['subject'] === 'Erinnerung: Hatha Yoga' && str_contains($sent['message'], 'dein Kurs steht an'));
+
+update_user_meta(1, '_bw_email_language', 'en');
+$GLOBALS['__mails'] = [];
+BW_Emails::send('reminder', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): English customer gets the English default (no .mo for en_US needed)', $sent && str_contains($sent['subject'], 'Reminder: Hatha Yoga'));
+unset($GLOBALS['__mo']);
 
 /* ---------------------------------------------------------------
  * 4c. Language from the order: no preference saved -> language of the
