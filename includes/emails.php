@@ -280,24 +280,22 @@ class BW_Emails {
             ? (string) apply_filters('wpml_default_language', null)
             : BW_Email_Language::get_user_language($user_id);
 
-        // Locale-switch around the gettext resolution too (not just the WPML
-        // step below) — subject_source()/body_source() resolve an untouched
-        // default via __(), which otherwise depends on whatever WordPress
-        // locale happens to be active for this particular request/cron run.
-        $locale   = $lang !== '' ? (BW_Email_Language::locale_map()[$lang] ?? '') : '';
-        $switched = false;
-        if ($locale !== '' && $locale !== get_locale()) {
-            switch_to_locale($locale);
-            load_plugin_textdomain('bw-credits-booking', false, dirname(plugin_basename(BW_CREDITS_BOOKING_FILE)) . '/languages');
-            $switched = true;
+        // Everything language-dependent is resolved in the customer's language: the subject/body
+        // templates AND the placeholders (e.g. the access timing phrase "One day before your class").
+        // The plugin text domain is loaded explicitly for that locale. Otherwise it is whatever
+        // WordPress happened to load for this request — a logged-in customer's own locale (WPML sets
+        // it from the admin language), the site locale in cron — which is not necessarily the
+        // customer's language and produced mails with half English, half German sentences.
+        $locale     = $lang !== '' ? (BW_Email_Language::locale_map()[$lang] ?? '') : '';
+        $switched   = false;
+        $td_swapped = false;
+        if ($locale !== '') {
+            $switched   = switch_to_locale($locale);
+            $td_swapped = self::load_plugin_translations($locale);
         }
 
         $subject_tpl = self::translate('subject_' . $key, self::subject_source($key), $lang !== '' ? $lang : null);
         $body_tpl    = self::translate('body_' . $key, self::body_source($key), $lang !== '' ? $lang : null);
-
-        if ($switched) {
-            restore_previous_locale();
-        }
 
         // Term names (type, level, language) come out in the customer's language: switch WPML for the placeholders.
         $wpml_before = apply_filters('wpml_current_language', null);
@@ -307,6 +305,13 @@ class BW_Emails {
         $placeholders = self::placeholders($user_id, $slot_id);
 
         if ($wpml_switch) do_action('wpml_switch_language', $wpml_before);
+
+        if ($switched) {
+            restore_previous_locale();
+        }
+        if ($td_swapped) {
+            self::load_plugin_translations('');
+        }
 
         $subject = strtr($subject_tpl, $placeholders);
 
@@ -643,6 +648,22 @@ class BW_Emails {
             do_action('wpml_register_single_string', 'BW Credits', 'subject_' . $key, self::get_subject($key));
             do_action('wpml_register_single_string', 'BW Credits', 'body_' . $key, self::get_body($key));
         }
+    }
+
+    /**
+     * (Re)loads the plugin's translations: for an explicit locale from that locale's .mo, or ('' ) the way
+     * WordPress would for the current request. Returns true when the text domain was replaced.
+     */
+    private static function load_plugin_translations(string $locale): bool {
+        unload_textdomain('bw-credits-booking');
+
+        if ($locale === '') {
+            load_plugin_textdomain('bw-credits-booking', false, dirname(plugin_basename(BW_CREDITS_BOOKING_FILE)) . '/languages');
+            return true;
+        }
+
+        load_textdomain('bw-credits-booking', plugin_dir_path(BW_CREDITS_BOOKING_FILE) . 'languages/bw-credits-booking-' . $locale . '.mo');
+        return true;
     }
 
     private static function translate(string $name, string $value, ?string $lang): string {

@@ -30,6 +30,12 @@ class BW_Email_Language {
         // of only ever taking effect once a customer proactively visits
         // their account and saves a choice.
         add_action('user_register', [__CLASS__, 'save_language_on_registration']);
+
+        // The language of the checkout is the better source for a customer who registers while
+        // ordering: WooCommerce's ajax checkout request does not always carry the page language
+        // when the account is created, but the order does (WPML stores it on the order).
+        add_action('woocommerce_created_customer', [__CLASS__, 'remember_created_customer'], 10, 1);
+        add_action('woocommerce_checkout_order_processed', [__CLASS__, 'save_language_from_order'], 10, 3);
     }
 
     /* =========================================================
@@ -73,13 +79,60 @@ class BW_Email_Language {
         $saved = (string) get_user_meta($user_id, self::META_KEY, true);
         if ($saved !== '' && isset($languages[$saved])) return $saved;
 
+        // Never set: the language the customer ordered in last, before falling back to whatever the
+        // current request happens to be (a booking comes in through REST, which is not the page language).
+        $from_order = self::language_of_last_order($user_id);
+        if ($from_order !== '' && isset($languages[$from_order])) return $from_order;
+
         $current = (string) apply_filters('wpml_current_language', null);
         return isset($languages[$current]) ? $current : '';
+    }
+
+    /** WPML language of the customer's most recent order, or ''. */
+    private static function language_of_last_order(int $user_id): string {
+        if ($user_id <= 0 || !function_exists('wc_get_orders')) return '';
+
+        $orders = wc_get_orders([
+            'customer_id' => $user_id,
+            'limit'       => 1,
+            'orderby'     => 'date',
+            'order'       => 'DESC',
+            'return'      => 'objects',
+        ]);
+        if (!$orders || !method_exists($orders[0], 'get_meta')) return '';
+
+        return (string) $orders[0]->get_meta('wpml_language');
     }
 
     public static function save_user_language(int $user_id, string $code): void {
         if (isset(self::active_languages()[$code])) {
             update_user_meta($user_id, self::META_KEY, $code);
+        }
+    }
+
+    /** Customer accounts created during the current request (checkout registration). */
+    private static $created_now = [];
+
+    public static function remember_created_customer($user_id): void {
+        self::$created_now[(int) $user_id] = true;
+    }
+
+    /**
+     * After checkout: take the order's language as the preference — for an account created in this
+     * very checkout (replacing the guess made at registration) or for an account without a preference.
+     * A language the customer chose in their account is never overwritten.
+     */
+    public static function save_language_from_order($order_id, $posted = null, $order = null): void {
+        if (!$order && function_exists('wc_get_order')) $order = wc_get_order($order_id);
+        if (!$order || !method_exists($order, 'get_user_id')) return;
+
+        $user_id = (int) $order->get_user_id();
+        $code    = (string) $order->get_meta('wpml_language');
+        if ($user_id <= 0 || $code === '') return;
+
+        $has_choice = (string) get_user_meta($user_id, self::META_KEY, true) !== '';
+        if (!$has_choice || isset(self::$created_now[$user_id])) {
+            self::save_user_language($user_id, $code);
         }
     }
 

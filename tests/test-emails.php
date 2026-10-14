@@ -68,8 +68,15 @@ function get_locale() { return $GLOBALS['__locale']; }
 function switch_to_locale($locale) { $GLOBALS['__locale'] = $locale; return true; }
 function restore_previous_locale() { $GLOBALS['__locale'] = 'en_US'; return true; }
 
+// The plugin text domain: after load_textdomain($d, '…-de_DE.mo') translations come from THAT locale, whatever
+// the WordPress locale is; load_plugin_textdomain() (WordPress's own choice) follows the WP locale again.
+$GLOBALS['__td_locale'] = null;
+function unload_textdomain($d) { $GLOBALS['__td_locale'] = null; return true; }
+function load_textdomain($d, $mofile) { $GLOBALS['__td_locale'] = preg_match('/-([a-z]{2}_[A-Z]{2})\.mo$/', $mofile, $m) ? $m[1] : 'en_US'; return true; }
+function plugin_dir_path($f) { return rtrim(dirname($f), '/') . '/'; }
 function __($text, $domain = null) {
-    return $GLOBALS['__gettext'][$GLOBALS['__locale']][$text] ?? $text;
+    $locale = $GLOBALS['__td_locale'] ?? $GLOBALS['__locale'];
+    return $GLOBALS['__gettext'][$locale][$text] ?? $text;
 }
 function esc_html($t) { return htmlspecialchars((string) $t, ENT_QUOTES); }
 function esc_html__($t, $d = null) { return __($t, $d); }
@@ -88,7 +95,7 @@ function wp_date($format, $ts) { return date($format, $ts); }
 function wp_timezone() { return new DateTimeZone('UTC'); }
 function current_time($type) { return date('Y-m-d H:i:s'); }
 function plugin_basename($f) { return $f; }
-function load_plugin_textdomain(...$a) {}
+function load_plugin_textdomain(...$a) { $GLOBALS['__td_locale'] = null; return true; }
 if (!defined('BW_CREDITS_BOOKING_FILE')) define('BW_CREDITS_BOOKING_FILE', __DIR__ . '/../bw-credits-booking.php');
 
 function current_user_can($cap) { return !empty($GLOBALS['__can']); }
@@ -125,6 +132,17 @@ function home_url($path = '/') { return 'https://example.test' . $path; }
 // WooCommerce skips its frontend-only includes) — this is the exact bug
 // reported from production. If email-language.php's admin-post handler
 // ever calls it again, this test must fail with the same fatal error.
+
+// Orders of a customer (newest first): $GLOBALS['__orders'][user_id] = [['wpml_language' => 'de'], …]
+class Test_Order {
+    public function __construct(private int $user, private array $meta) {}
+    public function get_user_id() { return $this->user; }
+    public function get_meta($k) { return $this->meta[$k] ?? ''; }
+}
+function wc_get_orders($args) {
+    $uid = (int) ($args['customer_id'] ?? 0);
+    return array_map(fn($m) => new Test_Order($uid, $m), array_slice($GLOBALS['__orders'][$uid] ?? [], 0, (int) ($args['limit'] ?? 10)));
+}
 
 function get_userdata($id) {
     return $id > 0 ? (object) ['display_name' => 'Jane Doe', 'user_email' => 'jane@example.test'] : false;
@@ -204,6 +222,8 @@ function reset_state() {
     $GLOBALS['__options']   = [];
     $GLOBALS['__usermeta']  = [];
     $GLOBALS['__locale']    = 'en_US';
+    $GLOBALS['__td_locale'] = null;
+    $GLOBALS['__orders']    = [];
     $GLOBALS['__gettext']   = [];
     $GLOBALS['__wpml_map']  = [];
     $GLOBALS['__wpml_on']   = true;
@@ -292,6 +312,65 @@ $GLOBALS['__mails'] = [];
 BW_Emails::send('booking', 1, 42, 'jane@example.test');
 $sent = $GLOBALS['__mails'][0] ?? null;
 check('send(): saved override is translated via WPML using the customer language as target', $sent && $sent['subject'] === 'Übersetzter Betreff: Hatha Yoga');
+
+/* ---------------------------------------------------------------
+ * 4b. The plugin text domain is loaded for the customer's locale,
+ *     not left as WordPress had it for this request (a logged-in
+ *     customer's own locale, set by WPML) — and the placeholders are
+ *     resolved in that same language (no half-English/half-German mail).
+ * --------------------------------------------------------------- */
+reset_state();
+$defaults = BW_Emails::defaults();
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['subject']] = 'Buchungsbestätigung: {course_title}';
+$GLOBALS['__gettext']['de_DE']['One day before your class']     = 'Einen Tag vor deiner Klasse';
+update_user_meta(1, '_bw_email_language', 'en');
+$GLOBALS['__locale']    = 'en_US'; // get_locale() says English ...
+$GLOBALS['__td_locale'] = 'de_DE'; // ... but the German .mo is what is loaded (logged-in customer's own locale)
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): customer preferring English gets English even if WordPress loaded German for the request', $sent && str_contains($sent['subject'], 'See You on the Mat Soon!'));
+check('send(): the request\'s own translations are back after send()', ($GLOBALS['__td_locale'] ?? null) === null);
+
+reset_state();
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['subject']] = 'Buchungsbestätigung: {course_title}';
+update_user_meta(1, '_bw_email_language', 'de');
+$GLOBALS['__locale']    = 'de_DE'; // get_locale() says German ...
+$GLOBALS['__td_locale'] = 'en_US'; // ... but the English .mo is what is loaded
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): customer preferring German gets German even if WordPress loaded English for the request', $sent && $sent['subject'] === 'Buchungsbestätigung: Hatha Yoga');
+
+/* ---------------------------------------------------------------
+ * 4c. Language from the order: no preference saved -> language of the
+ *     latest order; after checkout the order's language is saved
+ *     (account created in this checkout), a chosen language is kept.
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__orders'][9] = [['wpml_language' => 'de']];
+check('get_user_language(): no preference -> language of the latest order', BW_Email_Language::get_user_language(9) === 'de');
+$GLOBALS['__orders'][9] = [['wpml_language' => 'xx']];
+check('get_user_language(): unknown order language -> current language', BW_Email_Language::get_user_language(9) === 'en');
+
+reset_state();
+$order = new Test_Order(5, ['wpml_language' => 'de']);
+BW_Email_Language::save_language_from_order(1, [], $order);
+check('save_language_from_order(): no preference yet -> order language saved', get_user_meta(5, '_bw_email_language', true) === 'de');
+
+reset_state();
+update_user_meta(5, '_bw_email_language', 'en');
+BW_Email_Language::save_language_from_order(1, [], new Test_Order(5, ['wpml_language' => 'de']));
+check('save_language_from_order(): a chosen language is not overwritten', get_user_meta(5, '_bw_email_language', true) === 'en');
+
+reset_state();
+update_user_meta(6, '_bw_email_language', 'en'); // guess made at registration
+BW_Email_Language::remember_created_customer(6);
+BW_Email_Language::save_language_from_order(1, [], new Test_Order(6, ['wpml_language' => 'de']));
+check('save_language_from_order(): account created in this checkout -> order language replaces the guess', get_user_meta(6, '_bw_email_language', true) === 'de');
+
+BW_Email_Language::save_language_from_order(1, [], new Test_Order(0, ['wpml_language' => 'de']));
+check('save_language_from_order(): guest order is ignored', get_user_meta(0, '_bw_email_language', true) === '');
 
 /* ---------------------------------------------------------------
  * 5. handle_save_from_dashboard(): valid vs invalid code. Does NOT
