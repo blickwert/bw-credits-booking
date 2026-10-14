@@ -517,19 +517,35 @@ class BW_Emails {
             $phpmailer->AltBody = $plain_wrapped;
         };
 
-        $attach_ics = function ($phpmailer) use ($ics) {
-            $phpmailer->addStringAttachment($ics['content'], $ics['filename'], 'base64', 'text/calendar; charset=utf-8; method=PUBLISH');
-        };
+        // Via wp_mail's $attachments argument (a file), not phpmailer_init: mail plugins that replace
+        // wp_mail() and send through an API (Brevo, …) never touch PHPMailer.
+        $attachments = [];
+        $ics_path    = $ics ? self::write_attachment($ics['content'], $ics['filename']) : '';
+        if ($ics_path !== '') $attachments[] = $ics_path;
 
         add_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         add_action('phpmailer_init', $set_alt_body);
-        if ($ics) add_action('phpmailer_init', $attach_ics);
-        $sent = wp_mail($to, $subject, $html);
+        $sent = wp_mail($to, $subject, $html, '', $attachments);
         remove_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         remove_action('phpmailer_init', $set_alt_body);
-        remove_action('phpmailer_init', $attach_ics);
+        if ($ics_path !== '') {
+            @unlink($ics_path);
+            @rmdir(dirname($ics_path));
+        }
 
         return (bool) $sent;
+    }
+
+    /** Writes attachment content to a throw-away file (keeping its file name) and returns the path, '' on failure. */
+    private static function write_attachment(string $content, string $filename): string {
+        $dir = trailingslashit(get_temp_dir()) . 'bw-' . wp_generate_password(12, false);
+        if (!wp_mkdir_p($dir)) return '';
+        $path = $dir . '/' . sanitize_file_name($filename);
+        if (file_put_contents($path, $content) === false) {
+            @rmdir($dir);
+            return '';
+        }
+        return $path;
     }
 
     public static function content_type_html(): string {
