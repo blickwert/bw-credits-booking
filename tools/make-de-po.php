@@ -444,7 +444,7 @@ const ENGLISH_TO_GERMAN = [
     // Time zones (0.49.0)
     '{city} time' => '{city}-Zeit',
     '{time} in your time zone ({zone})' => '{time} in deiner Zeitzone ({zone})',
-    'You can cancel until {deadline}; your credit is refunded.' => 'Du kannst bis {deadline} stornieren, dein Credit wird dir gutgeschrieben.',
+    'You can cancel until {deadline}; your credit is refunded.' => 'Du kannst bis {deadline} stornieren, dein Guthaben wird dir gutgeschrieben.',
     'Cancellation is no longer possible (less than {hours} hours before the start).' => 'Eine Stornierung ist nicht mehr möglich (weniger als {hours} Stunden vor Beginn).',
     'If you book now, you can no longer cancel (less than {hours} hours before the start).' => 'Wenn du jetzt buchst, ist keine Stornierung mehr möglich (weniger als {hours} Stunden vor Beginn).',
     'Time zone' => 'Zeitzone',
