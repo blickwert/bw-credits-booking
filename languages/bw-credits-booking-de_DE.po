@@ -436,9 +436,9 @@ msgstr "Texte"
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:439
 #: includes/metaboxes.php:484
-#: includes/emails.php:659
-#: includes/emails.php:888
-#: includes/emails.php:917
+#: includes/emails.php:672
+#: includes/emails.php:901
+#: includes/emails.php:930
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
@@ -1185,64 +1185,68 @@ msgstr "Admin: Stornierung"
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr "Bei jeder Stornierung an die unten hinterlegte Adresse, mit der aktuellen Teilnehmerzahl."
 
-#: includes/emails.php:678
+#: includes/emails.php:691
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:681
+#: includes/emails.php:694
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:840
-#: includes/emails.php:841
+#: includes/emails.php:853
+#: includes/emails.php:854
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:955
+#: includes/emails.php:968
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:972
+#: includes/emails.php:985
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:977
+#: includes/emails.php:990
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:1054
+#: includes/emails.php:1069
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:984
+#: includes/emails.php:997
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:997
+#: includes/emails.php:1010
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:1023
+#: includes/emails.php:1016
+msgid "Leave empty to use the recipient of the WooCommerce “New order” email."
+msgstr "Leer lassen, um den Empfänger der WooCommerce-E-Mail „Neue Bestellung“ zu verwenden."
+
+#: includes/emails.php:1038
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:1029
+#: includes/emails.php:1044
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:1034
+#: includes/emails.php:1049
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:1042
+#: includes/emails.php:1057
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:1016
+#: includes/emails.php:1031
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:962
+#: includes/emails.php:975
 msgid "Reset all to default"
 msgstr "Alle auf Standard zurücksetzen"
 
@@ -1270,23 +1274,23 @@ msgstr "Nur einmal pro Person erhältlich."
 msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
 msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt."
 
-#: includes/emails.php:926
+#: includes/emails.php:939
 msgid "All emails reset to the default text."
 msgstr "Alle E-Mails wurden auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:961
+#: includes/emails.php:974
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr "ALLE E-Mails auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen an allen Betreffs und Texten gehen verloren."
 
-#: includes/emails.php:1013
+#: includes/emails.php:1028
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:905
+#: includes/emails.php:918
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:897
+#: includes/emails.php:910
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 

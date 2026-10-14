@@ -556,10 +556,23 @@ class BW_Emails {
      * Booking events
      * ========================================================= */
 
+    /** Default for admin copies: first recipient of the WooCommerce "New order" email, else the site admin. */
+    public static function default_admin_recipient() {
+        $wc    = get_option('woocommerce_new_order_settings');
+        $to    = is_array($wc) && !empty($wc['recipient']) ? (string) $wc['recipient'] : '';
+        $first = trim((string) strtok($to, ','));
+        return is_email($first) ? $first : (string) get_option('admin_email');
+    }
+
+    public static function admin_recipient() {
+        $own = trim((string) get_option(self::OPT_ADMIN_TO, ''));
+        return $own !== '' ? $own : self::default_admin_recipient();
+    }
+
     public static function on_booking_created($booking_id, $user_id, $slot_id) {
         self::send('booking', (int) $user_id, (int) $slot_id);
 
-        $admin_to = (string) get_option(self::OPT_ADMIN_TO, get_option('admin_email'));
+        $admin_to = self::admin_recipient();
         if (is_email($admin_to)) {
             self::send('admin_booking', (int) $user_id, (int) $slot_id, $admin_to);
         }
@@ -576,7 +589,7 @@ class BW_Emails {
     public static function on_booking_cancelled($booking_id, $user_id, $slot_id) {
         self::send('cancellation', (int) $user_id, (int) $slot_id);
 
-        $admin_to = (string) get_option(self::OPT_ADMIN_TO, get_option('admin_email'));
+        $admin_to = self::admin_recipient();
         if (is_email($admin_to)) {
             self::send('admin_cancellation', (int) $user_id, (int) $slot_id, $admin_to);
         }
@@ -998,7 +1011,9 @@ class BW_Emails {
                         <td>
                             <input type="email" id="bw_admin_to" class="regular-text"
                                    name="<?php echo esc_attr(self::OPT_ADMIN_TO); ?>"
-                                   value="<?php echo esc_attr(get_option(self::OPT_ADMIN_TO, get_option('admin_email'))); ?>">
+                                   value="<?php echo esc_attr((string) get_option(self::OPT_ADMIN_TO, '')); ?>"
+                                   placeholder="<?php echo esc_attr(self::default_admin_recipient()); ?>">
+                            <p class="description"><?php esc_html_e('Leave empty to use the recipient of the WooCommerce “New order” email.', 'bw-credits-booking'); ?></p>
                         </td>
                     </tr>
                 </table>

@@ -391,6 +391,7 @@ const ENGLISH_TO_GERMAN = [
     'Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced.' => 'Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird.',
     'Available placeholders:' => 'Verfügbare Platzhalter:',
     'Address for admin copies' => 'Adresse für Admin-Kopien',
+    'Leave empty to use the recipient of the WooCommerce “New order” email.' => 'Leer lassen, um den Empfänger der WooCommerce-E-Mail „Neue Bestellung“ zu verwenden.',
     'Active' => 'Aktiv',
     'Send this email' => 'Diese E-Mail verschicken',
     'Subject' => 'Betreff',
