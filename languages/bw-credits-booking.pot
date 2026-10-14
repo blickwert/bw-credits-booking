@@ -426,8 +426,8 @@ msgid "Templates"
 msgstr ""
 
 #: includes/admin-pages.php:54
-#: includes/metaboxes.php:389
-#: includes/metaboxes.php:434
+#: includes/metaboxes.php:439
+#: includes/metaboxes.php:484
 #: includes/emails.php:659
 #: includes/emails.php:888
 #: includes/emails.php:917
@@ -467,7 +467,7 @@ msgid "Utilization"
 msgstr ""
 
 #: includes/admin-pages.php:167
-#: includes/metaboxes.php:259
+#: includes/metaboxes.php:309
 msgid "Actions"
 msgstr ""
 
@@ -476,7 +476,7 @@ msgid "overbooked"
 msgstr ""
 
 #: includes/admin-pages.php:202
-#: includes/metaboxes.php:134
+#: includes/metaboxes.php:184
 msgid "Participants"
 msgstr ""
 
@@ -508,16 +508,16 @@ msgid "Customer"
 msgstr ""
 
 #: includes/admin-pages.php:284
-#: includes/metaboxes.php:257
-#: includes/metaboxes.php:455
+#: includes/metaboxes.php:307
+#: includes/metaboxes.php:505
 msgid "Booked on"
 msgstr ""
 
 #: includes/admin-pages.php:285
 #: includes/admin-pages.php:538
 #: includes/admin-pages.php:723
-#: includes/metaboxes.php:258
-#: includes/metaboxes.php:456
+#: includes/metaboxes.php:308
+#: includes/metaboxes.php:506
 msgid "Status"
 msgstr ""
 
@@ -587,14 +587,14 @@ msgid "No users found."
 msgstr ""
 
 #: includes/admin-pages.php:458
-#: includes/metaboxes.php:255
-#: includes/metaboxes.php:453
+#: includes/metaboxes.php:305
+#: includes/metaboxes.php:503
 msgid "Name"
 msgstr ""
 
 #: includes/admin-pages.php:459
-#: includes/metaboxes.php:256
-#: includes/metaboxes.php:454
+#: includes/metaboxes.php:306
+#: includes/metaboxes.php:504
 msgid "Email"
 msgstr ""
 
@@ -697,7 +697,7 @@ msgid "Booking created."
 msgstr ""
 
 #: includes/admin-pages.php:621
-#: includes/metaboxes.php:412
+#: includes/metaboxes.php:462
 msgid "Booking cancelled."
 msgstr ""
 
@@ -842,126 +842,138 @@ msgstr ""
 msgid "Credit revoked."
 msgstr ""
 
-#: includes/metaboxes.php:88
-#: includes/metaboxes.php:133
+#: includes/metaboxes.php:126
+#: includes/metaboxes.php:183
 msgid "Online Access"
 msgstr ""
 
-#: includes/metaboxes.php:89
+#: includes/metaboxes.php:127
 msgid "Defaults for online sessions. A meeting link or access details entered on a session itself take precedence."
 msgstr ""
 
-#: includes/metaboxes.php:92
+#: includes/metaboxes.php:130
+msgid "Same access for every session"
+msgstr ""
+
+#: includes/metaboxes.php:131
 msgid "Default meeting link"
 msgstr ""
 
-#: includes/metaboxes.php:93
+#: includes/metaboxes.php:132
 msgid "Default access details / notes"
 msgstr ""
 
-#: includes/metaboxes.php:94
+#: includes/metaboxes.php:133
 msgid "Send access details (hours before)"
 msgstr ""
 
-#: includes/metaboxes.php:103
-msgid "Used for every session that has no meeting link of its own."
+#: includes/metaboxes.php:142
+msgid "Use the meeting link and access details below for all sessions"
 msgstr ""
 
-#: includes/metaboxes.php:110
-#: includes/metaboxes.php:198
-msgid "Meeting ID, password, dial-in numbers …"
-msgstr ""
-
-#: includes/metaboxes.php:113
-msgid "Used for every session that has no access details of its own."
-msgstr ""
-
-#: includes/metaboxes.php:122
-msgid "When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away."
-msgstr ""
-
-#: includes/metaboxes.php:132
-msgid "Capacity"
+#: includes/metaboxes.php:144
+msgid "New sessions start with these values in their own fields; sessions without values of their own use them as well. Untick if every session has its own link."
 msgstr ""
 
 #: includes/metaboxes.php:153
-msgid "Maximum participants"
+msgid "Used for every session that has no meeting link of its own."
 msgstr ""
 
 #: includes/metaboxes.php:160
-msgid "Leave empty to use the default (%s) from settings."
+#: includes/metaboxes.php:248
+msgid "Meeting ID, password, dial-in numbers …"
 msgstr ""
 
-#: includes/metaboxes.php:167
-msgid "Booked:"
-msgstr ""
-
-#: includes/metaboxes.php:170
-msgid "Overbooked"
-msgstr ""
-
-#: includes/metaboxes.php:170
-msgid "capacity is below the number of existing bookings."
+#: includes/metaboxes.php:163
+msgid "Used for every session that has no access details of its own."
 msgstr ""
 
 #: includes/metaboxes.php:172
+msgid "When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away."
+msgstr ""
+
+#: includes/metaboxes.php:182
+msgid "Capacity"
+msgstr ""
+
+#: includes/metaboxes.php:203
+msgid "Maximum participants"
+msgstr ""
+
+#: includes/metaboxes.php:210
+msgid "Leave empty to use the default (%s) from settings."
+msgstr ""
+
+#: includes/metaboxes.php:217
+msgid "Booked:"
+msgstr ""
+
+#: includes/metaboxes.php:220
+msgid "Overbooked"
+msgstr ""
+
+#: includes/metaboxes.php:220
+msgid "capacity is below the number of existing bookings."
+msgstr ""
+
+#: includes/metaboxes.php:222
 msgid "Calculated automatically and cannot be edited directly."
 msgstr ""
 
-#: includes/metaboxes.php:189
+#: includes/metaboxes.php:239
 msgid "Meeting link"
 msgstr ""
 
-#: includes/metaboxes.php:196
+#: includes/metaboxes.php:246
 msgid "Access details / notes"
 msgstr ""
 
-#: includes/metaboxes.php:202
+#: includes/metaboxes.php:252
 msgid "Leave empty to use the default from Settings (shown in grey)."
 msgstr ""
 
-#: includes/metaboxes.php:209
+#: includes/metaboxes.php:259
 msgid "The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away."
 msgstr ""
 
-#: includes/metaboxes.php:213
+#: includes/metaboxes.php:263
 msgid "As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation."
 msgstr ""
 
-#: includes/metaboxes.php:224
+#: includes/metaboxes.php:274
 msgid "Resend access details to all participants?"
 msgstr ""
 
-#: includes/metaboxes.php:225
+#: includes/metaboxes.php:275
 msgid "Resend access details"
 msgstr ""
 
-#: includes/metaboxes.php:227
+#: includes/metaboxes.php:277
 msgid "Only necessary if the link has changed since."
 msgstr ""
 
-#: includes/metaboxes.php:242
+#: includes/metaboxes.php:292
 msgid "No bookings for this session yet."
 msgstr ""
 
-#: includes/metaboxes.php:254
-#: includes/metaboxes.php:452
+#: includes/metaboxes.php:304
+#: includes/metaboxes.php:502
 msgid "No."
 msgstr ""
 
-#: includes/metaboxes.php:287
+#: includes/metaboxes.php:337
 msgid "Cancel booking? A consumed credit will be refunded."
 msgstr ""
 
-#: includes/metaboxes.php:311
+#: includes/metaboxes.php:361
 msgid "Attendance list as CSV"
 msgstr ""
 
-#: includes/metaboxes.php:427
+#: includes/metaboxes.php:477
 msgid "Marked as no-show."
 msgstr ""
 
-#: includes/metaboxes.php:428
+#: includes/metaboxes.php:478
 msgid "No-show mark removed."
 msgstr ""
 

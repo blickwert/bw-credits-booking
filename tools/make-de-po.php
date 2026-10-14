@@ -360,6 +360,11 @@ const ENGLISH_TO_GERMAN = [
         'Meeting-Link und Zugangsdaten für Online-Termine — Zeitpunkt in Einstellungen → Online-Zugang.',
     'Defaults for online sessions. A meeting link or access details entered on a session itself take precedence.' =>
         'Standardwerte für Online-Termine. Ein direkt am Termin eingetragener Meeting-Link bzw. Zugangsdaten haben Vorrang.',
+    'Same access for every session' => 'Gleiche Zugangsdaten für alle Termine',
+    'Use the meeting link and access details below for all sessions' =>
+        'Meeting-Link und Zugangsdaten unten für alle Termine verwenden',
+    'New sessions start with these values in their own fields; sessions without values of their own use them as well. Untick if every session has its own link.' =>
+        'Neue Termine übernehmen diese Werte in ihre eigenen Felder; Termine ohne eigene Werte verwenden sie ebenfalls. Haken entfernen, wenn jeder Termin einen eigenen Link hat.',
     'Default meeting link' => 'Standard-Meeting-Link',
     'Default access details / notes' => 'Standard-Zugangsdaten / Hinweise',
     'Send access details (hours before)' => 'Zugangsdaten senden (Stunden vorher)',
