@@ -134,7 +134,8 @@ function bw_write_mo(array $pairs, string $path): void {
         $originals_table_off,
         $translations_table_off,
         0, // hash table size — omitted
-        0  // hash table offset — unused
+        $pool_start // hash table offset: WordPress's reader (MO::import_from_reader) takes the translations table as ending
+                    // here and the string data as starting here; an offset of 0 makes it reject the whole file
     );
 
     foreach ($originals_table as [$len, $off])    $data .= pack('V*', $len, $off);
@@ -206,6 +207,16 @@ function bw_mo_self_check(array $expected_pairs, string $path): bool {
             }
         }
         printf("FAIL: unexpected extra entries in compiled MO\n");
+        return false;
+    }
+
+    // What WordPress's own reader (MO::import_from_reader) requires, so a file that passes here also loads there.
+    $data = file_get_contents($path);
+    $h = unpack('Vmagic/Vrevision/Vn/Vorig_off/Vtrans_off/Vhash_size/Vhash_off', substr($data, 0, 28));
+    if ($h['revision'] !== 0
+        || $h['trans_off'] - $h['orig_off'] !== $h['n'] * 8
+        || $h['hash_off'] - $h['trans_off'] !== $h['n'] * 8) {
+        printf("FAIL: header not readable by WordPress (originals/translations tables must be n*8 bytes each, hash offset right after them)\n");
         return false;
     }
 

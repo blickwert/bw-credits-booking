@@ -79,16 +79,48 @@ class BW_Emails {
      * split as BW_Text::get(); get_subject()/get_body() above stay raw
      * (English) for the admin editor and the WPML source registration.
      */
-    private static function subject_source(string $key): string {
+    private static function subject_source(string $key, string $locale = ''): string {
         $default = self::defaults()[$key]['subject'] ?? '';
         $v       = (string) get_option(self::opt_subject($key), '');
-        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : __($default, 'bw-credits-booking');
+        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : self::default_translation($default, $locale);
     }
 
-    private static function body_source(string $key): string {
+    private static function body_source(string $key, string $locale = ''): string {
         $default = self::defaults()[$key]['body'] ?? '';
         $v       = (string) get_option(self::opt_body($key), '');
-        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : __($default, 'bw-credits-booking');
+        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : self::default_translation($default, $locale);
+    }
+
+    /** Compiled translations per locale (null = file missing or not readable). */
+    private static $mo_cache = [];
+
+    /**
+     * The translation of an untouched default text for a locale. Emails are built on the server — in a cron
+     * run, a booking request, with no page language and no browser to ask — so the language comes from the
+     * customer's account, not from the request. The text is read straight from the locale's .mo file: it does
+     * not depend on which translations WordPress or a plugin (WPML String Translation hooks gettext) loaded
+     * for this request. Falls back to gettext when there is no file or no entry.
+     */
+    private static function default_translation(string $text, string $locale): string {
+        if ($locale !== '') {
+            if (!array_key_exists($locale, self::$mo_cache)) {
+                self::$mo_cache[$locale] = null;
+                $file = plugin_dir_path(BW_CREDITS_BOOKING_FILE) . 'languages/bw-credits-booking-' . $locale . '.mo';
+                if (!class_exists('MO') && defined('ABSPATH') && defined('WPINC') && is_readable(ABSPATH . WPINC . '/pomo/mo.php')) {
+                    require_once ABSPATH . WPINC . '/pomo/mo.php';
+                }
+                if (class_exists('MO') && is_readable($file)) {
+                    $mo = new MO();
+                    if ($mo->import_from_file($file)) self::$mo_cache[$locale] = $mo;
+                }
+            }
+            $mo = self::$mo_cache[$locale];
+            if ($mo) {
+                $translated = $mo->translate($text);
+                if (is_string($translated) && $translated !== '' && $translated !== $text) return $translated;
+            }
+        }
+        return __($text, 'bw-credits-booking');
     }
 
     /**
@@ -314,8 +346,8 @@ class BW_Emails {
             $td_swapped = self::load_plugin_translations($locale);
         }
 
-        $subject_tpl = self::translate('subject_' . $key, self::subject_source($key), $lang !== '' ? $lang : null);
-        $body_tpl    = self::translate('body_' . $key, self::body_source($key), $lang !== '' ? $lang : null);
+        $subject_tpl = self::translate('subject_' . $key, self::subject_source($key, $locale), $lang !== '' ? $lang : null);
+        $body_tpl    = self::translate('body_' . $key, self::body_source($key, $locale), $lang !== '' ? $lang : null);
 
         // Term names (type, level, language) come out in the customer's language: switch WPML for the placeholders.
         $wpml_before = apply_filters('wpml_current_language', null);

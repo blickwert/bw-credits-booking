@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.48.4] – 2026-10-14
+
+### Fixed
+- **The German translation file could not be read by WordPress.** `tools/make-mo.php` wrote the hash table offset as 0; WordPress's reader takes the translations table as ending at that offset and the string data as starting there, so it rejected the whole `.mo` (0 entries). No German text of the plugin came from the file — only what WPML happened to supply for some strings. That is why some emails (reminder, access details, parts of the cancellation mail) went out in English although a German translation existed. The compiler now writes the offset right after the translations table, and its self-check applies the same rules.
+- **Email default texts are read straight from the customer's `.mo`.** Emails are built on the server (cron run, booking request) with no page language and no browser, so the language comes from the customer's account. The untouched default subject/body is now looked up in the compiled file of that locale (WordPress's `MO` reader) instead of whatever gettext translations the request or a plugin happened to load; gettext stays as the fallback.
+- `tests/test-mo-format.php` checks the committed `.mo` files against WordPress's reader rules (fails on 0.48.3).
+
 ## [0.48.3] – 2026-10-14
 
 ### Fixed
