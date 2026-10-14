@@ -80,13 +80,33 @@ class BW_Emails {
      * (English) for the admin editor and the WPML source registration.
      */
     private static function subject_source(string $key): string {
-        $v = (string) get_option(self::opt_subject($key), '');
-        return $v !== '' ? $v : __(self::defaults()[$key]['subject'] ?? '', 'bw-credits-booking');
+        $default = self::defaults()[$key]['subject'] ?? '';
+        $v       = (string) get_option(self::opt_subject($key), '');
+        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : __($default, 'bw-credits-booking');
     }
 
     private static function body_source(string $key): string {
-        $v = (string) get_option(self::opt_body($key), '');
-        return $v !== '' ? $v : __(self::defaults()[$key]['body'] ?? '', 'bw-credits-booking');
+        $default = self::defaults()[$key]['body'] ?? '';
+        $v       = (string) get_option(self::opt_body($key), '');
+        return ($v !== '' && !self::is_untouched($v, $default)) ? $v : __($default, 'bw-credits-booking');
+    }
+
+    /**
+     * A saved text that says the same as the English default counts as untouched. Saving the Emails
+     * page (or "Reset") stores the default as an option, and the WYSIWYG editor reformats it
+     * (paragraphs, entities, spaces) — which used to turn every mail into a "custom" text that is only
+     * translated through WPML String Translation, so customers got the English default instead of
+     * the .mo translation. Compared as plain text, whitespace collapsed.
+     */
+    private static function is_untouched(string $saved, string $default): bool {
+        return self::plain_text($saved) === self::plain_text($default);
+    }
+
+    private static function plain_text(string $html): string {
+        $text = preg_replace('#<br\s*/?>|</p>|</li>|</div>#i', "\n", $html);
+        $text = html_entity_decode(wp_strip_all_tags((string) $text), ENT_QUOTES | ENT_HTML5, 'UTF-8');
+        $text = str_replace("\xC2\xA0", ' ', $text);
+        return trim((string) preg_replace('/\s+/u', ' ', $text));
     }
 
     /**

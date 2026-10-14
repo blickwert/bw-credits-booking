@@ -343,6 +343,35 @@ $sent = $GLOBALS['__mails'][0] ?? null;
 check('send(): customer preferring German gets German even if WordPress loaded English for the request', $sent && $sent['subject'] === 'Buchungsbestätigung: Hatha Yoga');
 
 /* ---------------------------------------------------------------
+ * 4d. A saved text that only repeats the English default (saved by
+ *     the Emails page / "Reset", reformatted by the editor) is
+ *     untouched: it is translated through the .mo file again, a real
+ *     customisation stays as it is.
+ * --------------------------------------------------------------- */
+reset_state();
+$defaults = BW_Emails::defaults();
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['subject']] = 'Wir sehen uns bald auf der Matte!';
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['body']]    = 'Hallo {first_name}, deine Klasse wurde gebucht.';
+update_user_meta(1, '_bw_email_language', 'de');
+$GLOBALS['__options']['bw_email_booking_subject'] = $defaults['booking']['subject'];
+// as the WYSIWYG editor stores it: paragraphs, entities, non-breaking spaces
+$GLOBALS['__options']['bw_email_booking_body'] = '<p>' . str_replace(["\n\n", "\n"], ['</p><p>', '<br />'], str_replace(['’', ' '], ['&rsquo;', ' &nbsp;'], $defaults['booking']['body'])) . '</p>';
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): subject saved as the English default is still translated (German .mo)', $sent && $sent['subject'] === 'Wir sehen uns bald auf der Matte!');
+check('send(): body saved as the reformatted English default is still translated (German .mo)', $sent && str_contains($sent['message'], 'deine Klasse wurde gebucht'));
+
+reset_state();
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['subject']] = 'Wir sehen uns bald auf der Matte!';
+update_user_meta(1, '_bw_email_language', 'de');
+$GLOBALS['__options']['bw_email_booking_subject'] = 'Dein Termin: {course_title}'; // a real customisation
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+$sent = $GLOBALS['__mails'][0] ?? null;
+check('send(): a customised subject is kept as saved', $sent && $sent['subject'] === 'Dein Termin: Hatha Yoga');
+
+/* ---------------------------------------------------------------
  * 4c. Language from the order: no preference saved -> language of the
  *     latest order; after checkout the order's language is saved
  *     (account created in this checkout), a chosen language is kept.
