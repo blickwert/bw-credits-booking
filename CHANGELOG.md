@@ -5,6 +5,20 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.49.0] – 2026-10-14
+
+### Added
+- **Session times name their time zone.** The site's time zone (Settings → General) is the zone of every session; customers elsewhere read "08:30" as their own time. Times now say "(Madrid time)" — text catalogue key `time.zone_label`, city taken from the site time zone — in `[bw_credits_course_info field="start|time"]`, the calendar leaf, the session list, the account's booking list and in emails (`{time}` for customer mails, new `{timezone}`).
+- **The visitor's own time on the website.** Times render as `<time class="bw-time" datetime="…+01:00">`; `assets/base.js` adds the visitor's time ("07:30 your time") when the browser's offset for that moment differs. The server output is the same for everyone, so pages stay cacheable; lists and lazy views are picked up through a `MutationObserver`.
+- **The customer's own time in emails.** Emails are built on the server — no browser, no Ajax — so the customer's time zone is stored: detected by the browser (checkout form, and once per browser for logged-in customers via `POST /bw-credits/v1/timezone`) and changeable under Account details ("Time zone"; "Automatic" returns to detection). A zone the customer chose is never overwritten by detection. Customer mails show "08:30 (Madrid time) · 07:30 in your time zone (Europe/London)" when the offset differs; the studio's mails stay plain.
+- **Calendar file (.ics) with the Zoom details** on the booking confirmation and the access-details email: the session in UTC (every calendar app shows it in the customer's own zone), a reminder one hour before, and — when they may be shared — the Zoom link and access details. A booking mail sent long before the class carries no link (same rule as the mail text, "access details N hours before"); with access hours 0 or in the access email itself it does.
+- **The cancellation rule is shown.** Next to the booking button ("You can cancel until 23.10.2026 08:30 (Madrid time); your credit is refunded."), for a booking that can no longer be cancelled ("Cancellation is no longer possible (less than 24 hours before the start)."), before booking a session inside the deadline ("If you book now, you can no longer cancel …"), and in the booking confirmation (new placeholder `{cancel_note}`, new line in the default text). Texts `booking.cancel_until`, `booking.cancel_closed`, `booking.cancel_late_hint`; nothing is shown with a deadline of 0 hours.
+- Previously the booking block just said "You are booked for this session." inside the deadline — the cancel button vanished without a word.
+- `tests/test-calendar-file.php`; time zone, `.ics` and cancellation-line cases in `tests/test-emails.php`.
+
+### Changed
+- The default booking confirmation gets the line `{cancel_note}`. A booking text saved as the earlier default (by saving or resetting the Emails page) still counts as untouched and receives the new default; a customised text is kept as it is.
+
 ## [0.48.4] – 2026-10-14
 
 ### Fixed

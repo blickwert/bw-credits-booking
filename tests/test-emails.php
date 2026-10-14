@@ -206,6 +206,7 @@ class BW_Credits_Bookings_MVP {
     const BOOKINGS_TABLE = 'bw_bookings';
     public static function get_available_credits($user_id) { return 3; }
     public static function my_account_url() { return 'https://example.test/my-account/'; }
+    public static function cancel_note_text(int $slot_id, bool $booked = true): string { return $GLOBALS['__cancel_note'] ?? ''; }
 }
 class BW_Admin_Pages { const PAGE_BOOKINGS = 'bw-credits-bookings'; }
 class BW_Settings {
@@ -215,6 +216,27 @@ class BW_Settings {
     const MENU_SLUG = 'bw-credits';
 }
 
+// time-zone.php / calendar-file.php
+function wp_timezone_string() { return 'Europe/Madrid'; }
+function timezone_identifiers_list_stub() {}
+function bw_text(string $key, array $vars = []): string {
+    $d = [
+        'time.zone_label'          => '{city} time',
+        'time.local'               => '{time} in your time zone ({zone})',
+        'booking.cancel_until'     => 'You can cancel until {deadline}; your credit is refunded.',
+        'booking.cancel_closed'    => 'Cancellation is no longer possible (less than {hours} hours before the start).',
+    ];
+    $text = $d[$key] ?? $key;
+    foreach ($vars as $k => $v) $text = str_replace('{' . $k . '}', (string) $v, $text);
+    return $text;
+}
+function register_rest_route(...$a) {}
+function delete_user_meta($u, $k) { unset($GLOBALS['__usermeta'][$u][$k]); }
+function wp_parse_url($u, $c = -1) { return parse_url($u, $c); }
+function sanitize_file_name($n) { return preg_replace('/[^A-Za-z0-9._-]+/', '-', $n); }
+
+require __DIR__ . '/../includes/time-zone.php';
+require __DIR__ . '/../includes/calendar-file.php';
 require __DIR__ . '/../includes/wpml-terms.php';
 require __DIR__ . '/../includes/metaboxes.php';
 require __DIR__ . '/../includes/emails.php';
@@ -436,6 +458,69 @@ check('save_language_from_order(): account created in this checkout -> order lan
 
 BW_Email_Language::save_language_from_order(1, [], new Test_Order(0, ['wpml_language' => 'de']));
 check('save_language_from_order(): guest order is ignored', get_user_meta(0, '_bw_email_language', true) === '');
+
+/* ---------------------------------------------------------------
+ * 4f. Time zone: customer mails name the zone and show the customer's
+ *     own time; the studio's mails stay plain. The .ics carries the
+ *     session in UTC and the Zoom details only when they may be shared.
+ * --------------------------------------------------------------- */
+reset_state();
+$GLOBALS['__postmeta'][42]['_bw_start_dt'] = '2026-10-25 08:30:00'; // Madrid: UTC+1 on that day (summer time ended)
+$tz = new DateTimeZone('UTC'); // wp_timezone() stub; offsets are what matters below
+$ph = BW_Emails::placeholders(1, 42, true);
+check('{time} for a customer names the time zone', $ph['{time}'] === '08:30 (Madrid time)');
+check('{timezone} placeholder', $ph['{timezone}'] === 'Madrid time');
+check('{time} for the studio (admin mail) stays plain', BW_Emails::placeholders(1, 42, false)['{time}'] === '08:30');
+
+update_user_meta(1, BW_Time_Zone::META_TZ, 'Europe/London');
+$start = new DateTime('2026-10-25 08:30:00', wp_timezone()); // the site zone is UTC in this test environment
+update_user_meta(1, BW_Time_Zone::META_TZ, 'Asia/Kolkata');
+check('time_with_zone(): customer zone with another offset -> own time added', BW_Time_Zone::time_with_zone($start, 1) === '08:30 (Madrid time) · 14:00 in your time zone (Asia/Kolkata)');
+update_user_meta(1, BW_Time_Zone::META_TZ, 'Europe/London'); // UTC+0 on that day
+check('time_with_zone(): same offset -> no second time', BW_Time_Zone::time_with_zone($start, 1) === '08:30 (Madrid time)');
+update_user_meta(1, BW_Time_Zone::META_TZ, 'Asia/Kolkata');
+$late = new DateTime('2026-10-25 23:30:00', wp_timezone());
+check('time_with_zone(): the date is added when it differs in the customer\'s zone', str_contains(BW_Time_Zone::time_with_zone($late, 1), '26.10.2026 05:00 in your time zone (Asia/Kolkata)'));
+check('valid(): known zone yes, garbage no', BW_Time_Zone::valid('Europe/Madrid') && !BW_Time_Zone::valid('Mars/Base') && !BW_Time_Zone::valid(''));
+
+reset_state();
+check('save_user_timezone(): detection saves', BW_Time_Zone::save_user_timezone(3, 'Europe/London', false) && get_user_meta(3, BW_Time_Zone::META_TZ, true) === 'Europe/London');
+BW_Time_Zone::save_user_timezone(3, 'Asia/Tokyo', true);
+check('save_user_timezone(): the customer\'s own choice is saved', get_user_meta(3, BW_Time_Zone::META_TZ, true) === 'Asia/Tokyo');
+check('save_user_timezone(): detection never overwrites the customer\'s choice', !BW_Time_Zone::save_user_timezone(3, 'Europe/London', false) && get_user_meta(3, BW_Time_Zone::META_TZ, true) === 'Asia/Tokyo');
+check('save_user_timezone(): an invalid zone is refused', !BW_Time_Zone::save_user_timezone(4, 'not/a-zone', false));
+
+// .ics: session in UTC, Zoom details only when they may be shared
+reset_state();
+$GLOBALS['__postmeta'][42]['_bw_start_dt'] = (new DateTime('+5 days 08:30', wp_timezone()))->format('Y-m-d H:i:s');
+$GLOBALS['__postmeta'][42]['duration'] = '50';
+$GLOBALS['__postmeta'][42]['_bw_meeting_link'] = 'https://zoom.test/own';
+$GLOBALS['__postmeta'][42]['_bw_access_info']  = 'Passcode 1234';
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$ref = new ReflectionMethod(BW_Emails::class, 'calendar_attachment'); $ref->setAccessible(true);
+$booking = $ref->invoke(null, 1, 42, 'booking', 'de_DE');
+check('.ics (booking mail, class in 5 days): calendar entry without the Zoom link', $booking && str_contains($booking['content'], 'BEGIN:VEVENT') && !str_contains($booking['content'], 'zoom.test') && !str_contains($booking['content'], '1234'));
+check('.ics: times are UTC', (bool) preg_match('/DTSTART:\d{8}T\d{6}Z\r\n/', $booking['content']) && (bool) preg_match('/DTEND:\d{8}T\d{6}Z\r\n/', $booking['content']));
+check('.ics: file name ends in .ics', str_ends_with($booking['filename'], '.ics'));
+$access = $ref->invoke(null, 1, 42, 'access', 'de_DE');
+$unfolded = str_replace("\r\n ", '', $access['content']); // long lines are folded (RFC 5545)
+check('.ics (access mail): Zoom link and details included', str_contains($unfolded, 'URL:https://zoom.test/own') && str_contains($unfolded, 'Passcode 1234') && str_contains($unfolded, 'LOCATION:https://zoom.test/own'));
+$GLOBALS['__options']['bw_access_details_hours'] = 0; // links go out with the booking
+check('.ics (booking mail, access hours 0): Zoom link included', str_contains($ref->invoke(null, 1, 42, 'booking', 'de_DE')['content'], 'zoom.test/own'));
+$GLOBALS['__postmeta'][42]['_bw_start_dt'] = '';
+check('.ics: a session without a start has no calendar file', $ref->invoke(null, 1, 42, 'booking', 'de_DE') === null);
+
+// {cancel_note} in the booking mail; an old default saved as the text counts as untouched
+reset_state();
+$GLOBALS['__cancel_note'] = 'You can cancel until 24.10.2026 08:30 (Madrid time); your credit is refunded.';
+$defaults = BW_Emails::defaults();
+check('booking default mentions the cancellation rule', str_contains($defaults['booking']['body'], '{cancel_note}'));
+$GLOBALS['__gettext']['de_DE'][$defaults['booking']['body']] = "Hallo {first_name},\n{cancel_note}\nBis bald.";
+update_user_meta(1, '_bw_email_language', 'de');
+$GLOBALS['__options']['bw_email_booking_body'] = "<p>Greetings {first_name} 🌿,</p>"; // not the old default: a real customisation
+$GLOBALS['__mails'] = [];
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+check('send(): a customised booking text is kept (no {cancel_note} injected)', str_contains($GLOBALS['__mails'][0]['message'] ?? '', 'Greetings') && !str_contains($GLOBALS['__mails'][0]['message'] ?? '', 'You can cancel until'));
 
 /* ---------------------------------------------------------------
  * 5. handle_save_from_dashboard(): valid vs invalid code. Does NOT

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.48.4
+ * Version: 0.49.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.48.4');
+define('BW_CREDITS_BOOKING_VERSION', '0.49.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -21,6 +21,8 @@ require_once plugin_dir_path(__FILE__) . 'includes/product-features.php';
 require_once plugin_dir_path(__FILE__) . 'includes/product-pricing.php';
 require_once plugin_dir_path(__FILE__) . 'includes/metaboxes.php';
 require_once plugin_dir_path(__FILE__) . 'includes/admin-pages.php';
+require_once plugin_dir_path(__FILE__) . 'includes/time-zone.php';
+require_once plugin_dir_path(__FILE__) . 'includes/calendar-file.php';
 require_once plugin_dir_path(__FILE__) . 'includes/emails.php';
 require_once plugin_dir_path(__FILE__) . 'includes/email-language.php';
 require_once plugin_dir_path(__FILE__) . 'includes/templates.php';
@@ -214,6 +216,9 @@ class BW_Credits_Bookings_MVP {
                 'cancelled'        => __('Cancelled', 'bw-credits-booking'),
                 'bookingIdMissing' => __('booking_id missing (button needs data-booking-id)', 'bw-credits-booking'),
                 'cancel'           => __('Cancel', 'bw-credits-booking'),
+                /* translators: %s: time of day in the visitor's own time zone */
+                'yourTime'         => __('%s your time', 'bw-credits-booking'),
+                'yourTimeTitle'    => __('Your local time', 'bw-credits-booking'),
                 'book'             => __('Book', 'bw-credits-booking'),
                 /* translators: %d: HTTP status code */
                 'requestFailed'    => __('Request failed (%d)', 'bw-credits-booking'),
@@ -1352,6 +1357,29 @@ class BW_Credits_Bookings_MVP {
         return new DateTime('now', wp_timezone()) < $cutoff;
     }
 
+    /**
+     * The cancellation rule for a session as a sentence: until when the booking can be cancelled — or, once
+     * that moment has passed, that it no longer can. '' without a rule (deadline 0 hours), without a start
+     * or for a session that has started.
+     */
+    public static function cancel_note_text(int $slot_id, bool $booked = true): string {
+        $hours = BW_Settings::get_cancel_cutoff_hours();
+        $start = self::get_slot_start_datetime($slot_id);
+        $now   = new DateTime('now', wp_timezone());
+        if ($hours <= 0 || !$start || $start <= $now) return '';
+
+        $deadline = (clone $start)->modify('-' . $hours . ' hours');
+        if ($now < $deadline) {
+            return bw_text('booking.cancel_until', ['deadline' => BW_Time_Zone::datetime_with_zone($deadline)]);
+        }
+        return bw_text($booked ? 'booking.cancel_closed' : 'booking.cancel_late_hint', ['hours' => $hours]);
+    }
+
+    private static function cancel_note_html(int $slot_id, bool $booked): string {
+        $text = self::cancel_note_text($slot_id, $booked);
+        return $text === '' ? '' : '<p class="bw-slot-note bw-cancel-note">' . esc_html($text) . '</p>';
+    }
+
     /** $suffix_html must already be escaped — intended for a link. */
     private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
         ob_start();
@@ -1369,6 +1397,19 @@ class BW_Credits_Bookings_MVP {
      * Without slot_id, the current post is used.
      */
     public static function sc_slot_action($atts) {
+        $html = self::slot_action_html($atts);
+        if ($html === '') return '';
+
+        // The cancellation rule belongs next to the button: before booking, and for a booking that can no longer be cancelled.
+        $atts    = (array) $atts;
+        $slot_id = self::resolve_course_id((int) (($atts['course_id'] ?? 0) ?: ($atts['slot_id'] ?? 0)));
+        if ($slot_id <= 0) return $html;
+
+        $booked = is_user_logged_in() && self::get_active_booking(get_current_user_id(), $slot_id) !== null;
+        return $html . self::cancel_note_html($slot_id, $booked);
+    }
+
+    private static function slot_action_html($atts) {
         $atts = shortcode_atts([
             'course_id'    => 0,
             'slot_id'      => 0,   // old name, still valid
@@ -1546,7 +1587,7 @@ class BW_Credits_Bookings_MVP {
 
             $slot_title = get_the_title($slot_id) ?: 'Slot #' . $slot_id;
             $start_dt   = self::get_slot_start_datetime($slot_id);
-            $start_str  = $start_dt ? $start_dt->format('d.m.Y H:i') : '—';
+            $start_str  = $start_dt ? $start_dt->format('d.m.Y H:i') . ' (' . BW_Time_Zone::site_label() . ')' : '—';
 
             $can_cancel = false;
             if ($is_active && $status === 'booked' && $start_dt) {

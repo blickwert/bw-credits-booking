@@ -42,7 +42,8 @@ if (!defined('ABSPATH')) exit;
                         <span class="bw-course-slot-date__dow"><?php echo esc_html(wp_date('D', $ts)); ?></span>
                         <span class="bw-course-slot-date__day"><?php echo esc_html(wp_date('j', $ts)); ?></span>
                         <span class="bw-course-slot-date__month"><?php echo esc_html(wp_date('M', $ts)); ?></span>
-                        <span class="bw-course-slot-date__time"><?php echo esc_html(wp_date('H:i', $ts)); ?></span>
+                        <?php echo BW_Time_Zone::time_tag((new DateTime('@' . $ts))->setTimezone(wp_timezone()), esc_html(wp_date('H:i', $ts)), 'bw-course-slot-date__time'); ?>
+                        <span class="bw-course-slot-date__zone"><?php echo esc_html(BW_Time_Zone::site_city()); ?></span>
                     <?php else : ?>
                         <span class="bw-course-slot-date__day">—</span>
                     <?php endif; ?>

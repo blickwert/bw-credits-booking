@@ -54,3 +54,12 @@
 
 /* Placeholders for lazily loaded views (includes/lazy-views.php): no box of their own, the layout stays as if the content were inline */
 .bw-lazy-view { display: contents; }
+
+/* Session times: zone name next to the time, the visitor's own time when it differs (assets/base.js) */
+.bw-time__zone,
+.bw-time__local {
+  font-size: 0.85em;
+  opacity: 0.8;
+}
+.bw-time__local { margin-left: 0.4em; white-space: nowrap; }
+.bw-time__local::before { content: "· "; }

@@ -241,3 +241,74 @@ document.addEventListener("click", function (e) {
 
 // Initial refresh (optional)
 refreshBalance().catch(() => {});
+
+/* --- Session times: the visitor's own time next to the session's time zone ---
+   The server renders <time class="bw-time" datetime="2026-10-25T08:30:00+01:00"> with the zone named. When the
+   browser's offset for that moment differs, the local time is added. Server output stays identical for everyone,
+   so pages remain cacheable. */
+function bwOffsetMinutes(iso) {
+  const m = /([+-])(\d\d):(\d\d)$/.exec(iso);
+  return m ? (m[1] === "-" ? -1 : 1) * (parseInt(m[2], 10) * 60 + parseInt(m[3], 10)) : null;
+}
+
+function initLocalTimes() {
+  const i18n = (getCfg().i18n || {});
+
+  qsa("time.bw-time[datetime]").forEach(function (el) {
+    if (el.getAttribute("data-bw-local") !== null) return;
+    el.setAttribute("data-bw-local", "1");
+
+    const iso = el.getAttribute("datetime");
+    const d = new Date(iso);
+    const siteOffset = bwOffsetMinutes(iso);
+    if (isNaN(d.getTime()) || siteOffset === null || siteOffset === -d.getTimezoneOffset()) return;
+
+    let text = d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    const localDay = d.getFullYear() + "-" + String(d.getMonth() + 1).padStart(2, "0") + "-" + String(d.getDate()).padStart(2, "0");
+    if (localDay !== iso.slice(0, 10)) text = d.toLocaleDateString([], { day: "2-digit", month: "2-digit" }) + " " + text;
+
+    const inBadge = el.classList.contains("bw-course-slot-date__time");
+    const local = document.createElement("span");
+    local.className = inBadge ? "bw-course-slot-date__local" : "bw-time__local";
+    local.title = i18n.yourTimeTitle || "Your local time";
+    local.textContent = inBadge ? text : (i18n.yourTime || "%s your time").replace("%s", text);
+
+    const next = el.nextElementSibling;
+    const anchor = next && (next.classList.contains("bw-time__zone") || next.classList.contains("bw-course-slot-date__zone")) ? next : el;
+    anchor.insertAdjacentElement("afterend", local);
+  });
+}
+
+// The time zone of a logged-in customer is stored, so emails (no browser there) can show their time too.
+// A zone the customer chose in the account is never overwritten by the server.
+function saveTimeZone() {
+  try {
+    if (!document.body.classList.contains("logged-in")) return;
+    const zone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    if (!zone) return;
+    if (window.localStorage && window.localStorage.getItem("bwTimeZone") === zone) return;
+
+    const cfg = getCfg();
+    fetch(cfg.restUrl + "timezone", {
+      method: "POST",
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json", "X-WP-Nonce": cfg.nonce || "" },
+      body: JSON.stringify({ zone: zone })
+    }).then(function (res) {
+      if (res.ok && window.localStorage) window.localStorage.setItem("bwTimeZone", zone);
+    }).catch(function () {});
+  } catch (e) { /* no storage / no Intl: nothing to save */ }
+}
+
+(function () {
+  let timer = null;
+  const run = function () { initLocalTimes(); };
+  const start = function () {
+    run();
+    saveTimeZone();
+    // lists and lazy views arrive later
+    new MutationObserver(function () { clearTimeout(timer); timer = setTimeout(run, 50); })
+      .observe(document.body, { childList: true, subtree: true });
+  };
+  if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
+})();
