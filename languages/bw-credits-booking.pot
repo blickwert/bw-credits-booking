@@ -981,6 +981,22 @@ msgstr ""
 msgid "%d min."
 msgstr ""
 
+#: includes/purchase-limit.php:39
+msgid "Only once per customer"
+msgstr ""
+
+#: includes/purchase-limit.php:40
+msgid "Whoever already ordered this product (processing, completed or on hold) can't order it again. Checked by account and billing e-mail address; counts for all language versions."
+msgstr ""
+
+#: includes/purchase-limit.php:97
+msgid "You have already booked “%s”. This offer is only available once per person."
+msgstr ""
+
+#: includes/purchase-limit.php:156
+msgid "Only available once per person."
+msgstr ""
+
 #: includes/settings.php:84
 #: includes/settings.php:85
 #: includes/settings.php:250
@@ -1381,60 +1397,60 @@ msgstr ""
 msgid "Completed automatically: the order consists only of credit products."
 msgstr ""
 
-#: bw-credits-booking.php:217
+#: bw-credits-booking.php:218
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:220
+#: bw-credits-booking.php:221
 msgid "%s your time"
 msgstr ""
 
-#: bw-credits-booking.php:221
+#: bw-credits-booking.php:222
 msgid "Your local time"
 msgstr ""
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:224
+#: bw-credits-booking.php:225
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:482
-#: bw-credits-booking.php:710
+#: bw-credits-booking.php:483
+#: bw-credits-booking.php:711
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:485
+#: bw-credits-booking.php:486
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:495
+#: bw-credits-booking.php:496
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:514
+#: bw-credits-booking.php:515
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1069
+#: bw-credits-booking.php:1070
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1633
+#: bw-credits-booking.php:1634
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1640
+#: bw-credits-booking.php:1641
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1648
+#: bw-credits-booking.php:1649
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1655
+#: bw-credits-booking.php:1656
 msgid "Cancelled."
 msgstr ""
 

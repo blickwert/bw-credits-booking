@@ -176,6 +176,9 @@ Meeting link and access details. **Visible only to logged-in users with an activ
 
 `course_id`, `title`
 
+### Only once per customer
+A checkbox *Only once per customer* on the product screen (General tab) limits a product to one purchase per person — see `includes/purchase-limit.php`. Orders in the statuses processing, completed and on hold count; the account and the billing e-mail address are checked, at *Add to cart* and at the checkout. Statuses can be changed with the `bw_once_per_customer_statuses` filter.
+
 ### Customer
 
 #### `[bw_credits_user_balance]`

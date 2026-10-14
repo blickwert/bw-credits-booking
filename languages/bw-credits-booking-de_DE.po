@@ -1044,52 +1044,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:217
+#: bw-credits-booking.php:218
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:224
+#: bw-credits-booking.php:225
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:482
-#: bw-credits-booking.php:710
+#: bw-credits-booking.php:483
+#: bw-credits-booking.php:711
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:485
+#: bw-credits-booking.php:486
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:495
+#: bw-credits-booking.php:496
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:514
+#: bw-credits-booking.php:515
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1069
+#: bw-credits-booking.php:1070
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1633
+#: bw-credits-booking.php:1634
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1640
+#: bw-credits-booking.php:1641
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1648
+#: bw-credits-booking.php:1649
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1655
+#: bw-credits-booking.php:1656
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1250,6 +1250,22 @@ msgstr "Alle auf Standard zurücksetzen"
 msgid "%d min."
 msgstr "%d Min."
 
+#: includes/purchase-limit.php:39
+msgid "Only once per customer"
+msgstr "Nur einmal pro Person"
+
+#: includes/purchase-limit.php:40
+msgid "Whoever already ordered this product (processing, completed or on hold) can't order it again. Checked by account and billing e-mail address; counts for all language versions."
+msgstr "Wer dieses Produkt schon bestellt hat (in Bearbeitung, abgeschlossen oder wartend), kann es nicht erneut bestellen. Geprüft wird über das Konto und die Rechnungs-E-Mail-Adresse; gilt für alle Sprachversionen."
+
+#: includes/purchase-limit.php:97
+msgid "You have already booked “%s”. This offer is only available once per person."
+msgstr "Du hast „%s“ bereits gebucht. Dieses Angebot gibt es nur einmal pro Person."
+
+#: includes/purchase-limit.php:156
+msgid "Only available once per person."
+msgstr "Nur einmal pro Person erhältlich."
+
 #: includes/admin-pages.php:912
 msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
 msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt."
@@ -1394,11 +1410,11 @@ msgstr "Automatisch (aus deinem Browser)"
 msgid "Session times are shown in your time zone too — on the website and in emails."
 msgstr "Kurszeiten werden dir auch in deiner Zeitzone angezeigt — auf der Website und in E-Mails."
 
-#: bw-credits-booking.php:220
+#: bw-credits-booking.php:221
 msgid "%s your time"
 msgstr "%s bei dir"
 
-#: bw-credits-booking.php:221
+#: bw-credits-booking.php:222
 msgid "Your local time"
 msgstr "Deine Ortszeit"
 
