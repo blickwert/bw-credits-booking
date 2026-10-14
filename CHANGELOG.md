@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.51.1] – 2026-10-14
+
+### Changed
+- **Admin copies of the booking e-mails** now go, unless an address is entered under *BW Credits → E-mails*, to the recipient of the WooCommerce "New order" e-mail (first address) instead of the general site admin address. The field shows that address as a placeholder.
+
+---
+
 ## [0.51.0] – 2026-10-14
 
 ### Added
