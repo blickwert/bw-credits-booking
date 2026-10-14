@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.48.3] – 2026-10-14
+
+### Fixed
+- **Emails stayed English although German is installed.** Saving the Emails page (or "Reset") stores the English default as an option, and the editor reformats it. A saved text counted as a customisation and was then only translated through WPML String Translation — where nothing is translated — so German customers got the English text (booking confirmation: English body, German "Einen Tag vor deiner Klasse" from the .mo). A saved subject/body that says the same as the English default (compared as plain text, whitespace collapsed) is now treated as untouched and goes through the .mo translation again. A real customisation is kept as saved.
+- Tests for both in `tests/test-emails.php` (they fail on 0.48.2).
+
 ## [0.48.2] – 2026-10-13
 
 ### Fixed
