@@ -28,6 +28,7 @@ define('ABSPATH', true);
 
 // Minimal stubs — we only need catalogue()
 if (!function_exists('add_action'))            { function add_action(...$a) {} }
+if (!function_exists('add_filter'))            { function add_filter(...$a) {} }
 if (!function_exists('__'))                    { function __($t, $d = null) { return $t; } }
 if (!function_exists('has_action'))            { function has_action(...$a) { return false; } }
 if (!function_exists('has_filter'))            { function has_filter(...$a) { return false; } }

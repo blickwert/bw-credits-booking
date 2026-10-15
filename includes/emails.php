@@ -17,6 +17,8 @@ class BW_Emails {
 
     const PAGE          = 'bw-credits-emails';
     const CRON_HOOK     = 'bw_send_reminders';
+    const CRON_PARTICIPANTS = 'bw_send_participant_lists';
+    const META_LIST_SENT    = '_bw_participants_mailed';
     const OPT_ADMIN_TO  = 'bw_email_admin_recipient';
 
     /** Email types: key => [label, description] */
@@ -27,6 +29,7 @@ class BW_Emails {
             'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
             'access'        => [__('Access details', 'bw-credits-booking'), __('Meeting link and access details for online sessions — timing set in Settings → Online Access.', 'bw-credits-booking')],
             'admin_booking' => [__('Admin: new booking', 'bw-credits-booking'), __('Sent to the address set below for every new booking, with the current number of participants.', 'bw-credits-booking')],
+            'admin_participants' => [__('Admin: participant list', 'bw-credits-booking'), __('Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings.', 'bw-credits-booking')],
             'admin_cancellation' => [__('Admin: cancellation', 'bw-credits-booking'), __('Sent to the address set below whenever a participant cancels, with the current number of participants.', 'bw-credits-booking')],
         ];
     }
@@ -45,6 +48,8 @@ class BW_Emails {
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
         add_action(self::CRON_HOOK, [__CLASS__, 'run_access_details']);
+        add_filter('cron_schedules', [__CLASS__, 'cron_schedules']);
+        add_action(self::CRON_PARTICIPANTS, [__CLASS__, 'run_participant_lists']);
         add_action('init', [__CLASS__, 'schedule_cron']);
         add_action('init', [__CLASS__, 'register_wpml_strings'], 20);
     }
@@ -231,6 +236,10 @@ class BW_Emails {
                            . "Participants now: {booked_count} of {capacity}\n"
                            . "Participant list: {admin_link}",
             ],
+            'admin_participants' => [
+                'subject' => 'Participants: {course_title}, {date} at {time} ({booked_count}/{capacity})',
+                'body'    => "{course_title}\n{date} at {time}\n\nParticipants ({booked_count} of {capacity}):\n{participant_list}\n\nParticipant list in the plugin: {admin_link}",
+            ],
             'admin_cancellation' => [
                 'subject' => 'Cancellation: {course_title} ({booked_count}/{capacity})',
                 'body'    => "{customer_name} ({customer_email}) cancelled:\n\n"
@@ -281,6 +290,7 @@ class BW_Emails {
             '{customer_email}'    => $user ? (string) $user->user_email : '',
             '{booked_count}'      => $slot_id > 0 ? (string) max(0, (int) get_post_meta($slot_id, BW_Credits_Bookings_MVP::META_BOOKED_CNT, true)) : '',
             '{capacity}'          => $slot_id > 0 ? self::slot_capacity($slot_id) : '',
+            '{participant_list}'  => $slot_id > 0 ? self::participant_list($slot_id) : '',
             '{admin_link}'        => $slot_id > 0 ? admin_url('admin.php?page=' . BW_Admin_Pages::PAGE_BOOKINGS . '&slot_id=' . $slot_id) : '',
             // When the access details go out, from Settings → Online Access (e.g. "Two days before your class").
             '{access_timing}'     => self::access_timing_phrase(BW_Metaboxes::get_access_details_hours()),
@@ -701,15 +711,82 @@ class BW_Emails {
      * Reminder cron
      * ========================================================= */
 
+    public static function cron_schedules($schedules) {
+        $schedules['bw_five_minutes'] = ['interval' => 300, 'display' => __('Every 5 minutes', 'bw-credits-booking')];
+        return $schedules;
+    }
+
     public static function schedule_cron() {
         if (!wp_next_scheduled(self::CRON_HOOK)) {
             wp_schedule_event(time() + 300, 'hourly', self::CRON_HOOK);
+        }
+        if (!wp_next_scheduled(self::CRON_PARTICIPANTS)) {
+            wp_schedule_event(time() + 300, 'bw_five_minutes', self::CRON_PARTICIPANTS);
         }
     }
 
     public static function unschedule_cron() {
         $ts = wp_next_scheduled(self::CRON_HOOK);
         if ($ts) wp_unschedule_event($ts, self::CRON_HOOK);
+        $ts = wp_next_scheduled(self::CRON_PARTICIPANTS);
+        if ($ts) wp_unschedule_event($ts, self::CRON_PARTICIPANTS);
+    }
+
+    /** The active participants of a session as text, one per line: "1. Name (email)". */
+    public static function participant_list(int $slot_id): string {
+        $lines = [];
+        foreach (BW_Credits_Bookings_MVP::get_slot_bookings($slot_id) as $b) {
+            if ((int) $b['is_active'] !== 1) continue;
+
+            $name    = trim((string) $b['display_name']) !== '' ? trim((string) $b['display_name']) : ('User #' . (int) $b['user_id']);
+            $email   = trim((string) ($b['user_email'] ?? ''));
+            $lines[] = (count($lines) + 1) . '. ' . html_entity_decode($name, ENT_QUOTES) . ($email !== '' ? ' (' . $email . ')' : '');
+        }
+        return implode("\n", $lines);
+    }
+
+    /**
+     * Sends the participant list to the studio N minutes before the start (Settings → Participant list),
+     * once per session, and only after booking has closed. Sessions without participants are skipped.
+     */
+    public static function run_participant_lists() {
+        if (!self::is_enabled('admin_participants')) return;
+
+        $minutes = BW_Settings::get_participant_list_minutes();
+        if ($minutes <= 0) return;
+
+        $to = self::admin_recipient();
+        if (!is_email($to)) return;
+
+        global $wpdb;
+        $now   = new DateTime('now', wp_timezone());
+        $until = (clone $now)->modify('+' . $minutes . ' minutes');
+
+        $slot_ids = (array) $wpdb->get_col($wpdb->prepare(
+            "SELECT pm.post_id
+             FROM {$wpdb->postmeta} pm
+             INNER JOIN {$wpdb->posts} p ON p.ID = pm.post_id AND p.post_status = 'publish'
+             WHERE pm.meta_key = %s
+               AND CAST(pm.meta_value AS DATETIME) > %s
+               AND CAST(pm.meta_value AS DATETIME) <= %s
+             LIMIT 100",
+            BW_Credits_Bookings_MVP::META_START_DT,
+            $now->format('Y-m-d H:i:s'),
+            $until->format('Y-m-d H:i:s')
+        ));
+
+        foreach ($slot_ids as $slot_id) {
+            $slot_id = (int) $slot_id;
+            if (get_post_meta($slot_id, self::META_LIST_SENT, true)) continue;
+
+            $start = BW_Credits_Bookings_MVP::get_slot_start_datetime($slot_id);
+            if (!BW_Credits_Bookings_MVP::booking_closed($start)) continue; // the list is only final once booking has closed
+
+            if (self::participant_list($slot_id) !== '') {
+                if (!self::send('admin_participants', 0, $slot_id, $to)) continue; // try again on the next run
+            }
+            update_post_meta($slot_id, self::META_LIST_SENT, time());
+        }
     }
 
     public static function run_reminders() {
