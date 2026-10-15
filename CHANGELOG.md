@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.51.2] – 2026-10-15
+
+### Changed
+- The **Yoast SEO** meta box is no longer shown on the session (course slot) edit screen. Filter `bw_hide_slot_seo_box` (return `false`) brings it back.
+
+---
+
 ## [0.51.1] – 2026-10-14
 
 ### Changed
