@@ -61,6 +61,9 @@ class BW_Text {
             'booking.note.past' => [
                 'This session is over.', 'The session is in the past', 'booking',
             ],
+            'booking.note.closed' => [
+                'Booking for this session has closed.', 'Too close to the start — booking has closed', 'booking',
+            ],
             'booking.note.full' => [
                 'This session is fully booked.', 'No spots left', 'booking',
             ],
@@ -211,6 +214,9 @@ class BW_Text {
             ],
             'error.slot_past' => [
                 'This session is in the past.', 'Booking attempt for a past session', 'error',
+            ],
+            'error.booking_closed' => [
+                'Booking for this session has closed.', 'Booking attempt after booking has closed', 'error',
             ],
             'error.already_booked' => [
                 'You have already booked this session.', 'Duplicate booking', 'error',
