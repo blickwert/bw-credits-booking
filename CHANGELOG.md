@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.53.0] – 2026-10-15
+
+### Added
+- **Participant list to the studio before the class** — new email type *Admin: participant list* and setting *Participant list to the studio (minutes before start)* (default **30**, 0 = off). Once booking has closed and the session is that many minutes from its start, the studio gets one email with the active participants (name and e-mail). It goes to the same address as the other admin copies, once per session; sessions without participants are skipped. A 5-minute cron (`bw_send_participant_lists`) takes care of the timing; new placeholder `{participant_list}`.
+
+---
+
 ## [0.52.0] – 2026-10-15
 
 ### Added

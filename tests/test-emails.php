@@ -199,9 +199,11 @@ if (!defined('ARRAY_A')) define('ARRAY_A', 'ARRAY_A');
 class Test_WPDB {
     public $prefix   = 'wp_';
     public $postmeta = 'wp_postmeta';
+    public $posts = 'wp_posts';
     public $queries  = [];
     public $updates  = [];
     public function prepare($sql, ...$args) { return $sql; }
+    public function get_col($sql) { $this->queries[] = $sql; return $GLOBALS['__col_rows'] ?? []; }
     public function get_results($sql, $output = null) { $this->queries[] = $sql; return $GLOBALS['__db_rows'] ?? []; }
     public function update($table, $data, $where, ...$f) { $this->updates[] = $where['id']; return 1; }
     public function query($sql) { $this->queries[] = $sql; return 1; }
@@ -216,6 +218,9 @@ class BW_Credits_Bookings_MVP {
     public static function get_available_credits($user_id) { return 3; }
     public static function my_account_url() { return 'https://example.test/my-account/'; }
     public static function cancel_note_text(int $slot_id, bool $booked = true): string { return $GLOBALS['__cancel_note'] ?? ''; }
+    public static function get_slot_bookings(int $slot_id): array { return $GLOBALS['__slot_bookings'][$slot_id] ?? []; }
+    public static function get_slot_start_datetime(int $slot_id): ?DateTime { return $GLOBALS['__slot_start'][$slot_id] ?? null; }
+    public static function booking_closed(?DateTime $start): bool { return $GLOBALS['__booking_closed'] ?? true; }
 }
 class BW_Admin_Pages { const PAGE_BOOKINGS = 'bw-credits-bookings'; }
 class BW_Settings {
@@ -223,6 +228,7 @@ class BW_Settings {
     public static function get_default_capacity() { return 10; }
     public static function get_slot_post_type() { return 'course_slot'; }
     public static function get_reminder_hours() { return 24; }
+    public static function get_participant_list_minutes() { return $GLOBALS['__list_minutes'] ?? 30; }
     const MENU_SLUG = 'bw-credits';
 }
 
@@ -580,6 +586,37 @@ check('placeholders(): {booked_count} / {capacity}', $ph['{booked_count}'] === '
 check('placeholders(): {admin_link} points to the participant list of the session', str_contains($ph['{admin_link}'], 'page=bw-credits-bookings') && str_ends_with($ph['{admin_link}'], 'slot_id=42'));
 unset($GLOBALS['__postmeta'][42]['capacity']);
 check('placeholders(): {capacity} falls back to the default capacity', BW_Emails::placeholders(1, 42)['{capacity}'] === '10');
+// Participant list to the studio shortly before the start
+$GLOBALS['__slot_bookings'][42] = [
+    ['user_id' => 1, 'is_active' => 1, 'display_name' => 'Anna', 'user_email' => 'anna@example.test'],
+    ['user_id' => 2, 'is_active' => 0, 'display_name' => 'Cancelled', 'user_email' => 'c@example.test'],
+    ['user_id' => 3, 'is_active' => 1, 'display_name' => 'Ben', 'user_email' => 'ben@example.test'],
+];
+check('participant_list(): only active participants, numbered', BW_Emails::participant_list(42) === "1. Anna (anna@example.test)\n2. Ben (ben@example.test)");
+check('placeholders(): {participant_list}', BW_Emails::placeholders(0, 42, false)['{participant_list}'] === BW_Emails::participant_list(42));
+check('participant mail is on by default', BW_Emails::is_enabled('admin_participants'));
+
+$GLOBALS['__options']['admin_email'] = 'studio@example.test';
+$GLOBALS['__col_rows'] = [42];
+$GLOBALS['__slot_start'][42] = new DateTime('+20 minutes', wp_timezone());
+$GLOBALS['__mails'] = [];
+BW_Emails::run_participant_lists();
+check('run_participant_lists(): one mail to the studio with the list', count($GLOBALS['__mails']) === 1 && $GLOBALS['__mails'][0]['to'] === 'studio@example.test' && str_contains($GLOBALS['__mails'][0]['message'], 'Anna') && str_contains($GLOBALS['__mails'][0]['message'], 'Ben') && !str_contains($GLOBALS['__mails'][0]['message'], 'Cancelled'));
+BW_Emails::run_participant_lists();
+check('run_participant_lists(): only once per session', count($GLOBALS['__mails']) === 1);
+
+unset($GLOBALS['__postmeta'][42]['_bw_participants_mailed']);
+$GLOBALS['__booking_closed'] = false;
+$GLOBALS['__mails'] = [];
+BW_Emails::run_participant_lists();
+check('run_participant_lists(): nothing while booking is still open', count($GLOBALS['__mails']) === 0);
+$GLOBALS['__booking_closed'] = true;
+
+$GLOBALS['__list_minutes'] = 0;
+BW_Emails::run_participant_lists();
+check('run_participant_lists(): 0 minutes = off', count($GLOBALS['__mails']) === 0);
+unset($GLOBALS['__list_minutes'], $GLOBALS['__col_rows'], $GLOBALS['__slot_bookings']);
+
 check('admin mails are on by default', BW_Emails::is_enabled('admin_booking') && BW_Emails::is_enabled('admin_cancellation'));
 
 $GLOBALS['__options']['admin_email'] = 'admin@example.test';

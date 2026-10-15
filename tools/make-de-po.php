@@ -20,6 +20,7 @@ if (PHP_SAPI !== 'cli') exit(1);
 define('ABSPATH', true);
 
 if (!function_exists('add_action'))            { function add_action(...$a) {} }
+if (!function_exists('add_filter'))            { function add_filter(...$a) {} }
 if (!function_exists('__'))                    { function __($t, $d = null) { return $t; } }
 if (!function_exists('has_action'))            { function has_action(...$a) { return false; } }
 if (!function_exists('has_filter'))            { function has_filter(...$a) { return false; } }
@@ -168,6 +169,11 @@ const ENGLISH_TO_GERMAN = [
     'Actions' => 'Aktionen',
     'overbooked' => 'überbucht',
     'Participants' => 'Teilnehmer',
+    'Every 5 minutes' => 'Alle 5 Minuten',
+    'Admin: participant list' => 'Admin: Teilnehmerliste',
+    'Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings.' => 'Geht an die unten eingestellte Adresse kurz vor Kursbeginn (nach Buchungsschluss) mit den aktiven Teilnehmern – Zeitpunkt unter Einstellungen.',
+    'Participant list to the studio (minutes before start)' => 'Teilnehmerliste ans Studio (Minuten vor Beginn)',
+    'The studio gets an email with the active participants this many minutes before the session starts (after booking has closed). 0 = off. Recipient and text: BW Credits → E-mails.' => 'Das Studio bekommt so viele Minuten vor Kursbeginn (nach Buchungsschluss) eine E-Mail mit den aktiven Teilnehmern. 0 = aus. Empfänger und Text: BW Credits → E-Mails.',
     'Edit' => 'Bearbeiten',
     'All sessions' => 'Alle Termine',
     'All statuses' => 'Alle Status',
@@ -474,6 +480,9 @@ const ENGLISH_TO_GERMAN = [
     'New booking: {course_title} ({booked_count}/{capacity})' => 'Neue Buchung: {course_title} ({booked_count}/{capacity})',
     "{customer_name} ({customer_email}) booked:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}" =>
         "{customer_name} ({customer_email}) hat gebucht:\n\n{course_title}\n{date} um {time}\n\nTeilnehmer jetzt: {booked_count} von {capacity}\nTeilnehmerliste: {admin_link}",
+    'Participants: {course_title}, {date} at {time} ({booked_count}/{capacity})' => 'Teilnehmer: {course_title}, {date} um {time} ({booked_count}/{capacity})',
+    "{course_title}\n{date} at {time}\n\nParticipants ({booked_count} of {capacity}):\n{participant_list}\n\nParticipant list in the plugin: {admin_link}" =>
+        "{course_title}\n{date} um {time}\n\nTeilnehmer ({booked_count} von {capacity}):\n{participant_list}\n\nTeilnehmerliste im Plugin: {admin_link}",
     'Cancellation: {course_title} ({booked_count}/{capacity})' => 'Stornierung: {course_title} ({booked_count}/{capacity})',
     "{customer_name} ({customer_email}) cancelled:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}" =>
         "{customer_name} ({customer_email}) hat storniert:\n\n{course_title}\n{date} um {time}\n\nTeilnehmer jetzt: {booked_count} von {capacity}\nTeilnehmerliste: {admin_link}",
