@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.52.0] – 2026-10-15
+
+### Added
+- **Booking closes N minutes before the start** — new setting *Booking closes (minutes before start)* (BW Credits → Settings, default **60**, 0 = until the start). Afterwards the session shows "Booking for this session has closed." instead of the book button, and booking is refused on the server too (`error.booking_closed`). Bookings made by the admin (walk-ins) are not affected; existing bookings and cancelling are unchanged.
+
+---
+
 ## [0.51.2] – 2026-10-15
 
 ### Changed

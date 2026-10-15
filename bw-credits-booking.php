@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.51.2
+ * Version: 0.52.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.51.2');
+define('BW_CREDITS_BOOKING_VERSION', '0.52.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -735,6 +735,9 @@ class BW_Credits_Bookings_MVP {
             if ($start && $start <= new DateTime('now', wp_timezone())) {
                 return new WP_Error('bw_slot_past', bw_text('error.slot_past'));
             }
+            if (self::booking_closed($start)) {
+                return new WP_Error('bw_booking_closed', bw_text('error.booking_closed'));
+            }
         }
 
         $bookings_table = $wpdb->prefix . self::BOOKINGS_TABLE;
@@ -1351,6 +1354,14 @@ class BW_Credits_Bookings_MVP {
         return $row ?: null;
     }
 
+    /** Whether booking has closed (the window before the start, see Settings → Booking closes). */
+    public static function booking_closed(?DateTime $start): bool {
+        if (!$start) return false;
+
+        $closes = (clone $start)->modify('-' . BW_Settings::get_booking_close_minutes() . ' minutes');
+        return new DateTime('now', wp_timezone()) >= $closes;
+    }
+
     private static function can_cancel_now(?DateTime $start): bool {
         if (!$start) return false;
 
@@ -1433,6 +1444,7 @@ class BW_Credits_Bookings_MVP {
 
         if (!is_user_logged_in()) {
             if ($past) return self::note(bw_text('booking.note.past'), 'bw-is-past');
+            if (self::booking_closed($start)) return self::note(bw_text('booking.note.closed'), 'bw-is-closed');
 
             return '<p class="bw-slot-note"><a href="' . esc_url(self::login_url()) . '">'
                  . esc_html(bw_text('booking.note.login')) . '</a></p>';
@@ -1458,6 +1470,7 @@ class BW_Credits_Bookings_MVP {
         }
 
         if ($past)                              return self::note(bw_text('booking.note.past'), 'bw-is-past');
+        if (self::booking_closed($start))       return self::note(bw_text('booking.note.closed'), 'bw-is-closed');
         if (self::get_free_spots($slot_id) < 1) return self::note(bw_text('booking.note.full'), 'bw-is-full');
 
         if (self::get_available_credits($user_id) < 1) {

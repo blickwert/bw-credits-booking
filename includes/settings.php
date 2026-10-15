@@ -15,6 +15,7 @@ class BW_Settings {
     const OPT_POST_TYPE        = 'bw_slot_post_type';
     const OPT_DEFAULT_CAPACITY = 'bw_default_capacity';
     const OPT_CUTOFF_HOURS     = 'bw_booking_cancel_cutoff_hours';
+    const OPT_CLOSE_MINUTES    = 'bw_booking_close_minutes';
     const OPT_REMINDER_HOURS   = 'bw_reminder_hours';
     const OPT_AVAILABILITY_CAP = 'bw_availability_cap';
     const OPT_CREDIT_DIRECT    = 'bw_credit_direct_checkout';
@@ -40,6 +41,11 @@ class BW_Settings {
 
     public static function get_cancel_cutoff_hours(): int {
         return max(0, (int) get_option(self::OPT_CUTOFF_HOURS, 24));
+    }
+
+    /** Minutes before the session start at which booking closes (0 = bookable until the start). */
+    public static function get_booking_close_minutes(): int {
+        return max(0, (int) get_option(self::OPT_CLOSE_MINUTES, 60));
     }
 
     public static function get_reminder_hours(): int {
@@ -102,7 +108,7 @@ class BW_Settings {
             'default'           => 'course_slot',
         ]);
 
-        foreach ([self::OPT_DEFAULT_CAPACITY, self::OPT_CUTOFF_HOURS, self::OPT_REMINDER_HOURS, self::OPT_AVAILABILITY_CAP] as $key) {
+        foreach ([self::OPT_DEFAULT_CAPACITY, self::OPT_CUTOFF_HOURS, self::OPT_CLOSE_MINUTES, self::OPT_REMINDER_HOURS, self::OPT_AVAILABILITY_CAP] as $key) {
             register_setting($group, $key, [
                 'type'              => 'integer',
                 'sanitize_callback' => [__CLASS__, 'sanitize_positive_int'],
@@ -124,6 +130,7 @@ class BW_Settings {
         add_settings_field(self::OPT_POST_TYPE, __('Course session post type', 'bw-credits-booking'), [__CLASS__, 'field_post_type'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_DEFAULT_CAPACITY, __('Default capacity', 'bw-credits-booking'), [__CLASS__, 'field_default_capacity'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_CUTOFF_HOURS, __('Cancellation deadline (hours)', 'bw-credits-booking'), [__CLASS__, 'field_cutoff_hours'], self::MENU_SLUG, 'bw_general');
+        add_settings_field(self::OPT_CLOSE_MINUTES, __('Booking closes (minutes before start)', 'bw-credits-booking'), [__CLASS__, 'field_close_minutes'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_REMINDER_HOURS, __('Reminder (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_reminder_hours'], self::MENU_SLUG, 'bw_general');
         add_settings_field(self::OPT_AVAILABILITY_CAP, __('Availability threshold', 'bw-credits-booking'), [__CLASS__, 'field_availability_cap'], self::MENU_SLUG, 'bw_general');
 
@@ -199,6 +206,15 @@ class BW_Settings {
             self::get_cancel_cutoff_hours()
         );
         echo '<p class="description">' . esc_html__('How many hours before the session start customers may cancel on their own.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_close_minutes() {
+        printf(
+            '<input type="number" min="0" step="1" name="%s" value="%d" class="small-text">',
+            esc_attr(self::OPT_CLOSE_MINUTES),
+            self::get_booking_close_minutes()
+        );
+        echo '<p class="description">' . esc_html__('How many minutes before the session start customers can still book. 0 = until the session starts. Bookings by the admin are not affected.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_reminder_hours() {
