@@ -36,6 +36,16 @@ class BW_Metaboxes {
         add_action('admin_post_bw_export_participants',  [__CLASS__, 'handle_export']);
 
         add_action('admin_notices', [__CLASS__, 'show_notice']);
+
+        // Sessions are not SEO pages — drop the Yoast SEO box from their edit screen
+        add_action('add_meta_boxes', [__CLASS__, 'remove_seo_box'], 100);
+    }
+
+    /** Removes the Yoast SEO meta box from the session edit screen (filter bw_hide_slot_seo_box to keep it). */
+    public static function remove_seo_box() {
+        if (apply_filters('bw_hide_slot_seo_box', true)) {
+            remove_meta_box('wpseo_meta', self::post_type(), 'normal');
+        }
     }
 
     private static function post_type(): string {
