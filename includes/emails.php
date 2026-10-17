@@ -535,7 +535,16 @@ class BW_Emails {
 
         add_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         add_action('phpmailer_init', $set_alt_body);
-        $sent = wp_mail($to, $subject, $html, '', $attachments);
+        // Customer mails: replies go to the address WooCommerce's "Reply-to" email setting names
+        // (the studio's contact address); the admin copies stay without one.
+        $headers = [];
+        if (strpos($key, 'admin_') !== 0) {
+            $reply = trim((string) get_option('woocommerce_email_reply_to_address', ''));
+            if (get_option('woocommerce_email_reply_to_enabled', 'no') === 'yes' && is_email($reply)) {
+                $headers[] = 'Reply-To: ' . $reply;
+            }
+        }
+        $sent = wp_mail($to, $subject, $html, $headers, $attachments);
         remove_filter('wp_mail_content_type', [__CLASS__, 'content_type_html']);
         remove_action('phpmailer_init', $set_alt_body);
         if ($ics_path !== '') {
