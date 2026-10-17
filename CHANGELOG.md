@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.54.0] – 2026-10-17
+
+### Changed
+- Customer emails (booking, access link, cancellation, reminder) carry a `Reply-To` header with the address from WooCommerce › Settings › Emails › Reply-to, when enabled. Admin copies are unchanged.
+
 ## [0.53.0] – 2026-10-15
 
 ### Added
