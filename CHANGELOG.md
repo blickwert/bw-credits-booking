@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.55.0] – 2026-10-19
+
+### Added
+- Optional newsletter checkbox at the account registration and at the checkout (Settings › Newsletter opt-in, off by default). Ticking it starts the double opt-in of the Brevo newsletter form (form 4 German, form 5 other languages): the DOI mail is sent, the contact joins the list only after the confirmation click; addresses already on the list get no second mail. The wording is editable under Newsletter Opt-in in the text settings. The order stores the time of the consent (`_bw_newsletter_optin_at`).
+
 ## [0.54.0] – 2026-10-17
 
 ### Changed

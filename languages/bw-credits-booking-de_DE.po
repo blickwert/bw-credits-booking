@@ -40,11 +40,11 @@ msgstr "Dieser Termin ist vorbei."
 msgid "Booking for this session has closed."
 msgstr "Die Buchung für diesen Termin ist geschlossen."
 
-#: includes/settings.php:139
+#: includes/settings.php:146
 msgid "Booking closes (minutes before start)"
 msgstr "Buchung möglich bis (Minuten vor Beginn)"
 
-#: includes/settings.php:224
+#: includes/settings.php:237
 msgid "How many minutes before the session start customers can still book. 0 = until the session starts. Bookings by the admin are not affected."
 msgstr "Bis wie viele Minuten vor Kursbeginn Kunden noch buchen können. 0 = bis zum Beginn. Buchungen durch die Admin sind nicht betroffen."
 
@@ -83,35 +83,70 @@ msgstr "Dein Warenkorb wurde durch das gewählte Guthaben-Paket ersetzt."
 msgid "A credit package can only be ordered on its own. Please complete this order first or empty your cart."
 msgstr "Ein Guthaben-Paket kann nur einzeln bestellt werden. Bitte schließe zuerst diese Bestellung ab oder leere deinen Warenkorb."
 
-#: includes/settings.php:144
+#. Text-Katalog group heading
+#: catalogue:GROUPS.newsletter
+msgid "Newsletter Opt-in"
+msgstr "Newsletter-Anmeldung"
+
+#. Checkbox at the registration and the checkout
+#: catalogue:newsletter.optin_label
+msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
+msgstr "Ja, ich möchte den Newsletter einmal pro Woche erhalten und bekomme das Einsteiger-Special einmalig für 40 € statt 45 €. Ich erhalte zuerst eine Bestätigungs-E-Mail und kann mich jederzeit abmelden."
+
+#. Link label next to the newsletter checkbox
+#: catalogue:newsletter.optin_privacy
+msgid "Privacy Policy"
+msgstr "Datenschutzerklärung"
+
+#: includes/settings.php:158
+msgid "Newsletter opt-in"
+msgstr "Newsletter-Anmeldung"
+
+#: includes/settings.php:159
+msgid "Optional checkbox at the account registration and the checkout. Ticking it starts the double opt-in of the Brevo newsletter form (form 4 for German, form 5 for all other languages)."
+msgstr "Optionale Checkbox bei der Kontoregistrierung und an der Kasse. Mit dem Häkchen startet das Double-Opt-in des Brevo-Newsletter-Formulars (Formular 4 für Deutsch, Formular 5 für alle anderen Sprachen)."
+
+#: includes/settings.php:162
+msgid "Newsletter checkbox"
+msgstr "Newsletter-Checkbox"
+
+#: includes/settings.php:292
+msgid "Show the newsletter checkbox at the registration and the checkout"
+msgstr "Newsletter-Checkbox bei der Registrierung und an der Kasse anzeigen"
+
+#: includes/settings.php:294
+msgid "Off by default. The wording can be changed under Newsletter Opt-in in the text settings."
+msgstr "Standardmäßig aus. Der Wortlaut lässt sich in den Texteinstellungen unter „Newsletter-Anmeldung“ ändern."
+
+#: includes/settings.php:151
 msgid "Credit products in the shop"
 msgstr "Guthaben-Produkte im Shop"
 
-#: includes/settings.php:145
+#: includes/settings.php:152
 msgid "A credit product is a product with a credit amount greater than 0 (product data › General)."
 msgstr "Ein Guthaben-Produkt ist ein Produkt mit einem Guthaben-Betrag größer 0 (Produktdaten › Allgemein)."
 
-#: includes/settings.php:148
+#: includes/settings.php:155
 msgid "Direct checkout"
 msgstr "Direkt zur Kasse"
 
-#: includes/settings.php:149
+#: includes/settings.php:156
 msgid "Complete after payment"
 msgstr "Nach Zahlung abschließen"
 
-#: includes/settings.php:259
+#: includes/settings.php:272
 msgid "Straight to the checkout, replace the cart, quantity 1"
 msgstr "Direkt zur Kasse, Warenkorb ersetzen, Menge 1"
 
-#: includes/settings.php:261
+#: includes/settings.php:274
 msgid "Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart."
 msgstr "Beim Kauf eines Guthaben-Produkts entfällt die Warenkorb-Seite, und der bisherige Warenkorb wird ersetzt. Guthaben-Produkte und andere Produkte liegen nie gemeinsam im Warenkorb."
 
-#: includes/settings.php:269
+#: includes/settings.php:282
 msgid "Complete orders with credit products only once they are paid"
 msgstr "Bestellungen, die nur Guthaben-Produkte enthalten, nach der Zahlung abschließen"
 
-#: includes/settings.php:271
+#: includes/settings.php:284
 msgid "Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are."
 msgstr "Das Guthaben wird beim Abschluss einer Bestellung gutgeschrieben. So erhalten Kundinnen es direkt nach der Zahlung. Bestellungen von Gästen und Bestellungen mit anderen Produkten bleiben unverändert."
 
@@ -526,11 +561,11 @@ msgstr "Admin: Teilnehmerliste"
 msgid "Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings."
 msgstr "Geht an die unten eingestellte Adresse kurz vor Kursbeginn (nach Buchungsschluss) mit den aktiven Teilnehmern – Zeitpunkt unter Einstellungen."
 
-#: includes/settings.php:140
+#: includes/settings.php:147
 msgid "Participant list to the studio (minutes before start)"
 msgstr "Teilnehmerliste ans Studio (Minuten vor Beginn)"
 
-#: includes/settings.php:233
+#: includes/settings.php:246
 msgid "The studio gets an email with the active participants this many minutes before the session starts (after booking has closed). 0 = off. Recipient and text: BW Credits → E-mails."
 msgstr "Das Studio bekommt so viele Minuten vor Kursbeginn (nach Buchungsschluss) eine E-Mail mit den aktiven Teilnehmern. 0 = aus. Empfänger und Text: BW Credits → E-Mails."
 
@@ -979,65 +1014,65 @@ msgstr "Als nicht erschienen markiert."
 msgid "No-show mark removed."
 msgstr "Markierung zurückgenommen."
 
-#: includes/settings.php:96
 #: includes/settings.php:97
-#: includes/settings.php:282
+#: includes/settings.php:98
+#: includes/settings.php:305
 msgid "Settings"
 msgstr "Einstellungen"
 
-#: includes/settings.php:132
+#: includes/settings.php:139
 msgid "General"
 msgstr "Allgemein"
 
-#: includes/settings.php:133
+#: includes/settings.php:140
 msgid "General settings for sessions and bookings."
 msgstr "Grundeinstellungen für Kurstermine und Buchungen."
 
-#: includes/settings.php:136
+#: includes/settings.php:143
 msgid "Course session post type"
 msgstr "Kurstermin-Inhaltstyp"
 
-#: includes/settings.php:137
+#: includes/settings.php:144
 msgid "Default capacity"
 msgstr "Standard-Kapazität"
 
-#: includes/settings.php:138
+#: includes/settings.php:145
 msgid "Cancellation deadline (hours)"
 msgstr "Storno-Frist (Stunden)"
 
-#: includes/settings.php:141
+#: includes/settings.php:148
 msgid "Reminder (hours before)"
 msgstr "Erinnerung (Stunden vorher)"
 
-#: includes/settings.php:142
+#: includes/settings.php:149
 msgid "Availability threshold"
 msgstr "Verfügbarkeits-Schwelle"
 
-#: includes/settings.php:185
+#: includes/settings.php:198
 msgid "Which post type holds the course sessions. Bookings, participant lists, and capacity all refer to this type."
 msgstr "Welcher Inhaltstyp die Kurstermine enthält. Buchungen, Teilnehmerlisten und Kapazität beziehen sich auf diesen Typ."
 
-#: includes/settings.php:190
+#: includes/settings.php:203
 msgid "Warning:"
 msgstr "Achtung:"
 
-#: includes/settings.php:193
+#: includes/settings.php:206
 msgid "The saved type %s is not currently registered."
 msgstr "Der gespeicherte Typ %s ist aktuell nicht registriert."
 
-#: includes/settings.php:206
+#: includes/settings.php:219
 msgid "Used when no capacity is set for the session itself."
 msgstr "Wird verwendet wenn beim Termin keine eigene Kapazität eingetragen ist."
 
-#: includes/settings.php:215
+#: includes/settings.php:228
 msgid "How many hours before the session start customers may cancel on their own."
 msgstr "Bis wie viele Stunden vor Kursbeginn Kunden selbst stornieren dürfen."
 
-#: includes/settings.php:242
+#: includes/settings.php:255
 msgid "When the reminder email is sent. 0 = no reminder."
 msgstr "Wann die Erinnerungs-E-Mail verschickt wird. 0 = keine Erinnerung."
 
-#: includes/settings.php:251
+#: includes/settings.php:264
 msgid "From how many free spots onward only \"more than N spots available\" is shown instead of the exact number. 0 = always show the exact number."
 msgstr "Ab wie vielen freien Plätzen nur noch „mehr als N Plätze frei\" statt der genauen Zahl angezeigt wird. 0 = immer die genaue Zahl."
 
@@ -1077,52 +1112,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:218
+#: bw-credits-booking.php:219
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:223
+#: bw-credits-booking.php:224
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:225
+#: bw-credits-booking.php:226
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:483
-#: bw-credits-booking.php:711
+#: bw-credits-booking.php:484
+#: bw-credits-booking.php:712
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:486
+#: bw-credits-booking.php:487
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:496
+#: bw-credits-booking.php:497
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:515
+#: bw-credits-booking.php:516
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1073
+#: bw-credits-booking.php:1074
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1647
+#: bw-credits-booking.php:1648
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1654
+#: bw-credits-booking.php:1655
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1662
+#: bw-credits-booking.php:1663
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1669
+#: bw-credits-booking.php:1670
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1447,11 +1482,11 @@ msgstr "Automatisch (aus deinem Browser)"
 msgid "Session times are shown in your time zone too — on the website and in emails."
 msgstr "Kurszeiten werden dir auch in deiner Zeitzone angezeigt — auf der Website und in E-Mails."
 
-#: bw-credits-booking.php:221
+#: bw-credits-booking.php:222
 msgid "%s your time"
 msgstr "%s bei dir"
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "Your local time"
 msgstr "Deine Ortszeit"
 
