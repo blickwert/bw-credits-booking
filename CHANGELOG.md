@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.58.0] – 2026-10-19
+
+### Changed
+- The newsletter checkbox at the checkout is gone: the notice in the order review (invitation or "discount applied") replaces it. The checkbox stays at the account registration.
+
 ## [0.57.0] – 2026-10-19
 
 ### Changed

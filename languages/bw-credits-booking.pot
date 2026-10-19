@@ -8,14 +8,9 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: bw-credits-booking\n"
 
-#. Checkbox at the registration and the checkout
+#. Checkbox at the registration
 #: catalogue:newsletter.optin_label
 msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
-msgstr ""
-
-#. Checkbox at the checkout when the Beginner Special is in the cart
-#: catalogue:newsletter.optin_label_special
-msgid "Yes, I would like to receive the newsletter once a week. Once I have confirmed my sign-up by email, the €5 discount on the Beginner Special is applied automatically."
 msgstr ""
 
 #. Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber

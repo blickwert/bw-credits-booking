@@ -88,7 +88,7 @@ msgstr "Ein Guthaben-Paket kann nur einzeln bestellt werden. Bitte schließe zue
 msgid "Newsletter Opt-in"
 msgstr "Newsletter-Anmeldung"
 
-#. Checkbox at the registration and the checkout
+#. Checkbox at the registration
 #: catalogue:newsletter.optin_label
 msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
 msgstr "Ja, ich möchte den Newsletter einmal pro Woche erhalten und bekomme das Einsteiger-Special einmalig für 40 € statt 45 €. Ich erhalte zuerst eine Bestätigungs-E-Mail und kann mich jederzeit abmelden."
@@ -153,11 +153,6 @@ msgstr "Das Produkt, um das es im Newsletter-Angebot geht (in der Standardsprach
 #: includes/settings.php:319
 msgid "WooCommerce coupon that is applied automatically to confirmed newsletter subscribers when the Beginner Special is in the cart. It is only valid for confirmed subscribers."
 msgstr "WooCommerce-Gutschein, der bestätigten Newsletter-Abonnent:innen automatisch gegeben wird, wenn das Einsteiger-Special im Warenkorb ist. Er gilt nur für bestätigte Abonnent:innen."
-
-#. Checkbox at the checkout when the Beginner Special is in the cart
-#: catalogue:newsletter.optin_label_special
-msgid "Yes, I would like to receive the newsletter once a week. Once I have confirmed my sign-up by email, the €5 discount on the Beginner Special is applied automatically."
-msgstr "Ja, ich möchte den Newsletter einmal pro Woche erhalten. Sobald ich meine Anmeldung per E-Mail bestätigt habe, wird der Rabatt von 5 € auf das Einsteiger-Special automatisch angewendet."
 
 #. Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber
 #: catalogue:newsletter.special_signup_notice
