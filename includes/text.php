@@ -50,6 +50,21 @@ class BW_Text {
             'newsletter.optin_label' => [
                 'Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the registration and the checkout', 'newsletter',
             ],
+            'newsletter.optin_label_special' => [
+                'Yes, I would like to receive the newsletter once a week and save €5 on this order right away. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the checkout when the Beginner Special is in the cart (applies the discount code)', 'newsletter',
+            ],
+            'newsletter.swap_notice' => [
+                'New here? Sign up for the newsletter and get the Beginner Special (3 credits, valid for 90 days) once for €40 instead of €45.', 'Notice in the cart and at the checkout while another credit product is in the cart', 'newsletter',
+            ],
+            'newsletter.swap_button' => [
+                'Switch to the Beginner Special', 'Button of that notice (replaces the credit product in the cart)', 'newsletter',
+            ],
+            'newsletter.product_hint' => [
+                'With a newsletter sign-up you pay only €40 instead of €45 – once per person.', 'Line under the price of the Beginner Special', 'newsletter',
+            ],
+            'newsletter.product_link' => [
+                'Sign up for the newsletter', 'Link label of that line', 'newsletter',
+            ],
             'newsletter.optin_privacy' => [
                 'Privacy Policy', 'Link label next to the newsletter checkbox', 'newsletter',
             ],

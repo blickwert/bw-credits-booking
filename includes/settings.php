@@ -17,6 +17,8 @@ class BW_Settings {
     const OPT_CUTOFF_HOURS     = 'bw_booking_cancel_cutoff_hours';
     const OPT_CLOSE_MINUTES    = 'bw_booking_close_minutes';
     const OPT_NEWSLETTER       = 'bw_newsletter_optin_enabled';
+    const OPT_NL_SPECIAL       = 'bw_newsletter_special_product';
+    const OPT_NL_COUPON        = 'bw_newsletter_coupon';
     const OPT_LIST_MINUTES     = 'bw_participant_list_minutes';
     const OPT_REMINDER_HOURS   = 'bw_reminder_hours';
     const OPT_AVAILABILITY_CAP = 'bw_availability_cap';
@@ -136,6 +138,17 @@ class BW_Settings {
             'default'           => 0,
         ]);
 
+        register_setting($group, self::OPT_NL_SPECIAL, [
+            'type'              => 'integer',
+            'sanitize_callback' => [__CLASS__, 'sanitize_positive_int'],
+            'default'           => 159,
+        ]);
+        register_setting($group, self::OPT_NL_COUPON, [
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+            'default'           => 'NAMASTE40',
+        ]);
+
         add_settings_section('bw_general', __('General', 'bw-credits-booking'), function () {
             echo '<p>' . esc_html__('General settings for sessions and bookings.', 'bw-credits-booking') . '</p>';
         }, self::MENU_SLUG);
@@ -160,6 +173,8 @@ class BW_Settings {
         }, self::MENU_SLUG);
 
         add_settings_field(self::OPT_NEWSLETTER, __('Newsletter checkbox', 'bw-credits-booking'), [__CLASS__, 'field_newsletter'], self::MENU_SLUG, 'bw_newsletter');
+        add_settings_field(self::OPT_NL_SPECIAL, __('Beginner Special (product ID)', 'bw-credits-booking'), [__CLASS__, 'field_nl_special'], self::MENU_SLUG, 'bw_newsletter');
+        add_settings_field(self::OPT_NL_COUPON, __('Discount code', 'bw-credits-booking'), [__CLASS__, 'field_nl_coupon'], self::MENU_SLUG, 'bw_newsletter');
     }
 
     public static function sanitize_checkbox($value): int {
@@ -292,6 +307,16 @@ class BW_Settings {
             esc_html__('Show the newsletter checkbox at the registration and the checkout', 'bw-credits-booking')
         );
         echo '<p class="description">' . esc_html__('Off by default. The wording can be changed under Newsletter Opt-in in the text settings.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_nl_special() {
+        printf('<input type="number" min="0" step="1" name="%s" value="%d" class="small-text">', esc_attr(self::OPT_NL_SPECIAL), (int) get_option(self::OPT_NL_SPECIAL, 159));
+        echo '<p class="description">' . esc_html__('The product the newsletter offer is about (in the default language; translations are found automatically). The cart and checkout notices, the product page line and the automatic discount refer to it.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_nl_coupon() {
+        printf('<input type="text" name="%s" value="%s" class="regular-text">', esc_attr(self::OPT_NL_COUPON), esc_attr((string) get_option(self::OPT_NL_COUPON, 'NAMASTE40')));
+        echo '<p class="description">' . esc_html__('WooCommerce coupon that is applied at the checkout when the newsletter box is ticked and the Beginner Special is in the cart.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------

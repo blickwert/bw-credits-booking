@@ -81,5 +81,12 @@ check('only on the handbook list -> mail is sent', BW_Newsletter::subscribe('e@e
 reset_state();
 check('invalid address -> nothing', BW_Newsletter::subscribe('nope', '', 'de') === false && !$GLOBALS['__sent']);
 
+$credit = fn($id) => in_array($id, [158, 160, 159, 1263], true);
+$special = [159, 1263];
+check('cart with a single class -> swap offer applies', BW_Newsletter::cart_state([158], $special, $credit) === ['has_special' => false, 'other_credit' => true]);
+check('cart with the special (translated id) -> has_special', BW_Newsletter::cart_state([1263], $special, $credit) === ['has_special' => true, 'other_credit' => false]);
+check('cart with a non-credit product -> nothing', BW_Newsletter::cart_state([999], $special, $credit) === ['has_special' => false, 'other_credit' => false]);
+check('empty cart -> nothing', BW_Newsletter::cart_state([], $special, $credit) === ['has_special' => false, 'other_credit' => false]);
+
 echo "\n$pass/" . ($pass + $fail) . " checks passed\n";
 exit($fail ? 1 : 0);

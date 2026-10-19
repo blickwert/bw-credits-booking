@@ -5,6 +5,15 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.56.0] – 2026-10-19
+
+### Added
+- Newsletter offer around the Beginner Special (all behind Settings › Newsletter opt-in, off by default):
+  - Cart and checkout: while another credit product is in the cart (and the customer has not bought the special yet) a notice offers to switch to the Beginner Special; the button replaces the cart through the existing direct-checkout logic.
+  - Checkout: with the special in the cart, the newsletter checkbox gets its own wording and applies the discount code immediately when ticked (removed again when unticked).
+  - Product page: one line under the price of the special linking to the newsletter page.
+  - New settings: product ID of the special and the discount code.
+
 ## [0.55.0] – 2026-10-19
 
 ### Added

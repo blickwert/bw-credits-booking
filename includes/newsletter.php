@@ -16,6 +16,9 @@ class BW_Newsletter {
     const OPT_FORM_DE = 'bw_newsletter_form_de';
     const OPT_FORM_EN = 'bw_newsletter_form_en';
     const FIELD       = 'bw_newsletter_optin';
+    const OPT_SPECIAL = 'bw_newsletter_special_product';
+    const OPT_COUPON  = 'bw_newsletter_coupon';
+    const SESSION_KEY = 'bw_newsletter_auto_coupon';
 
     /** Addresses handled in this request (account creation and order can both fire at the checkout). */
     private static $handled = [];
@@ -25,6 +28,130 @@ class BW_Newsletter {
         add_action('woocommerce_after_order_notes', [__CLASS__, 'render_checkbox']);
         add_action('woocommerce_created_customer', [__CLASS__, 'on_customer_created'], 20, 2);
         add_action('woocommerce_checkout_order_processed', [__CLASS__, 'on_order_processed'], 20, 3);
+
+        // Offers around the Beginner Special (only while the opt-in is switched on)
+        add_action('woocommerce_before_cart', [__CLASS__, 'render_swap_notice']);
+        add_action('woocommerce_before_checkout_form', [__CLASS__, 'render_swap_notice'], 5);
+        add_action('woocommerce_checkout_update_order_review', [__CLASS__, 'sync_coupon']);
+        add_action('woocommerce_single_product_summary', [__CLASS__, 'render_product_hint'], 25);
+    }
+
+    /* ---------------------------------------------------------
+     * Beginner Special: offers in the cart, at the checkout, on the product page
+     * --------------------------------------------------------- */
+
+    /** The Beginner Special in the current language (WPML), 0 if it is not set up. */
+    public static function special_id(): int {
+        $id = (int) get_option(self::OPT_SPECIAL, 159);
+        if ($id <= 0) return 0;
+        if (has_filter('wpml_object_id')) {
+            $translated = apply_filters('wpml_object_id', $id, 'product', true);
+            if ($translated) $id = (int) $translated;
+        }
+        return get_post_type($id) === 'product' ? $id : 0;
+    }
+
+    /** The special and its translations. */
+    private static function special_ids(): array {
+        $id = (int) get_option(self::OPT_SPECIAL, 159);
+        return $id > 0 ? BW_Purchase_Limit::product_ids($id) : [];
+    }
+
+    public static function coupon_code(): string {
+        return trim((string) get_option(self::OPT_COUPON, 'NAMASTE40'));
+    }
+
+    /**
+     * What the cart holds, from a list of its product ids: has_special, other_credit.
+     *
+     * @param int[]    $cart_ids   product ids in the cart
+     * @param int[]    $special    ids of the special (all languages)
+     * @param callable $is_credit  product id => bool
+     */
+    public static function cart_state(array $cart_ids, array $special, callable $is_credit): array {
+        $state = ['has_special' => false, 'other_credit' => false];
+        foreach ($cart_ids as $id) {
+            $id = (int) $id;
+            if (in_array($id, $special, true)) {
+                $state['has_special'] = true;
+            } elseif ($is_credit($id)) {
+                $state['other_credit'] = true;
+            }
+        }
+        return $state;
+    }
+
+    private static function current_cart_state(): array {
+        if (!function_exists('WC') || !WC()->cart) return ['has_special' => false, 'other_credit' => false];
+        $ids = [];
+        foreach (WC()->cart->get_cart() as $item) $ids[] = (int) ($item['product_id'] ?? 0);
+        return self::cart_state($ids, self::special_ids(), ['BW_Credit_Checkout', 'is_credit_product']);
+    }
+
+    /** The logged-in customer already bought the special (guests are checked at the checkout). */
+    private static function already_bought_special(): bool {
+        $user_id = (int) get_current_user_id();
+        if ($user_id <= 0) return false;
+        $user = get_userdata($user_id);
+        return BW_Purchase_Limit::has_bought(self::special_ids(), $user_id, $user ? strtolower((string) $user->user_email) : '');
+    }
+
+    /** "Swap to the Beginner Special" while another credit product is in the cart. */
+    public static function render_swap_notice() {
+        if (!self::enabled()) return;
+        $special = self::special_id();
+        if (!$special || !function_exists('wc_get_checkout_url')) return;
+        $state = self::current_cart_state();
+        if (!$state['other_credit'] || $state['has_special'] || self::already_bought_special()) return;
+
+        $url = add_query_arg('add-to-cart', $special, wc_get_checkout_url());
+        echo '<div class="woocommerce-info bw-newsletter-offer">';
+        echo esc_html(bw_text('newsletter.swap_notice')) . ' ';
+        echo '<a class="button wp-element-button" href="' . esc_url($url) . '">' . esc_html(bw_text('newsletter.swap_button')) . '</a>';
+        echo '</div>';
+    }
+
+    /** Ticking the newsletter box with the special in the cart applies the code; unticking takes it off again. */
+    public static function sync_coupon($post_data = '') {
+        if (!self::enabled() || !function_exists('WC') || !WC()->cart) return;
+        $code = self::coupon_code();
+        if ($code === '') return;
+
+        parse_str((string) $post_data, $data);
+        $wants = !empty($data[self::FIELD]) && self::current_cart_state()['has_special'];
+        $cart  = WC()->cart;
+
+        if ($wants && !$cart->has_discount($code)) {
+            if ($cart->apply_coupon($code) && WC()->session) WC()->session->set(self::SESSION_KEY, 1);
+        } elseif (!$wants && $cart->has_discount($code) && WC()->session && WC()->session->get(self::SESSION_KEY)) {
+            $cart->remove_coupon($code);
+            WC()->session->set(self::SESSION_KEY, 0);
+        }
+    }
+
+    /** One line under the price of the Beginner Special. */
+    public static function render_product_hint() {
+        if (!self::enabled() || !function_exists('get_the_ID')) return;
+        $id = (int) get_the_ID();
+        if (!$id || !in_array($id, self::special_ids(), true) || self::already_bought_special()) return;
+
+        echo '<p class="bw-newsletter-hint">' . esc_html(bw_text('newsletter.product_hint')) . ' ';
+        echo '<a href="' . esc_url(self::newsletter_url()) . '">' . esc_html(bw_text('newsletter.product_link')) . '</a></p>';
+    }
+
+    /** The newsletter page (slug "newsletter") in the current language. */
+    public static function newsletter_url(): string {
+        $page = get_page_by_path('newsletter');
+        if ($page) {
+            $id = (int) $page->ID;
+            if (has_filter('wpml_object_id')) {
+                $translated = apply_filters('wpml_object_id', $id, 'page', true);
+                if ($translated) $id = (int) $translated;
+            }
+            $url = get_permalink($id);
+            if ($url) return $url;
+        }
+        return home_url('/newsletter/');
     }
 
     public static function enabled(): bool {
@@ -46,9 +173,11 @@ class BW_Newsletter {
     public static function render_checkbox() {
         if (!self::enabled()) return;
         $privacy = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
-        echo '<p class="form-row bw-newsletter-optin"><label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">';
+        $special = current_filter() === 'woocommerce_after_order_notes' && self::current_cart_state()['has_special'];
+        $label   = $special ? 'newsletter.optin_label_special' : 'newsletter.optin_label';
+        echo '<p class="form-row bw-newsletter-optin' . ($special ? ' update_totals_on_change' : '') . '"><label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">';
         printf('<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="%s" value="1"> ', esc_attr(self::FIELD));
-        echo '<span>' . esc_html(bw_text('newsletter.optin_label'));
+        echo '<span>' . esc_html(bw_text($label));
         if ($privacy !== '') {
             echo ' <a href="' . esc_url($privacy) . '" target="_blank" rel="noopener">' . esc_html(bw_text('newsletter.optin_privacy')) . '</a>';
         }
