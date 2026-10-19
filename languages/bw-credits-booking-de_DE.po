@@ -174,6 +174,21 @@ msgstr "Zur Newsletter-Anmeldung (neuer Tab)"
 msgid "This code is only valid for confirmed newsletter subscribers. Please order with the email address you used to sign up."
 msgstr "Dieser Code gilt nur für bestätigte Newsletter-Abonnent:innen. Bitte bestelle mit der E-Mail-Adresse, mit der du dich angemeldet hast."
 
+#. Accessible name of the info icon next to the booking button
+#: catalogue:booking.cancel_info_label
+msgid "Cancellation rule"
+msgstr "Stornoregel"
+
+#. Notice under the packages (shortcode [bw_newsletter_notice])
+#: catalogue:newsletter.packages_notice
+msgid "New here? Sign up for the newsletter and get the Beginner Special once for €40 instead of €45. Once you have confirmed your sign-up, the discount is applied automatically at the checkout."
+msgstr "Neu bei uns? Melde dich für den Newsletter an und erhalte das Einsteiger-Special einmalig für 40 € statt 45 €. Sobald du deine Anmeldung bestätigt hast, wird der Rabatt an der Kasse automatisch angewendet."
+
+#. Button of that notice
+#: catalogue:newsletter.signup_now
+msgid "Sign up for the newsletter now"
+msgstr "Jetzt zum Newsletter anmelden"
+
 #: includes/settings.php:164
 msgid "Credit products in the shop"
 msgstr "Guthaben-Produkte im Shop"
@@ -1201,19 +1216,19 @@ msgstr "Credit nicht gefunden oder bereits verbraucht."
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1648
+#: bw-credits-booking.php:1663
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1655
+#: bw-credits-booking.php:1670
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1663
+#: bw-credits-booking.php:1678
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1670
+#: bw-credits-booking.php:1685
 msgid "Cancelled."
 msgstr "Storniert."
 

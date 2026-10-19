@@ -13,6 +13,16 @@ msgstr ""
 msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
 msgstr ""
 
+#. Notice under the packages (shortcode [bw_newsletter_notice])
+#: catalogue:newsletter.packages_notice
+msgid "New here? Sign up for the newsletter and get the Beginner Special once for €40 instead of €45. Once you have confirmed your sign-up, the discount is applied automatically at the checkout."
+msgstr ""
+
+#. Button of that notice
+#: catalogue:newsletter.signup_now
+msgid "Sign up for the newsletter now"
+msgstr ""
+
 #. Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber
 #: catalogue:newsletter.special_signup_notice
 msgid "New here? With a newsletter sign-up the Beginner Special costs only €40 instead of €45 (once per person). Once you have confirmed your sign-up by email, the discount is applied here automatically."
@@ -106,6 +116,11 @@ msgstr ""
 #. Cancellation rule next to the booking button and in the confirmation email ({deadline} = date, time and time zone)
 #: catalogue:booking.cancel_until
 msgid "You can cancel until {deadline}; your credit is refunded."
+msgstr ""
+
+#. Accessible name of the info icon next to the booking button
+#: catalogue:booking.cancel_info_label
+msgid "Cancellation rule"
 msgstr ""
 
 #. Shown for a booking whose cancellation deadline has passed
@@ -1566,19 +1581,19 @@ msgstr ""
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1648
+#: bw-credits-booking.php:1663
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1655
+#: bw-credits-booking.php:1670
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1663
+#: bw-credits-booking.php:1678
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1670
+#: bw-credits-booking.php:1685
 msgid "Cancelled."
 msgstr ""
 

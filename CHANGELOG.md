@@ -5,6 +5,14 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.59.0] – 2026-10-19
+
+### Changed
+- The cancellation rule next to the booking button is now an info icon with a tooltip (hover, keyboard focus, tap on touch screens) instead of a text line, and only appears when it matters: next to the book button (credits available) and for a booking that can no longer be cancelled. It disappears once the booking is made.
+
+### Added
+- `[bw_newsletter_notice]`: the newsletter invitation as a WooCommerce notice with a button (for the packages overview); nothing for confirmed subscribers or while the opt-in is off.
+
 ## [0.58.0] – 2026-10-19
 
 ### Changed

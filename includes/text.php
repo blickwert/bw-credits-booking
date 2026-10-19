@@ -50,6 +50,12 @@ class BW_Text {
             'newsletter.optin_label' => [
                 'Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the registration', 'newsletter',
             ],
+            'newsletter.packages_notice' => [
+                'New here? Sign up for the newsletter and get the Beginner Special once for €40 instead of €45. Once you have confirmed your sign-up, the discount is applied automatically at the checkout.', 'Notice under the packages (shortcode [bw_newsletter_notice])', 'newsletter',
+            ],
+            'newsletter.signup_now' => [
+                'Sign up for the newsletter now', 'Button of that notice', 'newsletter',
+            ],
             'newsletter.special_signup_notice' => [
                 'New here? With a newsletter sign-up the Beginner Special costs only €40 instead of €45 (once per person). Once you have confirmed your sign-up by email, the discount is applied here automatically.', 'Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber', 'newsletter',
             ],
@@ -108,6 +114,9 @@ class BW_Text {
             ],
             'booking.cancel_until' => [
                 'You can cancel until {deadline}; your credit is refunded.', 'Cancellation rule next to the booking button and in the confirmation email ({deadline} = date, time and time zone)', 'booking',
+            ],
+            'booking.cancel_info_label' => [
+                'Cancellation rule', 'Accessible name of the info icon next to the booking button', 'booking',
             ],
             'booking.cancel_closed' => [
                 'Cancellation is no longer possible (less than {hours} hours before the start).', 'Shown for a booking whose cancellation deadline has passed', 'booking',

@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.58.0
+ * Version: 0.59.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.58.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.59.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -1388,11 +1388,6 @@ class BW_Credits_Bookings_MVP {
         return bw_text($booked ? 'booking.cancel_closed' : 'booking.cancel_late_hint', ['hours' => $hours]);
     }
 
-    private static function cancel_note_html(int $slot_id, bool $booked): string {
-        $text = self::cancel_note_text($slot_id, $booked);
-        return $text === '' ? '' : '<p class="bw-slot-note bw-cancel-note">' . esc_html($text) . '</p>';
-    }
-
     /** $suffix_html must already be escaped — intended for a link. */
     private static function note(string $text, string $modifier = '', string $suffix_html = ''): string {
         ob_start();
@@ -1419,7 +1414,27 @@ class BW_Credits_Bookings_MVP {
         if ($slot_id <= 0) return $html;
 
         $booked = is_user_logged_in() && self::get_active_booking(get_current_user_id(), $slot_id) !== null;
-        return $html . self::cancel_note_html($slot_id, $booked);
+        $info = self::cancel_info_html($html, $slot_id, $booked);
+        return $info === '' ? $html : '<div class="bw-slot-actions">' . $html . $info . '</div>';
+    }
+
+    /**
+     * The cancellation rule as an info icon with a tooltip (hover, focus, tap). Only where it matters: next to the
+     * book button (credits available) and for a booking that can no longer be cancelled — no text taking up room
+     * for visitors who cannot book anyway.
+     */
+    private static function cancel_info_html(string $button_html, int $slot_id, bool $booked): string {
+        $book_state   = strpos($button_html, 'data-bw-action="book"') !== false;
+        $closed_state = $booked && strpos($button_html, 'bw-is-booked') !== false;
+        if (!$book_state && !$closed_state) return '';
+
+        $text = self::cancel_note_text($slot_id, $booked);
+        if ($text === '') return '';
+
+        return '<span class="bw-info" data-bw-info>'
+             . '<button type="button" class="bw-info__btn" aria-expanded="false" aria-label="' . esc_attr(bw_text('booking.cancel_info_label')) . '">i</button>'
+             . '<span class="bw-info__tip" role="tooltip">' . esc_html($text) . '</span>'
+             . '</span>';
     }
 
     private static function slot_action_html($atts) {

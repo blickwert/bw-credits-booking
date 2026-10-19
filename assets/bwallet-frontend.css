@@ -124,6 +124,64 @@
   color: var(--bw-color-success, #116611);
 }
 
+/* Cancellation rule as an info icon with a tooltip (hover, keyboard focus, tap) */
+.bw-slot-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.bw-info {
+  position: relative;
+  display: inline-flex;
+}
+
+.bw-info__btn {
+  width: 1.5rem;
+  height: 1.5rem;
+  padding: 0;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+  background: transparent;
+  color: var(--bw-color-secondary, #666);
+  font: italic 700 0.85rem/1 Georgia, serif;
+  cursor: pointer;
+}
+
+.bw-info__tip {
+  position: absolute;
+  z-index: 20;
+  left: -0.5rem;
+  bottom: calc(100% + 0.5rem);
+  width: max-content;
+  max-width: min(18rem, 80vw);
+  padding: 0.6rem 0.8rem;
+  border-radius: 8px;
+  background: #3a1b2e;
+  color: #fff;
+  font-size: 0.85rem;
+  line-height: 1.4;
+  text-align: left;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.2);
+  visibility: hidden;
+  opacity: 0;
+  transition: opacity 0.15s;
+  pointer-events: none;
+}
+
+.bw-info:hover .bw-info__tip,
+.bw-info:focus-within .bw-info__tip,
+.bw-info.is-open .bw-info__tip {
+  visibility: visible;
+  opacity: 1;
+}
+
+/* Once the booking was made (the button switched to "cancel") the rule is no longer needed */
+[data-bw-wrap]:has([data-bw-action="cancel"]) ~ .bw-info {
+  display: none;
+}
+
 /* ==== course_list ==== */
 /* Session list [bw_credits_course_list] */
 .bw-course-filter {
