@@ -38,6 +38,7 @@ class BW_Newsletter {
         add_action('woocommerce_before_cart', [__CLASS__, 'render_special_notice'], 6);
         add_action('woocommerce_review_order_before_payment', [__CLASS__, 'render_special_notice']);
         add_filter('woocommerce_coupon_is_valid', [__CLASS__, 'validate_coupon'], 10, 2);
+        add_shortcode('bw_newsletter_notice', [__CLASS__, 'sc_notice']);
         add_action('woocommerce_single_product_summary', [__CLASS__, 'render_product_hint'], 25);
     }
 
@@ -202,6 +203,18 @@ class BW_Newsletter {
             echo '<a class="button wp-element-button" href="' . esc_url(self::newsletter_url()) . '" target="_blank" rel="noopener">' . esc_html(bw_text('newsletter.signup_button')) . '</a>';
         }
         echo '</div>';
+    }
+
+    /** [bw_newsletter_notice] — the invitation as a WooCommerce notice (packages overview). Nothing for subscribers. */
+    public static function sc_notice() {
+        if (!self::enabled()) return '';
+        $email = self::email_for_check();
+        if ($email !== '' && self::is_subscribed($email)) return '';
+
+        return '<div class="woocommerce-info bw-newsletter-offer">'
+             . '<span class="bw-newsletter-offer__text">' . esc_html(bw_text('newsletter.packages_notice')) . '</span> '
+             . '<a class="button wp-element-button" href="' . esc_url(self::newsletter_url()) . '">' . esc_html(bw_text('newsletter.signup_now')) . '</a>'
+             . '</div>';
     }
 
     /** One line under the price of the Beginner Special. */

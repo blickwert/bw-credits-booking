@@ -17,6 +17,7 @@ $GLOBALS['__contact'] = null; // listIds of an existing contact, null = unknown 
 
 function add_action(...$a) {}
 function add_filter(...$a) {}
+function add_shortcode(...$a) {}
 function get_option($k, $d = false) { return $GLOBALS['__opts'][$k] ?? $d; }
 function apply_filters($n, $v, ...$a) { return $n === 'wpml_current_language' ? $GLOBALS['__lang'] : $v; }
 function get_locale() { return 'en_US'; }

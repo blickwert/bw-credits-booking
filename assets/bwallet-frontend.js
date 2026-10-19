@@ -313,6 +313,31 @@
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", start); else start();
   })();
 
+  /* Info icon with tooltip (cancellation rule): tap toggles, tap elsewhere or Escape closes */
+  (function () {
+    document.addEventListener("click", function (e) {
+      const btn = e.target.closest ? e.target.closest(".bw-info__btn") : null;
+      document.querySelectorAll(".bw-info.is-open").forEach(function (el) {
+        if (!btn || el !== btn.parentNode) {
+          el.classList.remove("is-open");
+          const b = el.querySelector(".bw-info__btn");
+          if (b) b.setAttribute("aria-expanded", "false");
+        }
+      });
+      if (!btn) return;
+      const open = btn.parentNode.classList.toggle("is-open");
+      btn.setAttribute("aria-expanded", open ? "true" : "false");
+    });
+    document.addEventListener("keydown", function (e) {
+      if (e.key !== "Escape") return;
+      document.querySelectorAll(".bw-info.is-open").forEach(function (el) {
+        el.classList.remove("is-open");
+        const b = el.querySelector(".bw-info__btn");
+        if (b) b.setAttribute("aria-expanded", "false");
+      });
+    });
+  })();
+
   /*
    * User- and time-dependent shortcodes (free spots, book button, balance, …)
    * arrive on the page as empty <span class="bw-lazy-view"> placeholders, so a
