@@ -118,11 +118,6 @@ msgstr "Newsletter-Checkbox bei der Registrierung und an der Kasse anzeigen"
 msgid "Off by default. The wording can be changed under Newsletter Opt-in in the text settings."
 msgstr "Standardmäßig aus. Der Wortlaut lässt sich in den Texteinstellungen unter „Newsletter-Anmeldung“ ändern."
 
-#. Checkbox at the checkout when the Beginner Special is in the cart (applies the discount code)
-#: catalogue:newsletter.optin_label_special
-msgid "Yes, I would like to receive the newsletter once a week and save €5 on this order right away. I will get a confirmation email first and can unsubscribe at any time."
-msgstr "Ja, ich möchte den Newsletter einmal pro Woche erhalten und bei dieser Bestellung gleich 5 € sparen. Ich erhalte zuerst eine Bestätigungs-E-Mail und kann mich jederzeit abmelden."
-
 #. Notice in the cart and at the checkout while another credit product is in the cart
 #: catalogue:newsletter.swap_notice
 msgid "New here? Sign up for the newsletter and get the Beginner Special (3 credits, valid for 90 days) once for €40 instead of €45."
@@ -156,8 +151,33 @@ msgid "The product the newsletter offer is about (in the default language; trans
 msgstr "Das Produkt, um das es im Newsletter-Angebot geht (in der Standardsprache; Übersetzungen werden automatisch gefunden). Die Hinweise im Warenkorb und an der Kasse, die Zeile auf der Produktseite und der automatische Rabatt beziehen sich darauf."
 
 #: includes/settings.php:319
-msgid "WooCommerce coupon that is applied at the checkout when the newsletter box is ticked and the Beginner Special is in the cart."
-msgstr "WooCommerce-Gutschein, der an der Kasse angewendet wird, wenn das Newsletter-Kästchen angehakt und das Einsteiger-Special im Warenkorb ist."
+msgid "WooCommerce coupon that is applied automatically to confirmed newsletter subscribers when the Beginner Special is in the cart. It is only valid for confirmed subscribers."
+msgstr "WooCommerce-Gutschein, der bestätigten Newsletter-Abonnent:innen automatisch gegeben wird, wenn das Einsteiger-Special im Warenkorb ist. Er gilt nur für bestätigte Abonnent:innen."
+
+#. Checkbox at the checkout when the Beginner Special is in the cart
+#: catalogue:newsletter.optin_label_special
+msgid "Yes, I would like to receive the newsletter once a week. Once I have confirmed my sign-up by email, the €5 discount on the Beginner Special is applied automatically."
+msgstr "Ja, ich möchte den Newsletter einmal pro Woche erhalten. Sobald ich meine Anmeldung per E-Mail bestätigt habe, wird der Rabatt von 5 € auf das Einsteiger-Special automatisch angewendet."
+
+#. Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber
+#: catalogue:newsletter.special_signup_notice
+msgid "New here? With a newsletter sign-up the Beginner Special costs only €40 instead of €45 (once per person). Once you have confirmed your sign-up by email, the discount is applied here automatically."
+msgstr "Neu bei uns? Mit Newsletter-Anmeldung kostet das Einsteiger-Special nur 40 € statt 45 € (einmalig pro Person). Sobald du deine Anmeldung per E-Mail bestätigt hast, wird der Rabatt hier automatisch angewendet."
+
+#. Notice when the discount code was applied for a confirmed subscriber
+#: catalogue:newsletter.special_applied_notice
+msgid "Thank you for being part of the newsletter! Your newsletter discount has been applied automatically."
+msgstr "Danke, dass du beim Newsletter dabei bist! Dein Newsletter-Rabatt wurde automatisch angewendet."
+
+#. Link to the newsletter sign-up page
+#: catalogue:newsletter.signup_button
+msgid "Sign up for the newsletter (new tab)"
+msgstr "Zur Newsletter-Anmeldung (neuer Tab)"
+
+#. Error when the newsletter code is used by someone who is not a confirmed subscriber
+#: catalogue:newsletter.coupon_denied
+msgid "This code is only valid for confirmed newsletter subscribers. Please order with the email address you used to sign up."
+msgstr "Dieser Code gilt nur für bestätigte Newsletter-Abonnent:innen. Bitte bestelle mit der E-Mail-Adresse, mit der du dich angemeldet hast."
 
 #: includes/settings.php:164
 msgid "Credit products in the shop"

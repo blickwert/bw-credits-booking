@@ -19,6 +19,7 @@ class BW_Newsletter {
     const OPT_SPECIAL = 'bw_newsletter_special_product';
     const OPT_COUPON  = 'bw_newsletter_coupon';
     const SESSION_KEY = 'bw_newsletter_auto_coupon';
+    const EMAIL_KEY   = 'bw_newsletter_email';
 
     /** Addresses handled in this request (account creation and order can both fire at the checkout). */
     private static $handled = [];
@@ -32,7 +33,12 @@ class BW_Newsletter {
         // Offers around the Beginner Special (only while the opt-in is switched on)
         add_action('woocommerce_before_cart', [__CLASS__, 'render_swap_notice']);
         add_action('woocommerce_before_checkout_form', [__CLASS__, 'render_swap_notice'], 5);
+        add_action('woocommerce_before_cart', [__CLASS__, 'sync_coupon'], 1);
+        add_action('woocommerce_before_checkout_form', [__CLASS__, 'sync_coupon'], 1);
         add_action('woocommerce_checkout_update_order_review', [__CLASS__, 'sync_coupon']);
+        add_action('woocommerce_before_cart', [__CLASS__, 'render_special_notice'], 6);
+        add_action('woocommerce_review_order_before_payment', [__CLASS__, 'render_special_notice']);
+        add_filter('woocommerce_coupon_is_valid', [__CLASS__, 'validate_coupon'], 10, 2);
         add_action('woocommerce_single_product_summary', [__CLASS__, 'render_product_hint'], 25);
     }
 
@@ -107,26 +113,96 @@ class BW_Newsletter {
         $url = add_query_arg('add-to-cart', $special, wc_get_checkout_url());
         echo '<div class="woocommerce-info bw-newsletter-offer">';
         echo esc_html(bw_text('newsletter.swap_notice')) . ' ';
-        echo '<a class="button wp-element-button" href="' . esc_url($url) . '">' . esc_html(bw_text('newsletter.swap_button')) . '</a>';
+        echo '<a class="button wp-element-button" href="' . esc_url($url) . '">' . esc_html(bw_text('newsletter.swap_button')) . '</a> ';
+        echo '<a href="' . esc_url(self::newsletter_url()) . '" target="_blank" rel="noopener">' . esc_html(bw_text('newsletter.signup_button')) . '</a>';
         echo '</div>';
     }
 
-    /** Ticking the newsletter box with the special in the cart applies the code; unticking takes it off again. */
+    /** The address whose newsletter status counts: posted billing e-mail, the one remembered from the checkout, the account's. */
+    public static function email_for_check(): string {
+        $email = '';
+        if (!empty($_POST['billing_email'])) { // phpcs:ignore WordPress.Security.NonceVerification -- read only, WooCommerce verified the checkout nonce
+            $email = sanitize_email(wp_unslash($_POST['billing_email'])); // phpcs:ignore WordPress.Security.NonceVerification
+        }
+        if ($email === '' && function_exists('WC') && WC()->session) $email = (string) WC()->session->get(self::EMAIL_KEY);
+        if ($email === '' && get_current_user_id() > 0) {
+            $user  = get_userdata(get_current_user_id());
+            $email = $user ? (string) $user->user_email : '';
+        }
+        if ($email === '' && function_exists('WC') && WC()->customer) $email = (string) WC()->customer->get_billing_email();
+        return is_email($email) ? strtolower($email) : '';
+    }
+
+    /** The lists of the newsletter forms (German and English). */
+    private static function newsletter_lists(): array {
+        $lists = [];
+        if (!class_exists('SIB_Forms')) return $lists;
+        foreach ([self::form_id_for('de'), self::form_id_for('en')] as $form_id) {
+            $form = $form_id ? SIB_Forms::getForm($form_id) : null;
+            if (!is_array($form) || empty($form['listID'])) continue;
+            $ids = maybe_unserialize($form['listID']);
+            $lists = array_merge($lists, is_array($ids) ? $ids : []);
+        }
+        return array_values(array_unique(array_map('intval', $lists)));
+    }
+
+    /** Confirmed subscriber of a newsletter list (Brevo; cached for two minutes). */
+    public static function is_subscribed(string $email): bool {
+        if ($email === '' || !function_exists('get_transient')) return false;
+        $key = 'bw_nl_sub_' . md5($email);
+        $hit = get_transient($key);
+        if ($hit !== false) return $hit === 'yes';
+        $lists = self::newsletter_lists();
+        $yes   = $lists && self::already_subscribed($email, $lists);
+        set_transient($key, $yes ? 'yes' : 'no', 120);
+        return $yes;
+    }
+
+    /** The code is only valid for confirmed subscribers, however it got into the cart. */
+    public static function validate_coupon($valid, $coupon = null) {
+        if (!$valid || !self::enabled() || !is_object($coupon) || !method_exists($coupon, 'get_code')) return $valid;
+        if (strtolower((string) $coupon->get_code()) !== strtolower(self::coupon_code())) return $valid;
+        if (self::is_subscribed(self::email_for_check())) return $valid;
+        throw new \Exception(bw_text('newsletter.coupon_denied'));
+    }
+
+    /** With the special in the cart: subscribers get the code applied, everyone else loses it again. */
     public static function sync_coupon($post_data = '') {
         if (!self::enabled() || !function_exists('WC') || !WC()->cart) return;
         $code = self::coupon_code();
         if ($code === '') return;
 
-        parse_str((string) $post_data, $data);
-        $wants = !empty($data[self::FIELD]) && self::current_cart_state()['has_special'];
-        $cart  = WC()->cart;
+        if (is_string($post_data) && $post_data !== '') {
+            parse_str($post_data, $data);
+            if (!empty($data['billing_email']) && WC()->session) {
+                WC()->session->set(self::EMAIL_KEY, sanitize_email((string) $data['billing_email']));
+            }
+        }
 
-        if ($wants && !$cart->has_discount($code)) {
+        $cart = WC()->cart;
+        $ok   = self::current_cart_state()['has_special'] && self::is_subscribed(self::email_for_check());
+
+        if ($ok && !$cart->has_discount($code)) {
             if ($cart->apply_coupon($code) && WC()->session) WC()->session->set(self::SESSION_KEY, 1);
-        } elseif (!$wants && $cart->has_discount($code) && WC()->session && WC()->session->get(self::SESSION_KEY)) {
+        } elseif (!$ok && $cart->has_discount($code) && WC()->session && WC()->session->get(self::SESSION_KEY)) {
             $cart->remove_coupon($code);
             WC()->session->set(self::SESSION_KEY, 0);
         }
+    }
+
+    /** Cart and checkout, special in the cart: "discount applied" for subscribers, otherwise the invitation (new tab). */
+    public static function render_special_notice() {
+        if (!self::enabled() || !function_exists('WC') || !WC()->cart) return;
+        if (!self::current_cart_state()['has_special']) return;
+
+        echo '<div class="woocommerce-info bw-newsletter-offer">';
+        if (WC()->cart->has_discount(self::coupon_code())) {
+            echo esc_html(bw_text('newsletter.special_applied_notice'));
+        } else {
+            echo esc_html(bw_text('newsletter.special_signup_notice')) . ' ';
+            echo '<a class="button wp-element-button" href="' . esc_url(self::newsletter_url()) . '" target="_blank" rel="noopener">' . esc_html(bw_text('newsletter.signup_button')) . '</a>';
+        }
+        echo '</div>';
     }
 
     /** One line under the price of the Beginner Special. */
@@ -175,7 +251,7 @@ class BW_Newsletter {
         $privacy = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
         $special = current_filter() === 'woocommerce_after_order_notes' && self::current_cart_state()['has_special'];
         $label   = $special ? 'newsletter.optin_label_special' : 'newsletter.optin_label';
-        echo '<p class="form-row bw-newsletter-optin' . ($special ? ' update_totals_on_change' : '') . '"><label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">';
+        echo '<p class="form-row bw-newsletter-optin"><label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">';
         printf('<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="%s" value="1"> ', esc_attr(self::FIELD));
         echo '<span>' . esc_html(bw_text($label));
         if ($privacy !== '') {

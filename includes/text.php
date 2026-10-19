@@ -51,7 +51,19 @@ class BW_Text {
                 'Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the registration and the checkout', 'newsletter',
             ],
             'newsletter.optin_label_special' => [
-                'Yes, I would like to receive the newsletter once a week and save €5 on this order right away. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the checkout when the Beginner Special is in the cart (applies the discount code)', 'newsletter',
+                'Yes, I would like to receive the newsletter once a week. Once I have confirmed my sign-up by email, the €5 discount on the Beginner Special is applied automatically.', 'Checkbox at the checkout when the Beginner Special is in the cart', 'newsletter',
+            ],
+            'newsletter.special_signup_notice' => [
+                'New here? With a newsletter sign-up the Beginner Special costs only €40 instead of €45 (once per person). Once you have confirmed your sign-up by email, the discount is applied here automatically.', 'Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber', 'newsletter',
+            ],
+            'newsletter.special_applied_notice' => [
+                'Thank you for being part of the newsletter! Your newsletter discount has been applied automatically.', 'Notice when the discount code was applied for a confirmed subscriber', 'newsletter',
+            ],
+            'newsletter.signup_button' => [
+                'Sign up for the newsletter (new tab)', 'Link to the newsletter sign-up page', 'newsletter',
+            ],
+            'newsletter.coupon_denied' => [
+                'This code is only valid for confirmed newsletter subscribers. Please order with the email address you used to sign up.', 'Error when the newsletter code is used by someone who is not a confirmed subscriber', 'newsletter',
             ],
             'newsletter.swap_notice' => [
                 'New here? Sign up for the newsletter and get the Beginner Special (3 credits, valid for 90 days) once for €40 instead of €45.', 'Notice in the cart and at the checkout while another credit product is in the cart', 'newsletter',

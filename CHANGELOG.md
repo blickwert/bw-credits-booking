@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.57.0] – 2026-10-19
+
+### Changed
+- The newsletter discount code is now only valid for confirmed newsletter subscribers (checked at Brevo by the billing / account e-mail address, cached for two minutes), however it gets into the cart. It is no longer applied when the checkbox is ticked.
+- Cart and checkout with the Beginner Special: confirmed subscribers get the code applied automatically with a notice; everyone else sees the invitation to sign up (link opens in a new tab). The code is removed again if the address is not a subscriber.
+- The swap notice (other credit product in the cart) also links to the newsletter sign-up.
+
 ## [0.56.0] – 2026-10-19
 
 ### Added
