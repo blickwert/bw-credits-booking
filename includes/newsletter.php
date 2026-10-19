@@ -2,7 +2,8 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Optional newsletter opt-in at the account registration and at the checkout.
+ * Optional newsletter opt-in at the account registration, plus the offers around the Beginner Special
+ * in the cart and at the checkout (notices, automatic code for confirmed subscribers).
  *
  * Off by default (Settings › Newsletter opt-in). When on, an unchecked checkbox is shown; if it is
  * ticked, the address is subscribed through the Brevo plugin's own double opt-in: a record with an
@@ -26,9 +27,7 @@ class BW_Newsletter {
 
     public static function init() {
         add_action('woocommerce_register_form', [__CLASS__, 'render_checkbox'], 20);
-        add_action('woocommerce_after_order_notes', [__CLASS__, 'render_checkbox']);
         add_action('woocommerce_created_customer', [__CLASS__, 'on_customer_created'], 20, 2);
-        add_action('woocommerce_checkout_order_processed', [__CLASS__, 'on_order_processed'], 20, 3);
 
         // Offers around the Beginner Special (only while the opt-in is switched on)
         add_action('woocommerce_before_cart', [__CLASS__, 'render_swap_notice']);
@@ -249,8 +248,7 @@ class BW_Newsletter {
     public static function render_checkbox() {
         if (!self::enabled()) return;
         $privacy = function_exists('get_privacy_policy_url') ? get_privacy_policy_url() : '';
-        $special = current_filter() === 'woocommerce_after_order_notes' && self::current_cart_state()['has_special'];
-        $label   = $special ? 'newsletter.optin_label_special' : 'newsletter.optin_label';
+        $label   = 'newsletter.optin_label';
         echo '<p class="form-row bw-newsletter-optin"><label class="woocommerce-form__label woocommerce-form__label-for-checkbox checkbox">';
         printf('<input type="checkbox" class="woocommerce-form__input woocommerce-form__input-checkbox input-checkbox" name="%s" value="1"> ', esc_attr(self::FIELD));
         echo '<span>' . esc_html(bw_text($label));
@@ -269,16 +267,6 @@ class BW_Newsletter {
         $email = is_array($data) && !empty($data['user_email']) ? (string) $data['user_email'] : '';
         $first = isset($_POST['billing_first_name']) ? sanitize_text_field(wp_unslash($_POST['billing_first_name'])) : ''; // phpcs:ignore WordPress.Security.NonceVerification
         self::subscribe($email, $first, self::current_language());
-    }
-
-    public static function on_order_processed($order_id, $posted = [], $order = null) {
-        if (!self::enabled() || !self::posted()) return;
-        if (!$order && function_exists('wc_get_order')) $order = wc_get_order($order_id);
-        if (!$order) return;
-        $time = gmdate('Y-m-d H:i:s');
-        $order->update_meta_data('_bw_newsletter_optin_at', $time);
-        $order->save();
-        self::subscribe((string) $order->get_billing_email(), (string) $order->get_billing_first_name(), self::current_language());
     }
 
     /** Whether the address already sits in one of the newsletter lists (then no second mail is sent). */
