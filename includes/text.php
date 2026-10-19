@@ -34,6 +34,7 @@ class BW_Text {
         'error'        => 'Error Messages',
         'order_email'  => 'Order Confirmation Email',
         'cart'         => 'Cart and Checkout',
+        'newsletter'   => 'Newsletter Opt-in',
         'time'         => 'Time Zone',
     ];
 
@@ -45,6 +46,14 @@ class BW_Text {
      */
     public static function catalogue(): array {
         return [
+            /* --- Newsletter Opt-in --- */
+            'newsletter.optin_label' => [
+                'Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time.', 'Checkbox at the registration and the checkout', 'newsletter',
+            ],
+            'newsletter.optin_privacy' => [
+                'Privacy Policy', 'Link label next to the newsletter checkbox', 'newsletter',
+            ],
+
             /* --- Booking and Cancelling --- */
             'booking.button.book' => [
                 'Book course (1 credit)', 'Label of the booking button', 'booking',

@@ -8,6 +8,16 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "X-Domain: bw-credits-booking\n"
 
+#. Checkbox at the registration and the checkout
+#: catalogue:newsletter.optin_label
+msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
+msgstr ""
+
+#. Link label next to the newsletter checkbox
+#: catalogue:newsletter.optin_privacy
+msgid "Privacy Policy"
+msgstr ""
+
 #. Label of the booking button
 #: catalogue:booking.button.book
 msgid "Book course (1 credit)"
@@ -386,6 +396,11 @@ msgstr ""
 #. Text-Katalog group heading
 #: catalogue:GROUPS.cart
 msgid "Cart and Checkout"
+msgstr ""
+
+#. Text-Katalog group heading
+#: catalogue:GROUPS.newsletter
+msgid "Newsletter Opt-in"
 msgstr ""
 
 #. Text-Katalog group heading
@@ -1002,114 +1017,134 @@ msgstr ""
 msgid "Only available once per person."
 msgstr ""
 
-#: includes/settings.php:96
 #: includes/settings.php:97
-#: includes/settings.php:282
+#: includes/settings.php:98
+#: includes/settings.php:305
 msgid "Settings"
 msgstr ""
 
-#: includes/settings.php:132
+#: includes/settings.php:139
 msgid "General"
 msgstr ""
 
-#: includes/settings.php:133
+#: includes/settings.php:140
 msgid "General settings for sessions and bookings."
 msgstr ""
 
-#: includes/settings.php:136
+#: includes/settings.php:143
 msgid "Course session post type"
 msgstr ""
 
-#: includes/settings.php:137
+#: includes/settings.php:144
 msgid "Default capacity"
 msgstr ""
 
-#: includes/settings.php:138
+#: includes/settings.php:145
 msgid "Cancellation deadline (hours)"
 msgstr ""
 
-#: includes/settings.php:139
+#: includes/settings.php:146
 msgid "Booking closes (minutes before start)"
 msgstr ""
 
-#: includes/settings.php:140
+#: includes/settings.php:147
 msgid "Participant list to the studio (minutes before start)"
 msgstr ""
 
-#: includes/settings.php:141
+#: includes/settings.php:148
 msgid "Reminder (hours before)"
 msgstr ""
 
-#: includes/settings.php:142
+#: includes/settings.php:149
 msgid "Availability threshold"
 msgstr ""
 
-#: includes/settings.php:144
+#: includes/settings.php:151
 msgid "Credit products in the shop"
 msgstr ""
 
-#: includes/settings.php:145
+#: includes/settings.php:152
 msgid "A credit product is a product with a credit amount greater than 0 (product data › General)."
 msgstr ""
 
-#: includes/settings.php:148
+#: includes/settings.php:155
 msgid "Direct checkout"
 msgstr ""
 
-#: includes/settings.php:149
+#: includes/settings.php:156
 msgid "Complete after payment"
 msgstr ""
 
-#: includes/settings.php:185
+#: includes/settings.php:158
+msgid "Newsletter opt-in"
+msgstr ""
+
+#: includes/settings.php:159
+msgid "Optional checkbox at the account registration and the checkout. Ticking it starts the double opt-in of the Brevo newsletter form (form 4 for German, form 5 for all other languages)."
+msgstr ""
+
+#: includes/settings.php:162
+msgid "Newsletter checkbox"
+msgstr ""
+
+#: includes/settings.php:198
 msgid "Which post type holds the course sessions. Bookings, participant lists, and capacity all refer to this type."
 msgstr ""
 
-#: includes/settings.php:190
+#: includes/settings.php:203
 msgid "Warning:"
 msgstr ""
 
-#: includes/settings.php:193
+#: includes/settings.php:206
 msgid "The saved type %s is not currently registered."
 msgstr ""
 
-#: includes/settings.php:206
+#: includes/settings.php:219
 msgid "Used when no capacity is set for the session itself."
 msgstr ""
 
-#: includes/settings.php:215
+#: includes/settings.php:228
 msgid "How many hours before the session start customers may cancel on their own."
 msgstr ""
 
-#: includes/settings.php:224
+#: includes/settings.php:237
 msgid "How many minutes before the session start customers can still book. 0 = until the session starts. Bookings by the admin are not affected."
 msgstr ""
 
-#: includes/settings.php:233
+#: includes/settings.php:246
 msgid "The studio gets an email with the active participants this many minutes before the session starts (after booking has closed). 0 = off. Recipient and text: BW Credits → E-mails."
 msgstr ""
 
-#: includes/settings.php:242
+#: includes/settings.php:255
 msgid "When the reminder email is sent. 0 = no reminder."
 msgstr ""
 
-#: includes/settings.php:251
+#: includes/settings.php:264
 msgid "From how many free spots onward only \"more than N spots available\" is shown instead of the exact number. 0 = always show the exact number."
 msgstr ""
 
-#: includes/settings.php:259
+#: includes/settings.php:272
 msgid "Straight to the checkout, replace the cart, quantity 1"
 msgstr ""
 
-#: includes/settings.php:261
+#: includes/settings.php:274
 msgid "Buying a credit product skips the cart page and replaces whatever was in the cart. Credit products and other products are never mixed in one cart."
 msgstr ""
 
-#: includes/settings.php:269
+#: includes/settings.php:282
 msgid "Complete orders with credit products only once they are paid"
 msgstr ""
 
-#: includes/settings.php:271
+#: includes/settings.php:284
 msgid "Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are."
+msgstr ""
+
+#: includes/settings.php:292
+msgid "Show the newsletter checkbox at the registration and the checkout"
+msgstr ""
+
+#: includes/settings.php:294
+msgid "Off by default. The wording can be changed under Newsletter Opt-in in the text settings."
 msgstr ""
 
 #: includes/admin.php:14
@@ -1434,60 +1469,60 @@ msgstr ""
 msgid "Completed automatically: the order consists only of credit products."
 msgstr ""
 
-#: bw-credits-booking.php:218
+#: bw-credits-booking.php:219
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:221
+#: bw-credits-booking.php:222
 msgid "%s your time"
 msgstr ""
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "Your local time"
 msgstr ""
 
-#: bw-credits-booking.php:223
+#: bw-credits-booking.php:224
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:225
+#: bw-credits-booking.php:226
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:483
-#: bw-credits-booking.php:711
+#: bw-credits-booking.php:484
+#: bw-credits-booking.php:712
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:486
+#: bw-credits-booking.php:487
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:496
+#: bw-credits-booking.php:497
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:515
+#: bw-credits-booking.php:516
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1073
+#: bw-credits-booking.php:1074
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1647
+#: bw-credits-booking.php:1648
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1654
+#: bw-credits-booking.php:1655
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1662
+#: bw-credits-booking.php:1663
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1669
+#: bw-credits-booking.php:1670
 msgid "Cancelled."
 msgstr ""
 

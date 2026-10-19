@@ -16,6 +16,7 @@ class BW_Settings {
     const OPT_DEFAULT_CAPACITY = 'bw_default_capacity';
     const OPT_CUTOFF_HOURS     = 'bw_booking_cancel_cutoff_hours';
     const OPT_CLOSE_MINUTES    = 'bw_booking_close_minutes';
+    const OPT_NEWSLETTER       = 'bw_newsletter_optin_enabled';
     const OPT_LIST_MINUTES     = 'bw_participant_list_minutes';
     const OPT_REMINDER_HOURS   = 'bw_reminder_hours';
     const OPT_AVAILABILITY_CAP = 'bw_availability_cap';
@@ -129,6 +130,12 @@ class BW_Settings {
             ]);
         }
 
+        register_setting($group, self::OPT_NEWSLETTER, [
+            'type'              => 'integer',
+            'sanitize_callback' => [__CLASS__, 'sanitize_checkbox'],
+            'default'           => 0,
+        ]);
+
         add_settings_section('bw_general', __('General', 'bw-credits-booking'), function () {
             echo '<p>' . esc_html__('General settings for sessions and bookings.', 'bw-credits-booking') . '</p>';
         }, self::MENU_SLUG);
@@ -147,6 +154,12 @@ class BW_Settings {
 
         add_settings_field(self::OPT_CREDIT_DIRECT, __('Direct checkout', 'bw-credits-booking'), [__CLASS__, 'field_credit_direct'], self::MENU_SLUG, 'bw_checkout');
         add_settings_field(self::OPT_CREDIT_COMPLETE, __('Complete after payment', 'bw-credits-booking'), [__CLASS__, 'field_credit_complete'], self::MENU_SLUG, 'bw_checkout');
+
+        add_settings_section('bw_newsletter', __('Newsletter opt-in', 'bw-credits-booking'), function () {
+            echo '<p>' . esc_html__('Optional checkbox at the account registration and the checkout. Ticking it starts the double opt-in of the Brevo newsletter form (form 4 for German, form 5 for all other languages).', 'bw-credits-booking') . '</p>';
+        }, self::MENU_SLUG);
+
+        add_settings_field(self::OPT_NEWSLETTER, __('Newsletter checkbox', 'bw-credits-booking'), [__CLASS__, 'field_newsletter'], self::MENU_SLUG, 'bw_newsletter');
     }
 
     public static function sanitize_checkbox($value): int {
@@ -269,6 +282,16 @@ class BW_Settings {
             esc_html__('Complete orders with credit products only once they are paid', 'bw-credits-booking')
         );
         echo '<p class="description">' . esc_html__('Credits are granted when an order is completed. This way customers get them right after paying. Orders of guests and orders with other products stay as they are.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_newsletter() {
+        printf(
+            '<label><input type="checkbox" name="%s" value="1"%s> %s</label>',
+            esc_attr(self::OPT_NEWSLETTER),
+            checked((int) get_option(self::OPT_NEWSLETTER, 0) === 1, true, false),
+            esc_html__('Show the newsletter checkbox at the registration and the checkout', 'bw-credits-booking')
+        );
+        echo '<p class="description">' . esc_html__('Off by default. The wording can be changed under Newsletter Opt-in in the text settings.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------
