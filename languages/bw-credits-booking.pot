@@ -13,9 +13,29 @@ msgstr ""
 msgid "Yes, I would like to receive the newsletter once a week and get the Beginner Special once for €40 instead of €45. I will get a confirmation email first and can unsubscribe at any time."
 msgstr ""
 
-#. Checkbox at the checkout when the Beginner Special is in the cart (applies the discount code)
+#. Checkbox at the checkout when the Beginner Special is in the cart
 #: catalogue:newsletter.optin_label_special
-msgid "Yes, I would like to receive the newsletter once a week and save €5 on this order right away. I will get a confirmation email first and can unsubscribe at any time."
+msgid "Yes, I would like to receive the newsletter once a week. Once I have confirmed my sign-up by email, the €5 discount on the Beginner Special is applied automatically."
+msgstr ""
+
+#. Notice in the cart and at the checkout when the Beginner Special is in the cart and the e-mail address is not a confirmed subscriber
+#: catalogue:newsletter.special_signup_notice
+msgid "New here? With a newsletter sign-up the Beginner Special costs only €40 instead of €45 (once per person). Once you have confirmed your sign-up by email, the discount is applied here automatically."
+msgstr ""
+
+#. Notice when the discount code was applied for a confirmed subscriber
+#: catalogue:newsletter.special_applied_notice
+msgid "Thank you for being part of the newsletter! Your newsletter discount has been applied automatically."
+msgstr ""
+
+#. Link to the newsletter sign-up page
+#: catalogue:newsletter.signup_button
+msgid "Sign up for the newsletter (new tab)"
+msgstr ""
+
+#. Error when the newsletter code is used by someone who is not a confirmed subscriber
+#: catalogue:newsletter.coupon_denied
+msgid "This code is only valid for confirmed newsletter subscribers. Please order with the email address you used to sign up."
 msgstr ""
 
 #. Notice in the cart and at the checkout while another credit product is in the cart
@@ -1185,7 +1205,7 @@ msgid "The product the newsletter offer is about (in the default language; trans
 msgstr ""
 
 #: includes/settings.php:319
-msgid "WooCommerce coupon that is applied at the checkout when the newsletter box is ticked and the Beginner Special is in the cart."
+msgid "WooCommerce coupon that is applied automatically to confirmed newsletter subscribers when the Beginner Special is in the cart. It is only valid for confirmed subscribers."
 msgstr ""
 
 #: includes/admin.php:14

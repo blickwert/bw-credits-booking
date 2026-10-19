@@ -316,7 +316,7 @@ class BW_Settings {
 
     public static function field_nl_coupon() {
         printf('<input type="text" name="%s" value="%s" class="regular-text">', esc_attr(self::OPT_NL_COUPON), esc_attr((string) get_option(self::OPT_NL_COUPON, 'NAMASTE40')));
-        echo '<p class="description">' . esc_html__('WooCommerce coupon that is applied at the checkout when the newsletter box is ticked and the Beginner Special is in the cart.', 'bw-credits-booking') . '</p>';
+        echo '<p class="description">' . esc_html__('WooCommerce coupon that is applied automatically to confirmed newsletter subscribers when the Beginner Special is in the cart. It is only valid for confirmed subscribers.', 'bw-credits-booking') . '</p>';
     }
 
     /* ---------------------------------------------------------
