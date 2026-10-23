@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.59.0
+ * Version: 0.60.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.59.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.60.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -414,6 +414,17 @@ class BW_Credits_Bookings_MVP {
     /* -------------------------
      * Credits: balance + consume/refund
      * ------------------------- */
+
+    /**
+     * Name of a booking's customer for admin lists. The bookings stay when an account is deleted, then there is
+     * no name any more: "Deleted user #17".
+     */
+    public static function booking_user_label(array $booking): string {
+        $name = trim((string) ($booking['display_name'] ?? ''));
+        if ($name !== '') return $name;
+        /* translators: %d: former user ID */
+        return sprintf(__('Deleted user #%d', 'bw-credits-booking'), (int) ($booking['user_id'] ?? 0));
+    }
 
     public static function get_available_credits(int $user_id): int {
         global $wpdb;

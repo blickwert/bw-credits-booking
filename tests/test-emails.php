@@ -221,6 +221,7 @@ class BW_Credits_Bookings_MVP {
     public static function get_slot_bookings(int $slot_id): array { return $GLOBALS['__slot_bookings'][$slot_id] ?? []; }
     public static function get_slot_start_datetime(int $slot_id): ?DateTime { return $GLOBALS['__slot_start'][$slot_id] ?? null; }
     public static function booking_closed(?DateTime $start): bool { return $GLOBALS['__booking_closed'] ?? true; }
+    public static function booking_user_label(array $b): string { $n = trim((string) ($b['display_name'] ?? '')); return $n !== '' ? $n : 'Deleted user #' . (int) ($b['user_id'] ?? 0); }
 }
 class BW_Admin_Pages { const PAGE_BOOKINGS = 'bw-credits-bookings'; }
 class BW_Settings {
@@ -594,6 +595,8 @@ $GLOBALS['__slot_bookings'][42] = [
 ];
 check('participant_list(): only active participants, numbered', BW_Emails::participant_list(42) === "1. Anna (anna@example.test)\n2. Ben (ben@example.test)");
 check('placeholders(): {participant_list}', BW_Emails::placeholders(0, 42, false)['{participant_list}'] === BW_Emails::participant_list(42));
+$GLOBALS['__slot_bookings'][43] = [['user_id' => 17, 'is_active' => 1, 'display_name' => '', 'user_email' => '']];
+check('participant_list(): a deleted account is labelled, not "User #"', BW_Emails::participant_list(43) === '1. Deleted user #17');
 check('participant mail is on by default', BW_Emails::is_enabled('admin_participants'));
 
 $GLOBALS['__options']['admin_email'] = 'studio@example.test';

@@ -189,6 +189,10 @@ msgstr "Neu bei uns? Melde dich für den Newsletter an und erhalte das Einsteige
 msgid "Sign up for the newsletter now"
 msgstr "Jetzt zum Newsletter anmelden"
 
+#: bw-credits-booking.php:426
+msgid "Deleted user #%d"
+msgstr "Gelöschter Benutzer #%d"
+
 #: includes/settings.php:164
 msgid "Credit products in the shop"
 msgstr "Guthaben-Produkte im Shop"
@@ -547,14 +551,14 @@ msgstr "Buchungen"
 
 #: includes/admin-pages.php:44
 #: includes/admin-pages.php:44
-#: includes/admin-pages.php:704
-#: includes/admin-pages.php:832
+#: includes/admin-pages.php:709
+#: includes/admin-pages.php:837
 msgid "Texts"
 msgstr "Texte"
 
 #: includes/admin-pages.php:54
-#: includes/metaboxes.php:449
-#: includes/metaboxes.php:494
+#: includes/metaboxes.php:454
+#: includes/metaboxes.php:499
 #: includes/emails.php:691
 #: includes/emails.php:987
 #: includes/emails.php:1016
@@ -564,19 +568,19 @@ msgstr "Keine Berechtigung."
 
 #: includes/admin-pages.php:42
 #: includes/admin-pages.php:42
-#: includes/admin-pages.php:416
+#: includes/admin-pages.php:421
 msgid "Credits"
 msgstr "Credits"
 
 #: includes/admin-pages.php:43
 #: includes/admin-pages.php:43
-#: includes/admin-pages.php:946
+#: includes/admin-pages.php:951
 msgid "Shortcodes"
 msgstr "Shortcodes"
 
 #: includes/admin-pages.php:45
 #: includes/admin-pages.php:45
-#: includes/admin-pages.php:698
+#: includes/admin-pages.php:703
 msgid "Templates"
 msgstr "Templates"
 
@@ -594,7 +598,7 @@ msgstr "Keine Termine gefunden."
 
 #: includes/admin-pages.php:163
 #: includes/admin-pages.php:283
-#: includes/admin-pages.php:378
+#: includes/admin-pages.php:383
 msgid "Session"
 msgstr "Termin"
 
@@ -661,23 +665,23 @@ msgid "No bookings found."
 msgstr "Keine Buchungen gefunden."
 
 #: includes/admin-pages.php:282
-#: includes/admin-pages.php:921
 #: includes/admin-pages.php:926
 #: includes/admin-pages.php:931
+#: includes/admin-pages.php:936
 msgid "Customer"
 msgstr "Kunde"
 
 #: includes/admin-pages.php:284
 #: includes/metaboxes.php:317
-#: includes/metaboxes.php:515
+#: includes/metaboxes.php:520
 msgid "Booked on"
 msgstr "Gebucht am"
 
 #: includes/admin-pages.php:285
-#: includes/admin-pages.php:538
-#: includes/admin-pages.php:723
+#: includes/admin-pages.php:543
+#: includes/admin-pages.php:728
 #: includes/metaboxes.php:318
-#: includes/metaboxes.php:516
+#: includes/metaboxes.php:521
 msgid "Status"
 msgstr "Status"
 
@@ -686,315 +690,315 @@ msgid "Credit"
 msgstr "Credit"
 
 #: includes/admin-pages.php:287
-#: includes/admin-pages.php:543
+#: includes/admin-pages.php:548
 msgid "Action"
 msgstr "Aktion"
 
-#: includes/admin-pages.php:310
+#: includes/admin-pages.php:315
 msgid "Free spot"
 msgstr "Freiplatz"
 
-#: includes/admin-pages.php:318
+#: includes/admin-pages.php:323
 msgid "Cancel booking?"
 msgstr "Buchung stornieren?"
 
-#: includes/admin-pages.php:346
+#: includes/admin-pages.php:351
 msgid "%d bookings total."
 msgstr "%d Buchungen gesamt."
 
-#: includes/admin-pages.php:355
+#: includes/admin-pages.php:360
 msgid "Add booking"
 msgstr "Buchung hinzufügen"
 
-#: includes/admin-pages.php:357
+#: includes/admin-pages.php:362
 msgid "Enrolls an existing user into a session — even if the session has already started. As a free spot, no credit is deducted."
 msgstr "Trägt einen bestehenden Benutzer in einen Termin ein — auch wenn der Termin bereits begonnen hat. Als Freiplatz wird kein Credit abgezogen."
 
-#: includes/admin-pages.php:364
+#: includes/admin-pages.php:369
 msgid "User"
 msgstr "Benutzer"
 
-#: includes/admin-pages.php:369
+#: includes/admin-pages.php:374
 msgid "— Select user —"
 msgstr "— Benutzer wählen —"
 
-#: includes/admin-pages.php:380
+#: includes/admin-pages.php:385
 msgid "— Select session —"
 msgstr "— Termin wählen —"
 
-#: includes/admin-pages.php:397
+#: includes/admin-pages.php:402
 msgid "Free spot — no credit deducted"
 msgstr "Freiplatz — ohne Credit-Abzug"
 
-#: includes/admin-pages.php:401
+#: includes/admin-pages.php:406
 msgid "Create booking"
 msgstr "Buchung anlegen"
 
-#: includes/admin-pages.php:433
+#: includes/admin-pages.php:438
 msgid "Name, email, or login"
 msgstr "Name, E-Mail oder Login"
 
-#: includes/admin-pages.php:434
+#: includes/admin-pages.php:439
 msgid "Search users"
 msgstr "Benutzer suchen"
 
-#: includes/admin-pages.php:439
+#: includes/admin-pages.php:444
 msgid "Search for a user to view and manage their credits."
 msgstr "Benutzer suchen um dessen Credits zu sehen und zu verwalten."
 
-#: includes/admin-pages.php:450
+#: includes/admin-pages.php:455
 msgid "No users found."
 msgstr "Keine Benutzer gefunden."
 
-#: includes/admin-pages.php:458
+#: includes/admin-pages.php:463
 #: includes/metaboxes.php:315
-#: includes/metaboxes.php:513
+#: includes/metaboxes.php:518
 msgid "Name"
 msgstr "Name"
 
-#: includes/admin-pages.php:459
+#: includes/admin-pages.php:464
 #: includes/metaboxes.php:316
-#: includes/metaboxes.php:514
+#: includes/metaboxes.php:519
 msgid "Email"
 msgstr "E-Mail"
 
-#: includes/admin-pages.php:460
-#: includes/admin-pages.php:489
+#: includes/admin-pages.php:465
+#: includes/admin-pages.php:494
 msgid "Available"
 msgstr "Verfügbar"
 
-#: includes/admin-pages.php:471
+#: includes/admin-pages.php:476
 msgid "Manage"
 msgstr "Verwalten"
 
-#: includes/admin-pages.php:490
+#: includes/admin-pages.php:495
 msgid "Used"
 msgstr "Verbraucht"
 
-#: includes/admin-pages.php:491
+#: includes/admin-pages.php:496
 msgid "Expired"
 msgstr "Abgelaufen"
 
-#: includes/admin-pages.php:494
+#: includes/admin-pages.php:499
 msgid "Back to search"
 msgstr "Zurück zur Suche"
 
-#: includes/admin-pages.php:499
+#: includes/admin-pages.php:504
 msgid "available"
 msgstr "verfügbar"
 
-#: includes/admin-pages.php:500
+#: includes/admin-pages.php:505
 msgid "used"
 msgstr "verbraucht"
 
-#: includes/admin-pages.php:502
+#: includes/admin-pages.php:507
 msgid "total"
 msgstr "gesamt"
 
-#: includes/admin-pages.php:506
+#: includes/admin-pages.php:511
 msgid "Grant credits"
 msgstr "Credits gutschreiben"
 
-#: includes/admin-pages.php:513
+#: includes/admin-pages.php:518
 msgid "Amount"
 msgstr "Anzahl"
 
-#: includes/admin-pages.php:517
-#: includes/admin-pages.php:541
+#: includes/admin-pages.php:522
+#: includes/admin-pages.php:546
 msgid "Valid until"
 msgstr "Gültig bis"
 
-#: includes/admin-pages.php:519
+#: includes/admin-pages.php:524
 msgid "empty = unlimited"
 msgstr "leer = unbegrenzt"
 
-#: includes/admin-pages.php:523
+#: includes/admin-pages.php:528
 msgid "Grant"
 msgstr "Gutschreiben"
 
-#: includes/admin-pages.php:528
+#: includes/admin-pages.php:533
 msgid "No credits yet."
 msgstr "Keine Credits vorhanden."
 
-#: includes/admin-pages.php:539
+#: includes/admin-pages.php:544
 msgid "Source"
 msgstr "Herkunft"
 
-#: includes/admin-pages.php:540
+#: includes/admin-pages.php:545
 msgid "Created"
 msgstr "Erstellt"
 
-#: includes/admin-pages.php:542
+#: includes/admin-pages.php:547
 msgid "Booking"
 msgstr "Buchung"
 
-#: includes/admin-pages.php:555
+#: includes/admin-pages.php:560
 msgid "Past expiry date"
 msgstr "Frist abgelaufen"
 
-#: includes/admin-pages.php:560
+#: includes/admin-pages.php:565
 msgid "unlimited"
 msgstr "unbegrenzt"
 
-#: includes/admin-pages.php:569
+#: includes/admin-pages.php:574
 msgid "Revoke this credit?"
 msgstr "Diesen Credit entwerten?"
 
-#: includes/admin-pages.php:569
+#: includes/admin-pages.php:574
 msgid "Revoke"
 msgstr "Entwerten"
 
-#: includes/admin-pages.php:594
+#: includes/admin-pages.php:599
 msgid "Select a user and a session."
 msgstr "Benutzer und Termin auswählen."
 
-#: includes/admin-pages.php:605
+#: includes/admin-pages.php:610
 msgid "Booking created (free spot)."
 msgstr "Buchung angelegt (Freiplatz)."
 
-#: includes/admin-pages.php:606
+#: includes/admin-pages.php:611
 msgid "Booking created."
 msgstr "Buchung angelegt."
 
-#: includes/admin-pages.php:621
-#: includes/metaboxes.php:472
+#: includes/admin-pages.php:626
+#: includes/metaboxes.php:477
 msgid "Booking cancelled."
 msgstr "Buchung storniert."
 
-#: includes/admin-pages.php:648
+#: includes/admin-pages.php:653
 msgid "1 credit granted."
 msgstr "1 Credit gutgeschrieben."
 
-#: includes/admin-pages.php:651
+#: includes/admin-pages.php:656
 msgid "%d credits granted."
 msgstr "%d Credits gutgeschrieben."
 
-#: includes/admin-pages.php:702
+#: includes/admin-pages.php:707
 msgid "Copy to theme"
 msgstr "In Theme kopieren"
 
-#: includes/admin-pages.php:707
+#: includes/admin-pages.php:712
 msgid "Each template can be overridden in the active theme under %1$s — e.g.&nbsp;%2$s. \"%3$s\" creates the file there directly. Wording doesn't belong in the templates — that's maintained under %4$s."
 msgstr "Jedes Template kann im aktiven Theme unter %1$s überschrieben werden — z.&nbsp;B. %2$s. „%3$s\" legt die Datei dort direkt an. Wortlaut gehört nicht in die Templates, der wird unter %4$s gepflegt."
 
-#: includes/admin-pages.php:721
+#: includes/admin-pages.php:726
 msgid "Template"
 msgstr "Template"
 
-#: includes/admin-pages.php:722
-#: includes/admin-pages.php:961
+#: includes/admin-pages.php:727
+#: includes/admin-pages.php:966
 msgid "Description"
 msgstr "Beschreibung"
 
-#: includes/admin-pages.php:724
+#: includes/admin-pages.php:729
 msgid "Version"
 msgstr "Version"
 
-#: includes/admin-pages.php:741
+#: includes/admin-pages.php:746
 msgid "Plugin default"
 msgstr "Plugin-Standard"
 
-#: includes/admin-pages.php:743
+#: includes/admin-pages.php:748
 msgid "Overridden in theme — outdated"
 msgstr "Im Theme überschrieben — veraltet"
 
-#: includes/admin-pages.php:745
+#: includes/admin-pages.php:750
 msgid "Overridden in theme"
 msgstr "Im Theme überschrieben"
 
-#: includes/admin-pages.php:755
+#: includes/admin-pages.php:760
 msgid "Plugin:"
 msgstr "Plugin:"
 
-#: includes/admin-pages.php:794
+#: includes/admin-pages.php:799
 msgid "Unknown template."
 msgstr "Unbekanntes Template."
 
-#: includes/admin-pages.php:801
+#: includes/admin-pages.php:806
 msgid "Source file is not readable."
 msgstr "Quelldatei nicht lesbar."
 
-#: includes/admin-pages.php:807
+#: includes/admin-pages.php:812
 msgid "Copy failed — check write permissions in the theme."
 msgstr "Kopieren fehlgeschlagen — Schreibrechte im Theme prüfen."
 
-#: includes/admin-pages.php:815
+#: includes/admin-pages.php:820
 msgid "%s copied to theme."
 msgstr "%s ins Theme kopiert."
 
-#: includes/admin-pages.php:836
+#: includes/admin-pages.php:841
 msgid "%1$d texts, %2$d customized. An empty field uses the default text."
 msgstr "%1$d Texte, davon %2$d angepasst. Ein leeres Feld nutzt den Standardtext."
 
-#: includes/admin-pages.php:843
+#: includes/admin-pages.php:848
 msgid "Placeholders in curly braces are preserved, e.g.&nbsp;%1$s or %2$s."
 msgstr "Platzhalter in geschweiften Klammern bleiben erhalten, z.&nbsp;B. %1$s oder %2$s."
 
-#: includes/admin-pages.php:874
+#: includes/admin-pages.php:879
 msgid "Default:"
 msgstr "Standard:"
 
-#: includes/admin-pages.php:896
 #: includes/admin-pages.php:901
 #: includes/admin-pages.php:906
 #: includes/admin-pages.php:911
 #: includes/admin-pages.php:916
+#: includes/admin-pages.php:921
 msgid "Course"
 msgstr "Kurs"
 
-#: includes/admin-pages.php:897
+#: includes/admin-pages.php:902
 msgid "Session list with a calendar-leaf date per session, availability, and a book button."
 msgstr "Terminliste mit Kalenderblatt-Datum je Termin, Verfügbarkeit und Buchen-Button."
 
-#: includes/admin-pages.php:902
+#: includes/admin-pages.php:907
 msgid "A button that books or cancels depending on state."
 msgstr "Ein Button der je nach Zustand bucht oder storniert."
 
-#: includes/admin-pages.php:907
+#: includes/admin-pages.php:912
 msgid "Available spots. Visible even without login."
 msgstr "Freie Plätze. Auch ohne Login sichtbar."
 
-#: includes/admin-pages.php:917
+#: includes/admin-pages.php:922
 msgid "Access details for the online session. Only for participants with an active booking."
 msgstr "Zugangsdaten zum Online-Kurs. Nur für Teilnehmer mit aktiver Buchung."
 
-#: includes/admin-pages.php:922
+#: includes/admin-pages.php:927
 msgid "Available credit balance. With mode=\"empty_only\", only visible if the customer has had credits before and now has none."
 msgstr "Verfügbares Guthaben. Mit mode=\"empty_only\" nur sichtbar wenn der Kunde schon einmal Guthaben hatte und jetzt keines mehr hat."
 
-#: includes/admin-pages.php:927
+#: includes/admin-pages.php:932
 msgid "Credit balance in detail: origin and expiry date."
 msgstr "Guthaben im Detail: Herkunft und Ablaufdatum."
 
-#: includes/admin-pages.php:932
+#: includes/admin-pages.php:937
 msgid "The customer's bookings, with the option to cancel."
 msgstr "Buchungen des Kunden mit Storno-Möglichkeit."
 
-#: includes/admin-pages.php:936
+#: includes/admin-pages.php:941
 msgid "View"
 msgstr "Ansicht"
 
-#: includes/admin-pages.php:937
+#: includes/admin-pages.php:942
 msgid "Credit balance, next session, and links. Appears automatically in the account dashboard."
 msgstr "Guthaben, nächster Termin und Links. Steht automatisch im Konto-Dashboard."
 
-#: includes/admin-pages.php:951
+#: includes/admin-pages.php:956
 msgid "On a single session page, %s can be omitted — the current post is used instead."
 msgstr "Auf einer Termin-Einzelseite kann %s entfallen — dann greift der aktuelle Beitrag."
 
-#: includes/admin-pages.php:959
+#: includes/admin-pages.php:964
 msgid "Group"
 msgstr "Gruppe"
 
-#: includes/admin-pages.php:960
+#: includes/admin-pages.php:965
 msgid "Shortcode"
 msgstr "Shortcode"
 
-#: includes/admin-pages.php:962
+#: includes/admin-pages.php:967
 msgid "Parameters"
 msgstr "Parameter"
 
-#: includes/admin-pages.php:991
+#: includes/admin-pages.php:996
 msgid "Credit revoked."
 msgstr "Credit entwertet."
 
@@ -1065,23 +1069,23 @@ msgid "No bookings for this session yet."
 msgstr "Noch keine Buchungen für diesen Termin."
 
 #: includes/metaboxes.php:314
-#: includes/metaboxes.php:512
+#: includes/metaboxes.php:517
 msgid "No."
 msgstr "Nr."
 
-#: includes/metaboxes.php:347
+#: includes/metaboxes.php:352
 msgid "Cancel booking? A consumed credit will be refunded."
 msgstr "Buchung stornieren? Ein verbrauchter Credit wird zurückgegeben."
 
-#: includes/metaboxes.php:371
+#: includes/metaboxes.php:376
 msgid "Attendance list as CSV"
 msgstr "Anwesenheitsliste als CSV"
 
-#: includes/metaboxes.php:487
+#: includes/metaboxes.php:492
 msgid "Marked as no-show."
 msgstr "Als nicht erschienen markiert."
 
-#: includes/metaboxes.php:488
+#: includes/metaboxes.php:493
 msgid "No-show mark removed."
 msgstr "Markierung zurückgenommen."
 
@@ -1195,40 +1199,40 @@ msgstr "Buchen"
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:484
-#: bw-credits-booking.php:712
+#: bw-credits-booking.php:495
+#: bw-credits-booking.php:723
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:487
+#: bw-credits-booking.php:498
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:497
+#: bw-credits-booking.php:508
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:516
+#: bw-credits-booking.php:527
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1074
+#: bw-credits-booking.php:1085
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1663
+#: bw-credits-booking.php:1674
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1670
+#: bw-credits-booking.php:1681
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1678
+#: bw-credits-booking.php:1689
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1685
+#: bw-credits-booking.php:1696
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1409,7 +1413,7 @@ msgstr "Du hast „%s“ bereits gebucht. Dieses Angebot gibt es nur einmal pro 
 msgid "Only available once per person."
 msgstr "Nur einmal pro Person erhältlich."
 
-#: includes/admin-pages.php:912
+#: includes/admin-pages.php:917
 msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
 msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt."
 

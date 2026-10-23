@@ -747,7 +747,7 @@ class BW_Emails {
         foreach (BW_Credits_Bookings_MVP::get_slot_bookings($slot_id) as $b) {
             if ((int) $b['is_active'] !== 1) continue;
 
-            $name    = trim((string) $b['display_name']) !== '' ? trim((string) $b['display_name']) : ('User #' . (int) $b['user_id']);
+            $name    = BW_Credits_Bookings_MVP::booking_user_label($b);
             $email   = trim((string) ($b['user_email'] ?? ''));
             $lines[] = (count($lines) + 1) . '. ' . html_entity_decode($name, ENT_QUOTES) . ($email !== '' ? ' (' . $email . ')' : '');
         }

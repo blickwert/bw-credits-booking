@@ -80,6 +80,7 @@ const ENGLISH_TO_GERMAN = [
     'Cancellation rule' => 'Stornoregel',
     'New here? Sign up for the newsletter and get the Beginner Special once for €40 instead of €45. Once you have confirmed your sign-up, the discount is applied automatically at the checkout.' => 'Neu bei uns? Melde dich für den Newsletter an und erhalte das Einsteiger-Special einmalig für 40 € statt 45 €. Sobald du deine Anmeldung bestätigt hast, wird der Rabatt an der Kasse automatisch angewendet.',
     'Sign up for the newsletter now' => 'Jetzt zum Newsletter anmelden',
+    'Deleted user #%d' => 'Gelöschter Benutzer #%d',
     'Credit products in the shop' => 'Guthaben-Produkte im Shop',
     'A credit product is a product with a credit amount greater than 0 (product data › General).' => 'Ein Guthaben-Produkt ist ein Produkt mit einem Guthaben-Betrag größer 0 (Produktdaten › Allgemein).',
     'Direct checkout' => 'Direkt zur Kasse',
