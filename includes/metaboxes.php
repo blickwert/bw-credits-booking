@@ -326,16 +326,21 @@ class BW_Metaboxes {
                 $status  = (string) $b['status'];
                 $label   = $labels[$status] ?? $status;
                 // LEFT JOIN: user data is missing if the account was deleted
-                $name    = $b['display_name'] ?: ('User #' . (int) $b['user_id']);
+                $name    = BW_Credits_Bookings_MVP::booking_user_label($b);
+                $has_user = trim((string) $b['display_name']) !== '';
                 $email   = (string) ($b['user_email'] ?? '');
                 $created = mysql2date('d.m.Y H:i', $b['created_at']);
             ?>
                 <tr<?php echo $active ? '' : ' style="opacity:.55"'; ?>>
                     <td><?php echo esc_html($nr); ?></td>
                     <td>
+                        <?php if ($has_user) : ?>
                         <a href="<?php echo esc_url(get_edit_user_link((int) $b['user_id'])); ?>">
                             <?php echo esc_html($name); ?>
                         </a>
+                        <?php else : ?>
+                        <em><?php echo esc_html($name); ?></em>
+                        <?php endif; ?>
                     </td>
                     <td><?php echo esc_html($email ?: '—'); ?></td>
                     <td><?php echo esc_html($created); ?></td>
@@ -521,7 +526,7 @@ class BW_Metaboxes {
             $nr++;
             fputcsv($out, array_map([__CLASS__, 'csv_cell'], [
                 $nr,
-                $b['display_name'] ?: ('User #' . (int) $b['user_id']),
+                BW_Credits_Bookings_MVP::booking_user_label($b),
                 (string) ($b['user_email'] ?? ''),
                 mysql2date('d.m.Y H:i', $b['created_at']),
                 $labels[$b['status']] ?? $b['status'],

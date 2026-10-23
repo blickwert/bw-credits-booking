@@ -289,14 +289,19 @@ class BW_Admin_Pages {
 
         foreach ($result['rows'] as $b) {
             $active = ((int) $b['is_active'] === 1);
-            $name   = $b['display_name'] ?: ('User #' . (int) $b['user_id']);
+            $name   = BW_Credits_Bookings_MVP::booking_user_label($b);
+            $has_user = trim((string) $b['display_name']) !== '';
             ?>
             <tr<?php echo $active ? '' : ' style="opacity:.55"'; ?>>
                 <td><?php echo (int) $b['id']; ?></td>
                 <td>
+                    <?php if ($has_user) : ?>
                     <a href="<?php echo esc_url(self::page_url(self::PAGE_CREDITS, ['user_id' => (int) $b['user_id']])); ?>">
                         <?php echo esc_html($name); ?>
-                    </a><br>
+                    </a>
+                    <?php else : ?>
+                    <em><?php echo esc_html($name); ?></em>
+                    <?php endif; ?><br>
                     <small><?php echo esc_html((string) ($b['user_email'] ?? '')); ?></small>
                 </td>
                 <td>

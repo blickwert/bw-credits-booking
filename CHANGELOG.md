@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.60.0] – 2026-10-23
+
+### Changed
+- Bookings of deleted accounts show "Deleted user #17" (German: "Gelöschter Benutzer #17") instead of "User #17", without a link, in the participant list of a session, the bookings list, the CSV list and the participant email to the studio.
+
 ## [0.59.0] – 2026-10-19
 
 ### Changed
