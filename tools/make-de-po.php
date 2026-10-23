@@ -495,6 +495,17 @@ const ENGLISH_TO_GERMAN = [
     'Cancellation: {course_title}' => 'Stornierung: {course_title}',
     "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}" =>
         "Hallo {customer_name},\n\ndeine Buchung wurde storniert:\n\n{course_title}\n{date} um {time}\n\nVerbleibende Credits: {credits_remaining}\n\nDeine Buchungen verwaltest du hier: {account_link}",
+    'Session cancelled' => 'Kurs abgesagt',
+    'Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically.' => 'Geht an die Kunden eines kommenden Kurses, der in den Papierkorb gelegt oder gelöscht wurde — das Guthaben wird automatisch zurückgebucht.',
+    'Session cancelled: {course_title}' => 'Kurs abgesagt: {course_title}',
+    "Hi {customer_name},\n\nunfortunately this session had to be cancelled:\n\n{course_title}\n{date} at {time}\n\nYour credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\nFind another session here: {account_link}\n\nI am sorry for the inconvenience." =>
+        "Hallo {customer_name},\n\nleider musste dieser Kurs abgesagt werden:\n\n{course_title}\n{date} um {time}\n\nDein Guthaben wurde zurückgebucht, du kannst es für einen anderen Kurs nutzen. Verfügbare Credits: {credits_remaining}\n\nEinen anderen Kurs findest du hier: {account_link}\n\nEs tut mir leid für die Umstände.",
+    'Session removed: %s' => 'Kurs entfernt: %s',
+    "The session was moved to the trash or deleted. %1\$d of %2\$d bookings were cancelled, the credits were refunded and the customers informed:\n\n%3\$s" => "Der Kurs wurde in den Papierkorb gelegt oder gelöscht. %1\$d von %2\$d Buchungen wurden storniert, die Credits zurückgebucht und die Kunden informiert:\n\n%3\$s",
+    'Account deleted: %s' => 'Konto gelöscht: %s',
+    "The account of %1\$s (%2\$s) was deleted.\n\nUpcoming bookings cancelled and refunded: %3\$d of %4\$d.\nUnused credits left: %5\$d. They stay on file without a name and can no longer be used." => "Das Konto von %1\$s (%2\$s) wurde gelöscht.\n\nKommende Buchungen storniert und zurückgebucht: %3\$d von %4\$d.\nÜbrige ungenutzte Credits: %5\$d. Sie bleiben ohne Namen gespeichert und können nicht mehr verwendet werden.",
+    '%1$s: %2$d upcoming booking(s) will be cancelled and refunded, %3$d unused credit(s) stay on file without a name and can no longer be used.' => '%1$s: %2$d kommende Buchung(en) werden storniert und zurückgebucht, %3$d ungenutzte Credit(s) bleiben ohne Namen gespeichert und können nicht mehr verwendet werden.',
+    'Credits and bookings' => 'Credits und Buchungen',
     'Reminder: {course_title} on {date}' => 'Erinnerung: {course_title} am {date}',
     "Hi {customer_name},\n\nyour session is coming up:\n\n{course_title}\n{date} at {time}\n\nSession details: {course_link}\nManage your bookings here: {account_link}\n\nWe look forward to seeing you!" =>
         "Hallo {customer_name},\n\ndein Kurs steht an:\n\n{course_title}\n{date} um {time}\n\nDetails zum Kurs: {course_link}\nDeine Buchungen verwaltest du hier: {account_link}\n\nWir freuen uns auf dich!",

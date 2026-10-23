@@ -189,7 +189,7 @@ msgstr "Neu bei uns? Melde dich für den Newsletter an und erhalte das Einsteige
 msgid "Sign up for the newsletter now"
 msgstr "Jetzt zum Newsletter anmelden"
 
-#: bw-credits-booking.php:426
+#: bw-credits-booking.php:427
 msgid "Deleted user #%d"
 msgstr "Gelöschter Benutzer #%d"
 
@@ -559,9 +559,9 @@ msgstr "Texte"
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:454
 #: includes/metaboxes.php:499
-#: includes/emails.php:691
-#: includes/emails.php:987
-#: includes/emails.php:1016
+#: includes/emails.php:707
+#: includes/emails.php:1003
+#: includes/emails.php:1032
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr "Keine Berechtigung."
@@ -624,15 +624,15 @@ msgstr "überbucht"
 msgid "Participants"
 msgstr "Teilnehmer"
 
-#: includes/emails.php:724
+#: includes/emails.php:740
 msgid "Every 5 minutes"
 msgstr "Alle 5 Minuten"
 
-#: includes/emails.php:32
+#: includes/emails.php:33
 msgid "Admin: participant list"
 msgstr "Admin: Teilnehmerliste"
 
-#: includes/emails.php:32
+#: includes/emails.php:33
 msgid "Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings."
 msgstr "Geht an die unten eingestellte Adresse kurz vor Kursbeginn (nach Buchungsschluss) mit den aktiven Teilnehmern – Zeitpunkt unter Einstellungen."
 
@@ -1187,52 +1187,52 @@ msgstr "Purchase (Einmalkauf)"
 msgid "Membership (monthly)"
 msgstr "Membership (monatlich)"
 
-#: bw-credits-booking.php:219
+#: bw-credits-booking.php:220
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr "booking_id fehlt (Button braucht data-booking-id)"
 
-#: bw-credits-booking.php:224
+#: bw-credits-booking.php:225
 msgid "Book"
 msgstr "Buchen"
 
-#: bw-credits-booking.php:226
+#: bw-credits-booking.php:227
 msgid "Request failed (%d)"
 msgstr "Anfrage fehlgeschlagen (%d)"
 
-#: bw-credits-booking.php:495
-#: bw-credits-booking.php:723
+#: bw-credits-booking.php:496
+#: bw-credits-booking.php:724
 msgid "User not found."
 msgstr "Benutzer nicht gefunden."
 
-#: bw-credits-booking.php:498
+#: bw-credits-booking.php:499
 msgid "Amount must be between 1 and 500."
 msgstr "Anzahl muss zwischen 1 und 500 liegen."
 
-#: bw-credits-booking.php:508
+#: bw-credits-booking.php:509
 msgid "Credit grant failed."
 msgstr "Gutschrift fehlgeschlagen."
 
-#: bw-credits-booking.php:527
+#: bw-credits-booking.php:528
 msgid "Credit not found or already used."
 msgstr "Credit nicht gefunden oder bereits verbraucht."
 
-#: bw-credits-booking.php:1085
+#: bw-credits-booking.php:1088
 msgid "Status could not be changed."
 msgstr "Status konnte nicht geändert werden."
 
-#: bw-credits-booking.php:1674
+#: bw-credits-booking.php:1677
 msgid "slot_id is missing."
 msgstr "slot_id fehlt."
 
-#: bw-credits-booking.php:1681
+#: bw-credits-booking.php:1684
 msgid "Booked."
 msgstr "Gebucht."
 
-#: bw-credits-booking.php:1689
+#: bw-credits-booking.php:1692
 msgid "booking_id is missing."
 msgstr "booking_id fehlt."
 
-#: bw-credits-booking.php:1696
+#: bw-credits-booking.php:1699
 msgid "Cancelled."
 msgstr "Storniert."
 
@@ -1252,15 +1252,15 @@ msgstr "Stornobestätigung"
 msgid "Sent to the customer after a cancellation."
 msgstr "Nach einer Stornierung an den Kunden."
 
-#: includes/emails.php:29
+#: includes/emails.php:30
 msgid "Reminder"
 msgstr "Erinnerung"
 
-#: includes/emails.php:29
+#: includes/emails.php:30
 msgid "Before the session starts — timing set in Settings."
 msgstr "Vor Kursbeginn — Zeitpunkt in den Einstellungen."
 
-#: includes/emails.php:30
+#: includes/emails.php:31
 msgid "Meeting link and access details for online sessions — timing set in Settings → Online Access."
 msgstr "Meeting-Link und Zugangsdaten für Online-Termine — Zeitpunkt in Einstellungen → Online-Zugang."
 
@@ -1312,84 +1312,84 @@ msgstr "Leer lassen, um den Standardwert aus den Einstellungen zu verwenden (gra
 msgid "The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away."
 msgstr "Die Zugangsdaten werden automatisch %d Stunden vor Kursbeginn an alle Teilnehmer verschickt. Wer später bucht, erhält sie sofort."
 
-#: includes/emails.php:31
+#: includes/emails.php:32
 msgid "Admin: new booking"
 msgstr "Admin: Neue Buchung"
 
-#: includes/emails.php:31
+#: includes/emails.php:32
 msgid "Sent to the address set below for every new booking, with the current number of participants."
 msgstr "Bei jeder neuen Buchung an die unten hinterlegte Adresse, mit der aktuellen Teilnehmerzahl."
 
-#: includes/emails.php:33
+#: includes/emails.php:34
 msgid "Admin: cancellation"
 msgstr "Admin: Stornierung"
 
-#: includes/emails.php:33
+#: includes/emails.php:34
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr "Bei jeder Stornierung an die unten hinterlegte Adresse, mit der aktuellen Teilnehmerzahl."
 
-#: includes/emails.php:710
+#: includes/emails.php:726
 msgid "Access details sent to %d participants."
 msgstr "Zugangsdaten an %d Teilnehmer verschickt."
 
-#: includes/emails.php:713
+#: includes/emails.php:729
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr "Nichts verschickt — Meeting-Link fehlt oder keine aktiven Buchungen."
 
-#: includes/emails.php:939
-#: includes/emails.php:940
+#: includes/emails.php:955
+#: includes/emails.php:956
 msgid "Emails"
 msgstr "E-Mails"
 
-#: includes/emails.php:1054
+#: includes/emails.php:1070
 msgid "Email Texts"
 msgstr "E-Mail-Texte"
 
-#: includes/emails.php:1071
+#: includes/emails.php:1087
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr "Betreff und Text unten sind der Ausgangstext. Übersetzungen in andere Sprachen erfolgen über WPML → String-Übersetzung, gefiltert nach Kontext %s."
 
-#: includes/emails.php:1076
+#: includes/emails.php:1092
 msgid "Open WPML String Translation"
 msgstr "WPML String-Übersetzung öffnen"
 
-#: includes/emails.php:1155
+#: includes/emails.php:1171
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr "Formatierungen (fett, Links, …) sollten nicht nur einen Teil eines Platzhalters betreffen — z. B. kann das Fettmarkieren der Hälfte von {course_title} ihn so zerteilen, dass er nicht mehr ersetzt wird."
 
-#: includes/emails.php:1083
+#: includes/emails.php:1099
 msgid "Available placeholders:"
 msgstr "Verfügbare Platzhalter:"
 
-#: includes/emails.php:1096
+#: includes/emails.php:1112
 msgid "Address for admin copies"
 msgstr "Adresse für Admin-Kopien"
 
-#: includes/emails.php:1102
+#: includes/emails.php:1118
 msgid "Leave empty to use the recipient of the WooCommerce “New order” email."
 msgstr "Leer lassen, um den Empfänger der WooCommerce-E-Mail „Neue Bestellung“ zu verwenden."
 
-#: includes/emails.php:1124
+#: includes/emails.php:1140
 msgid "Active"
 msgstr "Aktiv"
 
-#: includes/emails.php:1130
+#: includes/emails.php:1146
 msgid "Send this email"
 msgstr "Diese E-Mail verschicken"
 
-#: includes/emails.php:1135
+#: includes/emails.php:1151
 msgid "Subject"
 msgstr "Betreff"
 
-#: includes/emails.php:1143
+#: includes/emails.php:1159
 msgid "Body"
 msgstr "Text"
 
-#: includes/emails.php:1117
+#: includes/emails.php:1133
 msgid "Reset to default"
 msgstr "Auf Standard zurücksetzen"
 
-#: includes/emails.php:1061
+#: includes/emails.php:1077
 msgid "Reset all to default"
 msgstr "Alle auf Standard zurücksetzen"
 
@@ -1417,23 +1417,23 @@ msgstr "Nur einmal pro Person erhältlich."
 msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
 msgstr "Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt."
 
-#: includes/emails.php:1025
+#: includes/emails.php:1041
 msgid "All emails reset to the default text."
 msgstr "Alle E-Mails wurden auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:1060
+#: includes/emails.php:1076
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr "ALLE E-Mails auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen an allen Betreffs und Texten gehen verloren."
 
-#: includes/emails.php:1114
+#: includes/emails.php:1130
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr "%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren."
 
-#: includes/emails.php:1004
+#: includes/emails.php:1020
 msgid "%s reset to the default text."
 msgstr "%s auf den Standardtext zurückgesetzt."
 
-#: includes/emails.php:996
+#: includes/emails.php:1012
 msgid "Unknown email type."
 msgstr "Unbekannter E-Mail-Typ."
 
@@ -1486,27 +1486,27 @@ msgstr "Wie viele Titel+Beschreibung-Paare pro Produkt erscheinen. Ein Verringer
 msgid "Meta key: %1$s — Shortcode: %2$s"
 msgstr "Meta-Key: %1$s — Shortcode: %2$s"
 
-#: includes/emails.php:377
+#: includes/emails.php:387
 msgid "Before your class"
 msgstr "Vor deiner Klasse"
 
-#: includes/emails.php:380
+#: includes/emails.php:390
 msgid "One day before your class"
 msgstr "Einen Tag vor deiner Klasse"
 
-#: includes/emails.php:381
+#: includes/emails.php:391
 msgid "Two days before your class"
 msgstr "Zwei Tage vor deiner Klasse"
 
-#: includes/emails.php:382
+#: includes/emails.php:392
 msgid "%d days before your class"
 msgstr "%d Tage vor deiner Klasse"
 
-#: includes/emails.php:384
+#: includes/emails.php:394
 msgid "One hour before your class"
 msgstr "Eine Stunde vor deiner Klasse"
 
-#: includes/emails.php:385
+#: includes/emails.php:395
 msgid "%d hours before your class"
 msgstr "%d Stunden vor deiner Klasse"
 
@@ -1557,19 +1557,19 @@ msgstr "Automatisch (aus deinem Browser)"
 msgid "Session times are shown in your time zone too — on the website and in emails."
 msgstr "Kurszeiten werden dir auch in deiner Zeitzone angezeigt — auf der Website und in E-Mails."
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "%s your time"
 msgstr "%s bei dir"
 
-#: bw-credits-booking.php:223
+#: bw-credits-booking.php:224
 msgid "Your local time"
 msgstr "Deine Ortszeit"
 
-#: includes/emails.php:328
+#: includes/emails.php:338
 msgid "Zoom link:"
 msgstr "Zoom-Link:"
 
-#: includes/emails.php:329
+#: includes/emails.php:339
 msgid "The access details follow by email before the class."
 msgstr "Die Zugangsdaten bekommst du vor dem Kurs per E-Mail."
 
@@ -1582,6 +1582,48 @@ msgstr "Stornierung: {course_title}"
 #: email:cancellation.body
 msgid "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}"
 msgstr "Hallo {customer_name},\n\ndeine Buchung wurde storniert:\n\n{course_title}\n{date} um {time}\n\nVerbleibende Credits: {credits_remaining}\n\nDeine Buchungen verwaltest du hier: {account_link}"
+
+#: includes/emails.php:29
+msgid "Session cancelled"
+msgstr "Kurs abgesagt"
+
+#: includes/emails.php:29
+msgid "Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically."
+msgstr "Geht an die Kunden eines kommenden Kurses, der in den Papierkorb gelegt oder gelöscht wurde — das Guthaben wird automatisch zurückgebucht."
+
+#. Default subject of the "session_cancelled" email
+#: email:session_cancelled.subject
+msgid "Session cancelled: {course_title}"
+msgstr "Kurs abgesagt: {course_title}"
+
+#. Default body of the "session_cancelled" email
+#: email:session_cancelled.body
+msgid "Hi {customer_name},\n\nunfortunately this session had to be cancelled:\n\n{course_title}\n{date} at {time}\n\nYour credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\nFind another session here: {account_link}\n\nI am sorry for the inconvenience."
+msgstr "Hallo {customer_name},\n\nleider musste dieser Kurs abgesagt werden:\n\n{course_title}\n{date} um {time}\n\nDein Guthaben wurde zurückgebucht, du kannst es für einen anderen Kurs nutzen. Verfügbare Credits: {credits_remaining}\n\nEinen anderen Kurs findest du hier: {account_link}\n\nEs tut mir leid für die Umstände."
+
+#: includes/lifecycle.php:73
+msgid "Session removed: %s"
+msgstr "Kurs entfernt: %s"
+
+#: includes/lifecycle.php:76
+msgid "The session was moved to the trash or deleted. %1$d of %2$d bookings were cancelled, the credits were refunded and the customers informed:\n\n%3$s"
+msgstr "Der Kurs wurde in den Papierkorb gelegt oder gelöscht. %1$d von %2$d Buchungen wurden storniert, die Credits zurückgebucht und die Kunden informiert:\n\n%3$s"
+
+#: includes/lifecycle.php:119
+msgid "Account deleted: %s"
+msgstr "Konto gelöscht: %s"
+
+#: includes/lifecycle.php:122
+msgid "The account of %1$s (%2$s) was deleted.\n\nUpcoming bookings cancelled and refunded: %3$d of %4$d.\nUnused credits left: %5$d. They stay on file without a name and can no longer be used."
+msgstr "Das Konto von %1$s (%2$s) wurde gelöscht.\n\nKommende Buchungen storniert und zurückgebucht: %3$d von %4$d.\nÜbrige ungenutzte Credits: %5$d. Sie bleiben ohne Namen gespeichert und können nicht mehr verwendet werden."
+
+#: includes/lifecycle.php:144
+msgid "%1$s: %2$d upcoming booking(s) will be cancelled and refunded, %3$d unused credit(s) stay on file without a name and can no longer be used."
+msgstr "%1$s: %2$d kommende Buchung(en) werden storniert und zurückgebucht, %3$d ungenutzte Credit(s) bleiben ohne Namen gespeichert und können nicht mehr verwendet werden."
+
+#: includes/lifecycle.php:152
+msgid "Credits and bookings"
+msgstr "Credits und Buchungen"
 
 #. Default subject of the "reminder" email
 #: email:reminder.subject

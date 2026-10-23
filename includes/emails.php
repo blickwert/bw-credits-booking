@@ -26,6 +26,7 @@ class BW_Emails {
         return [
             'booking'       => [__('Booking confirmation', 'bw-credits-booking'), __('Sent to the customer right after a successful booking.', 'bw-credits-booking')],
             'cancellation'  => [__('Cancellation confirmation', 'bw-credits-booking'), __('Sent to the customer after a cancellation.', 'bw-credits-booking')],
+            'session_cancelled' => [__('Session cancelled', 'bw-credits-booking'), __('Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically.', 'bw-credits-booking')],
             'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
             'access'        => [__('Access details', 'bw-credits-booking'), __('Meeting link and access details for online sessions — timing set in Settings → Online Access.', 'bw-credits-booking')],
             'admin_booking' => [__('Admin: new booking', 'bw-credits-booking'), __('Sent to the address set below for every new booking, with the current number of participants.', 'bw-credits-booking')],
@@ -203,6 +204,15 @@ class BW_Emails {
                            . "{course_title}\n{date} at {time}\n\n"
                            . "Credits remaining: {credits_remaining}\n\n"
                            . "Manage your bookings here: {account_link}",
+            ],
+            'session_cancelled' => [
+                'subject' => 'Session cancelled: {course_title}',
+                'body'    => "Hi {customer_name},\n\n"
+                           . "unfortunately this session had to be cancelled:\n\n"
+                           . "{course_title}\n{date} at {time}\n\n"
+                           . "Your credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\n"
+                           . "Find another session here: {account_link}\n\n"
+                           . "I am sorry for the inconvenience.",
             ],
             'reminder' => [
                 'subject' => 'Reminder: {course_title} on {date}',
@@ -606,6 +616,12 @@ class BW_Emails {
     }
 
     public static function on_booking_cancelled($booking_id, $user_id, $slot_id) {
+        // Cancelled in bulk because the session or the account was removed: see BW_Lifecycle
+        if (class_exists('BW_Lifecycle') && BW_Lifecycle::$mode !== '') {
+            if (BW_Lifecycle::$mode === 'session') self::send('session_cancelled', (int) $user_id, (int) $slot_id);
+            return; // the studio gets one summary mail instead of one per booking
+        }
+
         self::send('cancellation', (int) $user_id, (int) $slot_id);
 
         $admin_to = self::admin_recipient();

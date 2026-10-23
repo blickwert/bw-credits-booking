@@ -503,9 +503,9 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:454
 #: includes/metaboxes.php:499
-#: includes/emails.php:691
-#: includes/emails.php:987
-#: includes/emails.php:1016
+#: includes/emails.php:707
+#: includes/emails.php:1003
+#: includes/emails.php:1032
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr ""
@@ -1279,160 +1279,192 @@ msgid "Sent to the customer after a cancellation."
 msgstr ""
 
 #: includes/emails.php:29
-msgid "Reminder"
+msgid "Session cancelled"
 msgstr ""
 
 #: includes/emails.php:29
-msgid "Before the session starts — timing set in Settings."
+msgid "Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically."
 msgstr ""
 
 #: includes/emails.php:30
+msgid "Reminder"
+msgstr ""
+
+#: includes/emails.php:30
+msgid "Before the session starts — timing set in Settings."
+msgstr ""
+
+#: includes/emails.php:31
 msgid "Meeting link and access details for online sessions — timing set in Settings → Online Access."
 msgstr ""
 
-#: includes/emails.php:31
+#: includes/emails.php:32
 msgid "Admin: new booking"
 msgstr ""
 
-#: includes/emails.php:31
+#: includes/emails.php:32
 msgid "Sent to the address set below for every new booking, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:32
+#: includes/emails.php:33
 msgid "Admin: participant list"
 msgstr ""
 
-#: includes/emails.php:32
+#: includes/emails.php:33
 msgid "Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings."
 msgstr ""
 
-#: includes/emails.php:33
+#: includes/emails.php:34
 msgid "Admin: cancellation"
 msgstr ""
 
-#: includes/emails.php:33
+#: includes/emails.php:34
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:328
+#: includes/emails.php:338
 msgid "Zoom link:"
 msgstr ""
 
-#: includes/emails.php:329
+#: includes/emails.php:339
 msgid "The access details follow by email before the class."
 msgstr ""
 
-#: includes/emails.php:377
+#: includes/emails.php:387
 msgid "Before your class"
 msgstr ""
 
-#: includes/emails.php:380
+#: includes/emails.php:390
 msgid "One day before your class"
 msgstr ""
 
-#: includes/emails.php:381
+#: includes/emails.php:391
 msgid "Two days before your class"
 msgstr ""
 
-#: includes/emails.php:382
+#: includes/emails.php:392
 msgid "%d days before your class"
 msgstr ""
 
-#: includes/emails.php:384
+#: includes/emails.php:394
 msgid "One hour before your class"
 msgstr ""
 
-#: includes/emails.php:385
+#: includes/emails.php:395
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:710
+#: includes/emails.php:726
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:713
+#: includes/emails.php:729
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:724
+#: includes/emails.php:740
 msgid "Every 5 minutes"
 msgstr ""
 
-#: includes/emails.php:939
-#: includes/emails.php:940
+#: includes/emails.php:955
+#: includes/emails.php:956
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:996
+#: includes/emails.php:1012
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:1004
+#: includes/emails.php:1020
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1025
+#: includes/emails.php:1041
 msgid "All emails reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1054
+#: includes/emails.php:1070
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:1060
+#: includes/emails.php:1076
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr ""
 
-#: includes/emails.php:1061
+#: includes/emails.php:1077
 msgid "Reset all to default"
 msgstr ""
 
-#: includes/emails.php:1071
+#: includes/emails.php:1087
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:1076
+#: includes/emails.php:1092
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:1083
+#: includes/emails.php:1099
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:1096
+#: includes/emails.php:1112
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:1102
+#: includes/emails.php:1118
 msgid "Leave empty to use the recipient of the WooCommerce “New order” email."
 msgstr ""
 
-#: includes/emails.php:1114
+#: includes/emails.php:1130
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:1117
+#: includes/emails.php:1133
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:1124
+#: includes/emails.php:1140
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:1130
+#: includes/emails.php:1146
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:1135
+#: includes/emails.php:1151
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:1143
+#: includes/emails.php:1159
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:1155
+#: includes/emails.php:1171
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
+msgstr ""
+
+#: includes/lifecycle.php:73
+msgid "Session removed: %s"
+msgstr ""
+
+#: includes/lifecycle.php:76
+msgid "The session was moved to the trash or deleted. %1$d of %2$d bookings were cancelled, the credits were refunded and the customers informed:\n\n%3$s"
+msgstr ""
+
+#: includes/lifecycle.php:119
+msgid "Account deleted: %s"
+msgstr ""
+
+#: includes/lifecycle.php:122
+msgid "The account of %1$s (%2$s) was deleted.\n\nUpcoming bookings cancelled and refunded: %3$d of %4$d.\nUnused credits left: %5$d. They stay on file without a name and can no longer be used."
+msgstr ""
+
+#: includes/lifecycle.php:144
+msgid "%1$s: %2$d upcoming booking(s) will be cancelled and refunded, %3$d unused credit(s) stay on file without a name and can no longer be used."
+msgstr ""
+
+#: includes/lifecycle.php:152
+msgid "Credits and bookings"
 msgstr ""
 
 #: includes/email-language.php:165
@@ -1540,64 +1572,64 @@ msgstr ""
 msgid "Completed automatically: the order consists only of credit products."
 msgstr ""
 
-#: bw-credits-booking.php:219
+#: bw-credits-booking.php:220
 msgid "booking_id missing (button needs data-booking-id)"
 msgstr ""
 
-#: bw-credits-booking.php:222
+#: bw-credits-booking.php:223
 msgid "%s your time"
 msgstr ""
 
-#: bw-credits-booking.php:223
+#: bw-credits-booking.php:224
 msgid "Your local time"
 msgstr ""
 
-#: bw-credits-booking.php:224
+#: bw-credits-booking.php:225
 msgid "Book"
 msgstr ""
 
-#: bw-credits-booking.php:226
+#: bw-credits-booking.php:227
 msgid "Request failed (%d)"
 msgstr ""
 
-#: bw-credits-booking.php:426
+#: bw-credits-booking.php:427
 msgid "Deleted user #%d"
 msgstr ""
 
-#: bw-credits-booking.php:495
-#: bw-credits-booking.php:723
+#: bw-credits-booking.php:496
+#: bw-credits-booking.php:724
 msgid "User not found."
 msgstr ""
 
-#: bw-credits-booking.php:498
+#: bw-credits-booking.php:499
 msgid "Amount must be between 1 and 500."
 msgstr ""
 
-#: bw-credits-booking.php:508
+#: bw-credits-booking.php:509
 msgid "Credit grant failed."
 msgstr ""
 
-#: bw-credits-booking.php:527
+#: bw-credits-booking.php:528
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1085
+#: bw-credits-booking.php:1088
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1674
+#: bw-credits-booking.php:1677
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1681
+#: bw-credits-booking.php:1684
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1689
+#: bw-credits-booking.php:1692
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1696
+#: bw-credits-booking.php:1699
 msgid "Cancelled."
 msgstr ""
 
@@ -1619,6 +1651,16 @@ msgstr ""
 #. Default body of the "cancellation" email
 #: email:cancellation.body
 msgid "Hi {customer_name},\n\nyour booking has been cancelled:\n\n{course_title}\n{date} at {time}\n\nCredits remaining: {credits_remaining}\n\nManage your bookings here: {account_link}"
+msgstr ""
+
+#. Default subject of the "session_cancelled" email
+#: email:session_cancelled.subject
+msgid "Session cancelled: {course_title}"
+msgstr ""
+
+#. Default body of the "session_cancelled" email
+#: email:session_cancelled.body
+msgid "Hi {customer_name},\n\nunfortunately this session had to be cancelled:\n\n{course_title}\n{date} at {time}\n\nYour credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\nFind another session here: {account_link}\n\nI am sorry for the inconvenience."
 msgstr ""
 
 #. Default subject of the "reminder" email
