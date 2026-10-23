@@ -2,7 +2,7 @@
 /**
  * Plugin Name: BW Credits + Bookings (MVP)
  * Description: WooCommerce credits (1 credit = 1 row) + course_slot bookings table with capacity, FIFO expiry, cancel policy. Includes safe frontend book/cancel buttons (REST + nonce).
- * Version: 0.60.0
+ * Version: 0.61.0
  * Author: Blickwert
  * Text Domain: bw-credits-booking
  * Domain Path: /languages
@@ -11,7 +11,7 @@
 if (!defined('ABSPATH')) exit;
 
 define('BW_CREDITS_BOOKING_FILE', __FILE__);
-define('BW_CREDITS_BOOKING_VERSION', '0.60.0');
+define('BW_CREDITS_BOOKING_VERSION', '0.61.0');
 
 require_once plugin_dir_path(__FILE__) . 'includes/text.php';
 require_once plugin_dir_path(__FILE__) . 'includes/settings.php';
@@ -1050,7 +1050,9 @@ class BW_Credits_Bookings_MVP {
             }
         }
 
-        if (!self::decrement_booked_count($slot_id)) {
+        // A session that was deleted in the meantime has no participant counter any more — the booking can
+        // still be cancelled (and its credit refunded).
+        if (get_post($slot_id) && !self::decrement_booked_count($slot_id)) {
             $wpdb->query('ROLLBACK');
             return new WP_Error('bw_bookedcount_failed', bw_text('error.generic'));
         }

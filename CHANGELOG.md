@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.61.0] – 2026-10-23
+
+### Fixed
+- Cancelling a booking in the admin failed with "The action could not be completed." when its session had been deleted: the participant counter of the session no longer exists. The booking is now cancelled and the credit refunded anyway.
+
 ## [0.60.0] – 2026-10-23
 
 ### Changed
