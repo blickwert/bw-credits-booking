@@ -169,6 +169,7 @@ function bw_scan_default_files(): array {
         'includes/settings.php',
         'includes/admin.php',
         'includes/emails.php',
+        'includes/lifecycle.php',
         'includes/email-language.php',
         'includes/time-zone.php',
         'includes/product-features.php',

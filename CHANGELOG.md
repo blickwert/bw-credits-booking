@@ -5,6 +5,12 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.62.0] – 2026-10-23
+
+### Added
+- A session that is moved to the trash or deleted: its upcoming bookings are cancelled, every credit is refunded and the customers get the new "Session cancelled" email (editable under Emails); the studio gets one summary mail. Bookings of sessions that already took place are left alone.
+- An account that is deleted: its upcoming bookings are cancelled and refunded (no email to the customer, the spot is free again); the credits stay on file without a name (they can no longer be used) so the sales and usage figures stay correct; the studio gets a summary mail with the unused credits. The "Delete users" confirmation screen warns beforehand.
+
 ## [0.61.0] – 2026-10-23
 
 ### Fixed
