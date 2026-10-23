@@ -1581,23 +1581,23 @@ msgstr ""
 msgid "Credit not found or already used."
 msgstr ""
 
-#: bw-credits-booking.php:1085
+#: bw-credits-booking.php:1087
 msgid "Status could not be changed."
 msgstr ""
 
-#: bw-credits-booking.php:1674
+#: bw-credits-booking.php:1676
 msgid "slot_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1681
+#: bw-credits-booking.php:1683
 msgid "Booked."
 msgstr ""
 
-#: bw-credits-booking.php:1689
+#: bw-credits-booking.php:1691
 msgid "booking_id is missing."
 msgstr ""
 
-#: bw-credits-booking.php:1696
+#: bw-credits-booking.php:1698
 msgid "Cancelled."
 msgstr ""
 
