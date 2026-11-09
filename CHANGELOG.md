@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.62.1] – 2026-11-09
+
+### Changed
+- German newsletter notices read "Neu hier?" instead of "Neu bei uns?" (matches the English "New here?").
+
 ## [0.62.0] – 2026-10-23
 
 ### Added
