@@ -206,13 +206,14 @@ class BW_Emails {
                            . "Manage your bookings here: {account_link}",
             ],
             'session_cancelled' => [
-                'subject' => 'Session cancelled: {course_title}',
-                'body'    => "Hi {customer_name},\n\n"
-                           . "unfortunately this session had to be cancelled:\n\n"
+                'subject' => 'Your class has been cancelled: {course_title} 🌿',
+                'body'    => "Dear {first_name} 🌿,\n\n"
+                           . "I’m so sorry, but I had to cancel the following class:\n\n"
                            . "{course_title}\n{date} at {time}\n\n"
-                           . "Your credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\n"
-                           . "Find another session here: {account_link}\n\n"
-                           . "I am sorry for the inconvenience.",
+                           . "Your credit has been returned to your account automatically, so you can use it for another class. Credits available: {credits_remaining} ✨\n\n"
+                           . "You can find all upcoming classes here: {account_link}\n\n"
+                           . "Thank you for your understanding. I hope to see you on the mat soon. 🤍\n\n"
+                           . "With warmth,\nHelena 🌸",
             ],
             'reminder' => [
                 'subject' => 'Reminder: {course_title} on {date}',

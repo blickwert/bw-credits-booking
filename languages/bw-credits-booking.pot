@@ -503,9 +503,9 @@ msgstr ""
 #: includes/admin-pages.php:54
 #: includes/metaboxes.php:454
 #: includes/metaboxes.php:499
-#: includes/emails.php:707
-#: includes/emails.php:1003
-#: includes/emails.php:1032
+#: includes/emails.php:708
+#: includes/emails.php:1004
+#: includes/emails.php:1033
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr ""
@@ -1322,124 +1322,124 @@ msgstr ""
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:338
+#: includes/emails.php:339
 msgid "Zoom link:"
 msgstr ""
 
-#: includes/emails.php:339
+#: includes/emails.php:340
 msgid "The access details follow by email before the class."
 msgstr ""
 
-#: includes/emails.php:387
+#: includes/emails.php:388
 msgid "Before your class"
 msgstr ""
 
-#: includes/emails.php:390
+#: includes/emails.php:391
 msgid "One day before your class"
 msgstr ""
 
-#: includes/emails.php:391
+#: includes/emails.php:392
 msgid "Two days before your class"
 msgstr ""
 
-#: includes/emails.php:392
+#: includes/emails.php:393
 msgid "%d days before your class"
 msgstr ""
 
-#: includes/emails.php:394
+#: includes/emails.php:395
 msgid "One hour before your class"
 msgstr ""
 
-#: includes/emails.php:395
+#: includes/emails.php:396
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:726
+#: includes/emails.php:727
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:729
+#: includes/emails.php:730
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:740
+#: includes/emails.php:741
 msgid "Every 5 minutes"
 msgstr ""
 
-#: includes/emails.php:955
 #: includes/emails.php:956
+#: includes/emails.php:957
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:1012
+#: includes/emails.php:1013
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:1020
+#: includes/emails.php:1021
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1041
+#: includes/emails.php:1042
 msgid "All emails reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1070
+#: includes/emails.php:1071
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:1076
+#: includes/emails.php:1077
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr ""
 
-#: includes/emails.php:1077
+#: includes/emails.php:1078
 msgid "Reset all to default"
 msgstr ""
 
-#: includes/emails.php:1087
+#: includes/emails.php:1088
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:1092
+#: includes/emails.php:1093
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:1099
+#: includes/emails.php:1100
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:1112
+#: includes/emails.php:1113
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:1118
+#: includes/emails.php:1119
 msgid "Leave empty to use the recipient of the WooCommerce “New order” email."
 msgstr ""
 
-#: includes/emails.php:1130
+#: includes/emails.php:1131
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:1133
+#: includes/emails.php:1134
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:1140
+#: includes/emails.php:1141
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:1146
+#: includes/emails.php:1147
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:1151
+#: includes/emails.php:1152
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:1159
+#: includes/emails.php:1160
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:1171
+#: includes/emails.php:1172
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1655,12 +1655,12 @@ msgstr ""
 
 #. Default subject of the "session_cancelled" email
 #: email:session_cancelled.subject
-msgid "Session cancelled: {course_title}"
+msgid "Your class has been cancelled: {course_title} 🌿"
 msgstr ""
 
 #. Default body of the "session_cancelled" email
 #: email:session_cancelled.body
-msgid "Hi {customer_name},\n\nunfortunately this session had to be cancelled:\n\n{course_title}\n{date} at {time}\n\nYour credit has been refunded, you can use it for another session. Credits available: {credits_remaining}\n\nFind another session here: {account_link}\n\nI am sorry for the inconvenience."
+msgid "Dear {first_name} 🌿,\n\nI’m so sorry, but I had to cancel the following class:\n\n{course_title}\n{date} at {time}\n\nYour credit has been returned to your account automatically, so you can use it for another class. Credits available: {credits_remaining} ✨\n\nYou can find all upcoming classes here: {account_link}\n\nThank you for your understanding. I hope to see you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸"
 msgstr ""
 
 #. Default subject of the "reminder" email

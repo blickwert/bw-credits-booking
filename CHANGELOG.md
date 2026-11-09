@@ -5,6 +5,11 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.62.2] – 2026-11-09
+
+### Changed
+- The "Session cancelled" email now speaks in Helena's voice, like the booking email (greeting with first name, "With warmth, Helena"); subject "Your class has been cancelled: …" (German: "Dein Kurs wurde abgesagt: …"). Only the untouched default changes; a text saved under Emails stays as it is.
+
 ## [0.62.1] – 2026-11-09
 
 ### Changed
