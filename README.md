@@ -367,7 +367,7 @@ Menu **BW Credits** (capability `manage_options`):
 
 | Page | Content |
 |---|---|
-| Settings | Session post type, default capacity, cancellation deadline, reminder lead time, shop page; **Online Access** defaults (meeting link, access details, when to send them) |
+| Settings | Session post type, default capacity, cancellation deadline, reminder lead time, shop page; **Online Access** defaults (meeting link, access details, when to send them); **In-person sessions** defaults (location, notes) |
 | Sessions | All sessions with occupancy and utilization, upcoming/past filter |
 | Bookings | Filtered list, cancellation, form for walk-in bookings |
 | Credits | User search, view credit balance, grant and revoke manually |
@@ -375,7 +375,7 @@ Menu **BW Credits** (capability `manage_options`):
 
 **On the course session** (meta boxes):
 - **Capacity** — leave empty to use the default; occupancy shown read-only next to it, warning on overbooking
-- **Online Access** — meeting link and access details, with a button to resend
+- **Format & Access** — *Online (video call)* or *In person*; online: meeting link and access details, with a button to resend; in person: location and notes for participants
 - **Participants** — list with cancel, "No-show", and CSV export of the attendance list
 
 **List view**: columns Start, Level, Type, Language — all sortable.
@@ -432,6 +432,20 @@ In both modes:
 - **Resend access details** button on the session — always sends immediately, regardless of the timing setting, e.g. when the link changes later
 
 Note: with `0`, setting a default link afterwards does **not** email participants who already booked (there's no per-session "link entered" event) — use *Resend access details* on those sessions, or set a value above 0 so the cron picks them up.
+
+### Online or in person
+
+Every session is either **online (video call)** — the default, so existing sessions stay as they are — or **in person** (meta box *Format & Access*, meta `_bw_format` = `in_person`). Booking with credits, capacity, participant list and cancellation work the same for both; one session is one or the other, never both.
+
+An in-person session has a **location** (`_bw_location`, public: shown in the session list as "In person · location" and with `[bw_credits_course_info field="location"]`) and **notes for participants** (`_bw_location_notes`: directions, doorbell, what to bring — only in the emails and in `[bw_credits_course_access]` for booked participants). Defaults for both under *BW Credits → Settings → In-person sessions*; a value on the session wins.
+
+For an in-person session:
+- the meeting link and access details resolve to empty — no access-details email, no link in the calendar file or the access box, even with a default link set
+- the booking confirmation is the separate **Booking confirmation (in person)** email, with `{location}` and `{location_notes}` instead of the Zoom text (a customised online confirmation is not used for it)
+- with *Send access details (hours before)* > 0, the **Location details (in person)** email goes out at that time (same cron and `access_sent_at` flag); with 0, or when someone books inside that window, the booking confirmation is all they get
+- the `.ics` file has the location as `LOCATION` and the notes in the description
+
+`[bw_credits_course_info field="format"]` prints "Online" or "In person"; the admin session list has a *Format* column.
 
 ### Language per customer
 

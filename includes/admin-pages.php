@@ -914,8 +914,8 @@ class BW_Admin_Pages {
             ],
             'bw_credits_course_info' => [
                 __('Course', 'bw-credits-booking'),
-                __("One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf.", 'bw-credits-booking'),
-                'field (type, type_description, level, level_description, language, start, date, time, duration, detail, calendar), course_id',
+                __("One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf, format (online / in person) and location.", 'bw-credits-booking'),
+                'field (type, type_description, level, level_description, language, start, date, time, duration, detail, calendar, format, location), course_id',
             ],
             'bw_credits_course_access' => [
                 __('Course', 'bw-credits-booking'),

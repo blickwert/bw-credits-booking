@@ -8,7 +8,8 @@ if (!defined('ABSPATH')) exit;
  * [bw_credits_course_info field="…"] prints one value of a session, so the
  * single template can be built from plain Elementor widgets:
  *   type, type_description, level, level_description, language,
- *   start, date, time, duration, detail, calendar
+ *   start, date, time, duration, detail, calendar,
+ *   format (Online / In person), location (in-person sessions only)
  * Without course_id it uses the current post.
  *
  * Featured image: the image (ACF "img") of the session's course type becomes
@@ -62,6 +63,8 @@ class BW_Course_Info {
             case 'duration':          return esc_html(self::duration($slot_id));
             case 'detail':            return self::is_auto_content($slot_id) ? '' : self::rich((string) get_post_field('post_content', $slot_id));
             case 'calendar':          return self::calendar($slot_id);
+            case 'format':            return esc_html(BW_Metaboxes::is_in_person($slot_id) ? bw_text('course_list.format.in_person') : bw_text('course_list.format.online'));
+            case 'location':          return esc_html(BW_Metaboxes::get_location($slot_id));
         }
         return '';
     }

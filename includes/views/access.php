@@ -2,7 +2,8 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * [bw_credits_course_access] — access details for the online session.
+ * [bw_credits_course_access] — access details for the online session,
+ * or location and notes for a session held in person.
  *
  * Visible only to logged-in users with an active booking for exactly
  * this session. Without a booking, nothing is output — not even a note
@@ -25,12 +26,17 @@ class BW_View_Access {
         $booking = BW_Credits_Bookings_MVP::get_active_booking(get_current_user_id(), $slot_id);
         if (!$booking || $booking['status'] !== 'booked') return '';
 
-        $link = BW_Metaboxes::get_meeting_link($slot_id);
-        $info = BW_Metaboxes::get_access_info($slot_id);
+        if (BW_Metaboxes::is_in_person($slot_id)) {
+            $link  = '';
+            $info  = trim(BW_Metaboxes::get_location($slot_id) . "\n\n" . BW_Metaboxes::get_location_notes($slot_id));
+            $title = $atts['title'] !== '' ? $atts['title'] : bw_text('access.location_title');
+        } else {
+            $link  = BW_Metaboxes::get_meeting_link($slot_id);
+            $info  = BW_Metaboxes::get_access_info($slot_id);
+            $title = $atts['title'] !== '' ? $atts['title'] : bw_text('access.title');
+        }
 
         if ($link === '' && $info === '') return '';
-
-        $title = $atts['title'] !== '' ? $atts['title'] : bw_text('access.title');
 
         BW_Credits_Bookings_MVP::ensure_assets();
 

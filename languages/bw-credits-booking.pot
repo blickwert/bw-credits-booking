@@ -273,6 +273,16 @@ msgstr ""
 msgid "Language"
 msgstr ""
 
+#. Format of a session held by video call (session list, [bw_credits_course_info field="format"])
+#: catalogue:course_list.format.online
+msgid "Online"
+msgstr ""
+
+#. Format of a session held in person, followed by its location
+#: catalogue:course_list.format.in_person
+msgid "In person"
+msgstr ""
+
 #. Heading above the meeting link and notes
 #: catalogue:access.title
 msgid "Access details"
@@ -281,6 +291,11 @@ msgstr ""
 #. Label of the meeting link
 #: catalogue:access.link
 msgid "Join online session"
+msgstr ""
+
+#. Heading above the location and notes of an in-person session
+#: catalogue:access.location_title
+msgid "Location"
 msgstr ""
 
 #. Heading above the booking list in the account
@@ -501,11 +516,11 @@ msgid "Templates"
 msgstr ""
 
 #: includes/admin-pages.php:54
-#: includes/metaboxes.php:454
-#: includes/metaboxes.php:499
-#: includes/emails.php:708
-#: includes/emails.php:1004
-#: includes/emails.php:1033
+#: includes/metaboxes.php:619
+#: includes/metaboxes.php:664
+#: includes/emails.php:769
+#: includes/emails.php:1116
+#: includes/emails.php:1145
 #: includes/email-language.php:192
 msgid "Not authorized."
 msgstr ""
@@ -542,7 +557,7 @@ msgid "Utilization"
 msgstr ""
 
 #: includes/admin-pages.php:167
-#: includes/metaboxes.php:319
+#: includes/metaboxes.php:462
 msgid "Actions"
 msgstr ""
 
@@ -551,7 +566,7 @@ msgid "overbooked"
 msgstr ""
 
 #: includes/admin-pages.php:202
-#: includes/metaboxes.php:194
+#: includes/metaboxes.php:282
 msgid "Participants"
 msgstr ""
 
@@ -583,16 +598,16 @@ msgid "Customer"
 msgstr ""
 
 #: includes/admin-pages.php:284
-#: includes/metaboxes.php:317
-#: includes/metaboxes.php:520
+#: includes/metaboxes.php:460
+#: includes/metaboxes.php:685
 msgid "Booked on"
 msgstr ""
 
 #: includes/admin-pages.php:285
 #: includes/admin-pages.php:543
 #: includes/admin-pages.php:728
-#: includes/metaboxes.php:318
-#: includes/metaboxes.php:521
+#: includes/metaboxes.php:461
+#: includes/metaboxes.php:686
 msgid "Status"
 msgstr ""
 
@@ -662,14 +677,14 @@ msgid "No users found."
 msgstr ""
 
 #: includes/admin-pages.php:463
-#: includes/metaboxes.php:315
-#: includes/metaboxes.php:518
+#: includes/metaboxes.php:458
+#: includes/metaboxes.php:683
 msgid "Name"
 msgstr ""
 
 #: includes/admin-pages.php:464
-#: includes/metaboxes.php:316
-#: includes/metaboxes.php:519
+#: includes/metaboxes.php:459
+#: includes/metaboxes.php:684
 msgid "Email"
 msgstr ""
 
@@ -772,7 +787,7 @@ msgid "Booking created."
 msgstr ""
 
 #: includes/admin-pages.php:626
-#: includes/metaboxes.php:477
+#: includes/metaboxes.php:642
 msgid "Booking cancelled."
 msgstr ""
 
@@ -870,7 +885,7 @@ msgid "Available spots. Visible even without login."
 msgstr ""
 
 #: includes/admin-pages.php:917
-msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf."
+msgid "One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf, format (online / in person) and location."
 msgstr ""
 
 #: includes/admin-pages.php:922
@@ -917,142 +932,203 @@ msgstr ""
 msgid "Credit revoked."
 msgstr ""
 
-#: includes/metaboxes.php:136
-#: includes/metaboxes.php:193
+#: includes/metaboxes.php:188
 msgid "Online Access"
 msgstr ""
 
-#: includes/metaboxes.php:137
+#: includes/metaboxes.php:189
 msgid "Defaults for online sessions. A meeting link or access details entered on a session itself take precedence."
 msgstr ""
 
-#: includes/metaboxes.php:140
+#: includes/metaboxes.php:192
 msgid "Same access for every session"
 msgstr ""
 
-#: includes/metaboxes.php:141
+#: includes/metaboxes.php:193
 msgid "Default meeting link"
 msgstr ""
 
-#: includes/metaboxes.php:142
+#: includes/metaboxes.php:194
 msgid "Default access details / notes"
 msgstr ""
 
-#: includes/metaboxes.php:143
+#: includes/metaboxes.php:195
 msgid "Send access details (hours before)"
 msgstr ""
 
-#: includes/metaboxes.php:152
+#: includes/metaboxes.php:206
+msgid "In-person sessions"
+msgstr ""
+
+#: includes/metaboxes.php:207
+msgid "Defaults for sessions held in person. A location or notes entered on a session itself take precedence."
+msgstr ""
+
+#: includes/metaboxes.php:210
+msgid "Default location"
+msgstr ""
+
+#: includes/metaboxes.php:211
+msgid "Default notes for participants"
+msgstr ""
+
+#: includes/metaboxes.php:219
+#: includes/metaboxes.php:351
+msgid "Studio name, street, town"
+msgstr ""
+
+#: includes/metaboxes.php:221
+#: includes/metaboxes.php:352
+msgid "Shown in the session list and sent with the booking confirmation."
+msgstr ""
+
+#: includes/metaboxes.php:228
+#: includes/metaboxes.php:357
+msgid "How to get there, doorbell, what to bring …"
+msgstr ""
+
+#: includes/metaboxes.php:231
+#: includes/metaboxes.php:358
+msgid "Only for booked participants: in their emails and on the session page."
+msgstr ""
+
+#: includes/metaboxes.php:240
 msgid "Use the meeting link and access details below for all sessions"
 msgstr ""
 
-#: includes/metaboxes.php:154
+#: includes/metaboxes.php:242
 msgid "New sessions start with these values in their own fields; sessions without values of their own use them as well. Untick if every session has its own link."
 msgstr ""
 
-#: includes/metaboxes.php:163
+#: includes/metaboxes.php:251
 msgid "Used for every session that has no meeting link of its own."
 msgstr ""
 
-#: includes/metaboxes.php:170
 #: includes/metaboxes.php:258
+#: includes/metaboxes.php:387
 msgid "Meeting ID, password, dial-in numbers …"
 msgstr ""
 
-#: includes/metaboxes.php:173
+#: includes/metaboxes.php:261
 msgid "Used for every session that has no access details of its own."
 msgstr ""
 
-#: includes/metaboxes.php:182
+#: includes/metaboxes.php:270
 msgid "When participants receive the access details email. 0 = immediately, as soon as a meeting link is available. Otherwise this many hours before the session starts — bookings made later receive it right away."
 msgstr ""
 
-#: includes/metaboxes.php:192
+#: includes/metaboxes.php:280
 msgid "Capacity"
 msgstr ""
 
-#: includes/metaboxes.php:213
+#: includes/metaboxes.php:281
+msgid "Format & Access"
+msgstr ""
+
+#: includes/metaboxes.php:301
 msgid "Maximum participants"
 msgstr ""
 
-#: includes/metaboxes.php:220
+#: includes/metaboxes.php:308
 msgid "Leave empty to use the default (%s) from settings."
 msgstr ""
 
-#: includes/metaboxes.php:227
+#: includes/metaboxes.php:315
 msgid "Booked:"
 msgstr ""
 
-#: includes/metaboxes.php:230
+#: includes/metaboxes.php:318
 msgid "Overbooked"
 msgstr ""
 
-#: includes/metaboxes.php:230
+#: includes/metaboxes.php:318
 msgid "capacity is below the number of existing bookings."
 msgstr ""
 
-#: includes/metaboxes.php:232
+#: includes/metaboxes.php:320
 msgid "Calculated automatically and cannot be edited directly."
 msgstr ""
 
-#: includes/metaboxes.php:249
-msgid "Meeting link"
+#: includes/metaboxes.php:342
+#: includes/admin.php:137
+msgid "Format"
 msgstr ""
 
-#: includes/metaboxes.php:256
-msgid "Access details / notes"
+#: includes/metaboxes.php:343
+msgid "Online (video call)"
 msgstr ""
 
-#: includes/metaboxes.php:262
+#: includes/metaboxes.php:355
+msgid "Notes for participants"
+msgstr ""
+
+#: includes/metaboxes.php:361
+#: includes/metaboxes.php:391
 msgid "Leave empty to use the default from Settings (shown in grey)."
 msgstr ""
 
-#: includes/metaboxes.php:269
+#: includes/metaboxes.php:367
+msgid "The booking confirmation contains the location. %d hours before the session starts, participants receive a reminder with the location and notes."
+msgstr ""
+
+#: includes/metaboxes.php:371
+msgid "The booking confirmation contains the location and notes. No meeting link is sent."
+msgstr ""
+
+#: includes/metaboxes.php:378
+msgid "Meeting link"
+msgstr ""
+
+#: includes/metaboxes.php:385
+msgid "Access details / notes"
+msgstr ""
+
+#: includes/metaboxes.php:398
 msgid "The access details are sent to all participants automatically %d hours before the session starts. Anyone who books later receives them right away."
 msgstr ""
 
-#: includes/metaboxes.php:273
+#: includes/metaboxes.php:402
 msgid "As soon as a link is saved here for the first time, the access details are sent to all participants automatically. Anyone who books afterwards receives them directly with the booking confirmation."
 msgstr ""
 
-#: includes/metaboxes.php:284
+#: includes/metaboxes.php:413
 msgid "Resend access details to all participants?"
 msgstr ""
 
-#: includes/metaboxes.php:285
+#: includes/metaboxes.php:414
 msgid "Resend access details"
 msgstr ""
 
-#: includes/metaboxes.php:287
+#: includes/metaboxes.php:416
 msgid "Only necessary if the link has changed since."
 msgstr ""
 
-#: includes/metaboxes.php:302
+#: includes/metaboxes.php:445
 msgid "No bookings for this session yet."
 msgstr ""
 
-#: includes/metaboxes.php:314
-#: includes/metaboxes.php:517
+#: includes/metaboxes.php:457
+#: includes/metaboxes.php:682
 msgid "No."
 msgstr ""
 
-#: includes/metaboxes.php:352
+#: includes/metaboxes.php:495
 msgid "Cancel booking? A consumed credit will be refunded."
 msgstr ""
 
-#: includes/metaboxes.php:376
+#: includes/metaboxes.php:519
 msgid "Attendance list as CSV"
 msgstr ""
 
-#: includes/metaboxes.php:492
+#: includes/metaboxes.php:657
 msgid "Marked as no-show."
 msgstr ""
 
-#: includes/metaboxes.php:493
+#: includes/metaboxes.php:658
 msgid "No-show mark removed."
 msgstr ""
 
-#: includes/course-info.php:130
+#: includes/course-info.php:133
 msgid "%d min."
 msgstr ""
 
@@ -1262,184 +1338,204 @@ msgstr ""
 msgid "Type"
 msgstr ""
 
-#: includes/emails.php:27
+#: includes/emails.php:33
 msgid "Booking confirmation"
 msgstr ""
 
-#: includes/emails.php:27
+#: includes/emails.php:33
 msgid "Sent to the customer right after a successful booking."
 msgstr ""
 
-#: includes/emails.php:28
+#: includes/emails.php:34
+msgid "Booking confirmation (in person)"
+msgstr ""
+
+#: includes/emails.php:34
+msgid "Instead of the booking confirmation above for sessions held in person — with the location instead of the meeting link."
+msgstr ""
+
+#: includes/emails.php:35
 msgid "Cancellation confirmation"
 msgstr ""
 
-#: includes/emails.php:28
+#: includes/emails.php:35
 msgid "Sent to the customer after a cancellation."
 msgstr ""
 
-#: includes/emails.php:29
+#: includes/emails.php:36
 msgid "Session cancelled"
 msgstr ""
 
-#: includes/emails.php:29
+#: includes/emails.php:36
 msgid "Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically."
 msgstr ""
 
-#: includes/emails.php:30
+#: includes/emails.php:37
 msgid "Reminder"
 msgstr ""
 
-#: includes/emails.php:30
+#: includes/emails.php:37
 msgid "Before the session starts — timing set in Settings."
 msgstr ""
 
-#: includes/emails.php:31
+#: includes/emails.php:38
 msgid "Meeting link and access details for online sessions — timing set in Settings → Online Access."
 msgstr ""
 
-#: includes/emails.php:32
+#: includes/emails.php:39
+msgid "Location details (in person)"
+msgstr ""
+
+#: includes/emails.php:39
+msgid "Location and notes for sessions held in person, at the same time as the access details for online sessions. Not sent when that time is 0 — the booking confirmation already contains everything."
+msgstr ""
+
+#: includes/emails.php:40
 msgid "Admin: new booking"
 msgstr ""
 
-#: includes/emails.php:32
+#: includes/emails.php:40
 msgid "Sent to the address set below for every new booking, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:33
+#: includes/emails.php:41
 msgid "Admin: participant list"
 msgstr ""
 
-#: includes/emails.php:33
+#: includes/emails.php:41
 msgid "Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings."
 msgstr ""
 
-#: includes/emails.php:34
+#: includes/emails.php:42
 msgid "Admin: cancellation"
 msgstr ""
 
-#: includes/emails.php:34
+#: includes/emails.php:42
 msgid "Sent to the address set below whenever a participant cancels, with the current number of participants."
 msgstr ""
 
-#: includes/emails.php:339
+#: includes/emails.php:377
 msgid "Zoom link:"
 msgstr ""
 
-#: includes/emails.php:340
+#: includes/emails.php:378
 msgid "The access details follow by email before the class."
 msgstr ""
 
-#: includes/emails.php:388
+#: includes/emails.php:379
+msgid "Location:"
+msgstr ""
+
+#: includes/emails.php:438
 msgid "Before your class"
 msgstr ""
 
-#: includes/emails.php:391
+#: includes/emails.php:441
 msgid "One day before your class"
 msgstr ""
 
-#: includes/emails.php:392
+#: includes/emails.php:442
 msgid "Two days before your class"
 msgstr ""
 
-#: includes/emails.php:393
+#: includes/emails.php:443
 msgid "%d days before your class"
 msgstr ""
 
-#: includes/emails.php:395
+#: includes/emails.php:445
 msgid "One hour before your class"
 msgstr ""
 
-#: includes/emails.php:396
+#: includes/emails.php:446
 msgid "%d hours before your class"
 msgstr ""
 
-#: includes/emails.php:727
+#: includes/emails.php:788
 msgid "Access details sent to %d participants."
 msgstr ""
 
-#: includes/emails.php:730
+#: includes/emails.php:791
 msgid "Nothing sent — meeting link is missing or there are no active bookings."
 msgstr ""
 
-#: includes/emails.php:741
+#: includes/emails.php:802
 msgid "Every 5 minutes"
 msgstr ""
 
-#: includes/emails.php:956
-#: includes/emails.php:957
+#: includes/emails.php:1068
+#: includes/emails.php:1069
 msgid "Emails"
 msgstr ""
 
-#: includes/emails.php:1013
+#: includes/emails.php:1125
 msgid "Unknown email type."
 msgstr ""
 
-#: includes/emails.php:1021
+#: includes/emails.php:1133
 msgid "%s reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1042
+#: includes/emails.php:1154
 msgid "All emails reset to the default text."
 msgstr ""
 
-#: includes/emails.php:1071
+#: includes/emails.php:1183
 msgid "Email Texts"
 msgstr ""
 
-#: includes/emails.php:1077
+#: includes/emails.php:1189
 msgid "Reset ALL emails to the default text? Your saved changes to every subject and body will be lost."
 msgstr ""
 
-#: includes/emails.php:1078
+#: includes/emails.php:1190
 msgid "Reset all to default"
 msgstr ""
 
-#: includes/emails.php:1088
+#: includes/emails.php:1200
 msgid "The subject and body below are the source text. To translate them into other languages, use WPML → String Translation, filtered by context %s."
 msgstr ""
 
-#: includes/emails.php:1093
+#: includes/emails.php:1205
 msgid "Open WPML String Translation"
 msgstr ""
 
-#: includes/emails.php:1100
+#: includes/emails.php:1212
 msgid "Available placeholders:"
 msgstr ""
 
-#: includes/emails.php:1113
+#: includes/emails.php:1225
 msgid "Address for admin copies"
 msgstr ""
 
-#: includes/emails.php:1119
+#: includes/emails.php:1231
 msgid "Leave empty to use the recipient of the WooCommerce “New order” email."
 msgstr ""
 
-#: includes/emails.php:1131
+#: includes/emails.php:1243
 msgid "Reset %s to the default text? Your saved changes will be lost."
 msgstr ""
 
-#: includes/emails.php:1134
+#: includes/emails.php:1246
 msgid "Reset to default"
 msgstr ""
 
-#: includes/emails.php:1141
+#: includes/emails.php:1253
 msgid "Active"
 msgstr ""
 
-#: includes/emails.php:1147
+#: includes/emails.php:1259
 msgid "Send this email"
 msgstr ""
 
-#: includes/emails.php:1152
+#: includes/emails.php:1264
 msgid "Subject"
 msgstr ""
 
-#: includes/emails.php:1160
+#: includes/emails.php:1272
 msgid "Body"
 msgstr ""
 
-#: includes/emails.php:1172
+#: includes/emails.php:1284
 msgid "Avoid applying formatting (bold, links, …) to only part of a placeholder — e.g. bolding half of {course_title} can split it apart so it no longer gets replaced."
 msgstr ""
 
@@ -1643,6 +1739,11 @@ msgstr ""
 msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\n{access_timing}, you will receive the Zoom link along with all additional details needed to join the session. 💻✨\n\nIf you do not receive this email or if you experience any issues accessing the class, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸"
 msgstr ""
 
+#. Default body of the "booking_in_person" email
+#: email:booking_in_person.body
+msgid "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you in person and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Location 📍</strong>\n{location}\n{location_notes}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\nIf you have any questions, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸"
+msgstr ""
+
 #. Default subject of the "cancellation" email
 #: email:cancellation.subject
 msgid "Cancellation: {course_title}"
@@ -1681,6 +1782,16 @@ msgstr ""
 #. Default body of the "access" email
 #: email:access.body
 msgid "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find all the details you need to join the session and prepare for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Zoom Details 💻</strong>\nJoin Link: {meeting_link}\n{access_details}\n\nTo join the class, you can either click directly on the Zoom link above, or open Zoom and enter the Meeting ID and Passcode manually. 🌱\n\nTo ensure a smooth and welcoming experience for everyone, please make sure to:<ul><li>Join using your real first and last name, so I can confirm your identity and welcome you into the session. 🤍</li><li>Keep your camera turned on during the class. 📹</li></ul>\nIf you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\nI’m looking forward to our upcoming session and sharing this practice with you. ✨\n\nWith gratitude,\nHelena 🌸"
+msgstr ""
+
+#. Default subject of the "access_in_person" email
+#: email:access_in_person.subject
+msgid "Your Class Is Coming Up – Location & Details 📍"
+msgstr ""
+
+#. Default body of the "access_in_person" email
+#: email:access_in_person.body
+msgid "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find everything you need for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Location 📍</strong>\n{location}\n{location_notes}\n\nIf you have any questions or can’t make it, please reach out at {contact_email} and I’ll be happy to help. 🌿\n\nI’m looking forward to seeing you and sharing this practice with you. ✨\n\nWith gratitude,\nHelena 🌸"
 msgstr ""
 
 #. Default subject of the "admin_booking" email

@@ -822,5 +822,129 @@ $GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42]];
 BW_Emails::run_access_details();
 check('run_access_details(): access email disabled -> no query', $GLOBALS['wpdb']->queries === []);
 
+/* ---------------------------------------------------------------
+ * 13. In-person sessions: no meeting link, location instead
+ * --------------------------------------------------------------- */
+function location_mails(): array {
+    return array_values(array_filter($GLOBALS['__mails'], fn($m) => str_starts_with($m['subject'], 'Your Class Is Coming Up')));
+}
+function make_in_person(int $slot_id, string $location = 'Studio Sol, Calle Mar 5, Palma', string $notes = 'Ring twice. Bring your mat.') {
+    $GLOBALS['__postmeta'][$slot_id]['_bw_format'] = 'in_person';
+    if ($location !== '') $GLOBALS['__postmeta'][$slot_id]['_bw_location'] = $location;
+    if ($notes !== '')    $GLOBALS['__postmeta'][$slot_id]['_bw_location_notes'] = $notes;
+}
+
+reset_state();
+check('get_format(): nothing saved -> online', BW_Metaboxes::get_format(42) === 'online' && !BW_Metaboxes::is_in_person(42));
+check('get_location(): online session -> empty even with a default', (function () {
+    $GLOBALS['__options']['bw_default_location'] = 'Default Studio';
+    return BW_Metaboxes::get_location(42) === '';
+})());
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+$GLOBALS['__options']['bw_default_access_info']  = 'Default PIN 1234';
+$GLOBALS['__postmeta'][42]['_bw_meeting_link']   = 'https://zoom.test/own';
+$GLOBALS['__postmeta'][42]['_bw_format']         = 'in_person';
+check('in person: meeting link and access details resolve to empty (own and default)', BW_Metaboxes::get_meeting_link(42) === '' && BW_Metaboxes::get_access_info(42) === '');
+check('in person: location falls back to the default', BW_Metaboxes::get_location(42) === 'Default Studio');
+$GLOBALS['__postmeta'][42]['_bw_location'] = 'Own Studio';
+check('in person: the session\'s own location wins', BW_Metaboxes::get_location(42) === 'Own Studio');
+$GLOBALS['__postmeta'][42]['_bw_format'] = 'something-else';
+check('get_format(): an unknown value counts as online', BW_Metaboxes::get_format(42) === 'online' && BW_Metaboxes::get_meeting_link(42) === 'https://zoom.test/own');
+
+// Booking: in-person confirmation with the location, no Zoom text, no access mail
+reset_state();
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+make_in_person(42);
+slot_starts_in(42, '+5 days');
+BW_Emails::on_booking_created(500, 1, 42);
+$booking = $GLOBALS['__mails'][0] ?? null;
+check('in person, booking: just the confirmation, no access mail', count(access_mails()) === 0 && count($GLOBALS['__mails']) === 1);
+check('in person, booking: the confirmation contains location and notes', $booking && str_contains($booking['message'], 'Studio Sol, Calle Mar 5, Palma') && str_contains($booking['message'], 'Ring twice. Bring your mat.'));
+check('in person, booking: no Zoom wording and no meeting link', $booking && !str_contains($booking['message'], 'Zoom') && !str_contains($booking['message'], 'zoom.test'));
+$ics = $booking ? str_replace("\r\n ", '', (string) reset($booking['files'])) : '';
+check('in person, .ics: LOCATION is the place, no meeting link anywhere', str_contains($ics, 'LOCATION:Studio Sol\, Calle Mar 5\, Palma') && !str_contains($ics, 'zoom.test') && str_contains($ics, 'Ring twice.'));
+check('in person, hours=0: booking marked as done (no later location mail)', $GLOBALS['wpdb']->updates === [500]);
+
+// German customer gets the German in-person text from the .mo
+reset_state();
+make_in_person(42);
+slot_starts_in(42, '+5 days');
+$d = BW_Emails::defaults();
+$GLOBALS['__mo']['de_DE'][$d['booking_in_person']['body']] = "Hallo {first_name},\n\nOrt: {location}";
+update_user_meta(1, '_bw_email_language', 'de');
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+check('in person, booking: German customer gets the German in-person text', str_contains($GLOBALS['__mails'][0]['message'] ?? '', 'Ort: Studio Sol'));
+unset($GLOBALS['__mo']);
+
+// A customised online booking text is not used for in-person sessions
+reset_state();
+make_in_person(42);
+$GLOBALS['__options']['bw_email_booking_body'] = 'Custom online text with {meeting_link}';
+BW_Emails::send('booking', 1, 42, 'jane@example.test');
+check('in person, booking: the (customised) online text is not used', !str_contains($GLOBALS['__mails'][0]['message'] ?? '', 'Custom online text'));
+
+// In-person confirmation can be switched off on its own
+reset_state();
+make_in_person(42);
+$GLOBALS['__options']['bw_email_booking_in_person_enabled'] = 0;
+check('in person, booking: disabled in-person confirmation -> nothing sent', BW_Emails::send('booking', 1, 42, 'jane@example.test') === false && $GLOBALS['__mails'] === []);
+
+// hours > 0: booking well before the window -> location mail from the cron later
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+make_in_person(42);
+slot_starts_in(42, '+5 days');
+BW_Emails::on_booking_created(500, 1, 42);
+check('in person, hours=24, 5 days ahead: booking not marked yet (cron sends later)', $GLOBALS['wpdb']->updates === []);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+make_in_person(42);
+slot_starts_in(42, '+2 hours');
+BW_Emails::on_booking_created(500, 1, 42);
+check('in person, late booking inside the window: marked, no second mail', $GLOBALS['wpdb']->updates === [500] && count(location_mails()) === 0);
+
+// Cron: location details
+reset_state();
+make_in_person(42);
+$GLOBALS['__db_rows'] = [['id' => 700, 'user_id' => 1, 'slot_id' => 42]];
+BW_Emails::run_location_details();
+check('run_location_details(): hours=0 -> no-op', $GLOBALS['wpdb']->queries === [] && $GLOBALS['__mails'] === []);
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+make_in_person(42);
+make_in_person(43, '', ''); // no location at all
+$GLOBALS['__db_rows'] = [['id' => 700, 'user_id' => 1, 'slot_id' => 42], ['id' => 701, 'user_id' => 1, 'slot_id' => 43]];
+BW_Emails::run_location_details();
+$lm = location_mails();
+check('run_location_details(): sends location + notes and marks the booking', count($lm) === 1 && str_contains($lm[0]['message'], 'Studio Sol') && str_contains($lm[0]['message'], 'Bring your mat') && $GLOBALS['wpdb']->updates === [700]);
+check('run_location_details(): SQL only picks in-person sessions not yet sent', str_contains($GLOBALS['wpdb']->queries[0] ?? '', 'fm.meta_value = %s') && str_contains($GLOBALS['wpdb']->queries[0] ?? '', 'access_sent_at IS NULL'));
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+BW_Emails::run_access_details();
+check('run_access_details(): SQL leaves in-person sessions out', str_contains($GLOBALS['wpdb']->queries[0] ?? '', 'fm.meta_value IS NULL OR fm.meta_value <> %s'));
+
+reset_state();
+$GLOBALS['__options']['bw_access_details_hours'] = 24;
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+make_in_person(42);
+$GLOBALS['__db_rows'] = [['id' => 600, 'user_id' => 1, 'slot_id' => 42]];
+BW_Emails::run_access_details();
+check('run_access_details(): an in-person row that slips through still gets no Zoom mail', count(access_mails()) === 0 && $GLOBALS['wpdb']->updates === []);
+
+reset_state();
+$GLOBALS['__options']['bw_default_meeting_link'] = 'https://zoom.test/default';
+make_in_person(42);
+$GLOBALS['__db_rows'] = [['id' => 501, 'user_id' => 1]];
+check('send_access_for_slot(): in person -> nothing sent', BW_Emails::send_access_for_slot(42) === 0 && $GLOBALS['__mails'] === []);
+
+reset_state();
+make_in_person(42);
+$ph = BW_Emails::placeholders(1, 42);
+check('placeholders(): {location}/{location_notes} filled, {meeting_link} empty', $ph['{location}'] === 'Studio Sol, Calle Mar 5, Palma' && $ph['{location_notes}'] === 'Ring twice. Bring your mat.' && $ph['{meeting_link}'] === '');
+
 printf("\n%d/%d checks passed\n", $pass, $pass + $fail);
 exit($fail > 0 ? 1 : 0);

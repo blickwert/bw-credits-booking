@@ -436,7 +436,7 @@ const ENGLISH_TO_GERMAN = [
     "Whoever already ordered this product (processing, completed or on hold) can't order it again. Checked by account and billing e-mail address; counts for all language versions." => 'Wer dieses Produkt schon bestellt hat (in Bearbeitung, abgeschlossen oder wartend), kann es nicht erneut bestellen. Geprüft wird über das Konto und die Rechnungs-E-Mail-Adresse; gilt für alle Sprachversionen.',
     'You have already booked “%s”. This offer is only available once per person.' => 'Du hast „%s“ bereits gebucht. Dieses Angebot gibt es nur einmal pro Person.',
     'Only available once per person.' => 'Nur einmal pro Person erhältlich.',
-    'One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf.' => 'Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt.',
+    'One value of a session, for the single-session template: type, level and language (names and descriptions), start, date, time, duration, calendar leaf, format (online / in person) and location.' => 'Ein Wert einer Session für die Einzel-Session-Vorlage: Typ, Level und Sprache (Namen und Beschreibungen), Start, Datum, Uhrzeit, Dauer, Kalenderblatt, Format (online / in Präsenz) und Ort.',
     'All emails reset to the default text.' => 'Alle E-Mails wurden auf den Standardtext zurückgesetzt.',
     'Reset ALL emails to the default text? Your saved changes to every subject and body will be lost.' => 'ALLE E-Mails auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen an allen Betreffs und Texten gehen verloren.',
     'Reset %s to the default text? Your saved changes will be lost.' => '%s auf den Standardtext zurücksetzen? Deine gespeicherten Änderungen gehen dabei verloren.',
@@ -512,6 +512,57 @@ const ENGLISH_TO_GERMAN = [
     "Your Class Link & Joining Details 💻✨" => "Dein Klassen-Link & Teilnahmeinformationen 💻✨",
     "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find all the details you need to join the session and prepare for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Zoom Details 💻</strong>\nJoin Link: {meeting_link}\n{access_details}\n\nTo join the class, you can either click directly on the Zoom link above, or open Zoom and enter the Meeting ID and Passcode manually. 🌱\n\nTo ensure a smooth and welcoming experience for everyone, please make sure to:<ul><li>Join using your real first and last name, so I can confirm your identity and welcome you into the session. 🤍</li><li>Keep your camera turned on during the class. 📹</li></ul>\nIf you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\nI’m looking forward to our upcoming session and sharing this practice with you. ✨\n\nWith gratitude,\nHelena 🌸" =>
         "Ein achtsames Hallo {first_name} 🌿,\n\ndeine Klasse findet bald statt. ✨ Nachfolgend findest du alle Informationen, die du benötigst, um an der Sitzung teilzunehmen und dich auf deine Praxis vorzubereiten.\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\n<strong>Zoom-Details 💻</strong>\nTeilnahmelink: {meeting_link}\n{access_details}\n\nUm an der Klasse teilzunehmen, kannst du entweder direkt auf den Zoom-Link oben klicken oder Zoom öffnen und die Meeting-ID sowie das Passwort manuell eingeben. 🌱\n\nDamit die Teilnahme für alle reibungslos und angenehm verläuft, bitte ich dich, Folgendes zu beachten:<ul><li>Trete mit deinem echten Vor- und Nachnamen bei, damit ich deine Identität bestätigen und dich persönlich in der Sitzung begrüßen kann. 🤍</li><li>Bitte lasse deine Kamera während der Klasse eingeschaltet. 📹</li></ul>\nFalls du Schwierigkeiten beim Beitreten hast oder Fragen auftreten, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌿\n\nIch freue mich auf unsere gemeinsame Praxis und darauf, diese Erfahrung mit dir zu teilen. ✨\n\nMit Dankbarkeit,\nHelena 🌸",
+    // In person (0.63.0)
+    "Online" =>
+        "Online",
+    "In person" =>
+        "In Präsenz",
+    "Location" =>
+        "Ort",
+    "In-person sessions" =>
+        "Präsenz-Sessions",
+    "Defaults for sessions held in person. A location or notes entered on a session itself take precedence." =>
+        "Standardwerte für Sessions in Präsenz. Ein Ort oder Hinweise, die bei einer Session selbst eingetragen sind, haben Vorrang.",
+    "Default location" =>
+        "Standard-Ort",
+    "Default notes for participants" =>
+        "Standard-Hinweise für Teilnehmende",
+    "Studio name, street, town" =>
+        "Studio, Straße, Ort",
+    "Shown in the session list and sent with the booking confirmation." =>
+        "Wird in der Kursliste angezeigt und mit der Buchungsbestätigung verschickt.",
+    "How to get there, doorbell, what to bring …" =>
+        "Anfahrt, Klingel, was mitzubringen ist …",
+    "Only for booked participants: in their emails and on the session page." =>
+        "Nur für gebuchte Teilnehmende: in ihren E-Mails und auf der Session-Seite.",
+    "Format & Access" =>
+        "Format & Zugang",
+    "Format" =>
+        "Format",
+    "Online (video call)" =>
+        "Online (Videocall)",
+    "Notes for participants" =>
+        "Hinweise für Teilnehmende",
+    "The booking confirmation contains the location. %d hours before the session starts, participants receive a reminder with the location and notes." =>
+        "Die Buchungsbestätigung enthält den Ort. %d Stunden vor Beginn bekommen die Teilnehmenden eine Erinnerung mit Ort und Hinweisen.",
+    "The booking confirmation contains the location and notes. No meeting link is sent." =>
+        "Die Buchungsbestätigung enthält Ort und Hinweise. Es wird kein Meeting-Link verschickt.",
+    "Booking confirmation (in person)" =>
+        "Buchungsbestätigung (Präsenz)",
+    "Instead of the booking confirmation above for sessions held in person — with the location instead of the meeting link." =>
+        "Statt der Buchungsbestätigung oben für Sessions in Präsenz — mit dem Ort statt dem Meeting-Link.",
+    "Location details (in person)" =>
+        "Ort & Hinweise (Präsenz)",
+    "Location and notes for sessions held in person, at the same time as the access details for online sessions. Not sent when that time is 0 — the booking confirmation already contains everything." =>
+        "Ort und Hinweise für Sessions in Präsenz, zum selben Zeitpunkt wie die Zugangsdaten bei Online-Sessions. Wird bei 0 nicht verschickt — dann steht schon alles in der Buchungsbestätigung.",
+    "Location:" =>
+        "Ort:",
+    "Your Class Is Coming Up – Location & Details 📍" =>
+        "Deine Klasse steht bevor – Ort & Details 📍",
+    "Greetings {first_name} 🌿,\n\nYour class has been successfully booked! ✨\n\nI’m looking forward to welcoming you in person and sharing this practice with you. 🤍\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Location 📍</strong>\n{location}\n{location_notes}\n\nYou can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\nIf you have any questions, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\nI look forward to seeing you on the mat soon. 🤍\n\nWith warmth,\nHelena 🌸" =>
+        "Hallo {first_name} 🌿,\n\ndeine Klasse wurde erfolgreich gebucht! ✨\n\nIch freue mich darauf, dich persönlich willkommen zu heißen und diese Praxis mit dir zu teilen. 🤍\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\n<strong>Ort 📍</strong>\n{location}\n{location_notes}\n\nDu kannst deine Buchung jederzeit in deinem Konto ansehen, verwalten oder stornieren: {account_link}\n{cancel_note}\n\nWenn du Fragen hast, kannst du dich jederzeit unter {contact_email} bei mir melden. Ich helfe dir gerne weiter. 🌱\n\nIch freue mich darauf, dich bald auf der Matte zu sehen. 🤍\n\nMit Wärme,\nHelena 🌸",
+    "A mindful hello {first_name} 🌿,\n\nYour class is coming up soon. ✨ Below you will find everything you need for your practice.\n\n<strong>Class Details 🧘‍♀️</strong>\nDate: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n<strong>Location 📍</strong>\n{location}\n{location_notes}\n\nIf you have any questions or can’t make it, please reach out at {contact_email} and I’ll be happy to help. 🌿\n\nI’m looking forward to seeing you and sharing this practice with you. ✨\n\nWith gratitude,\nHelena 🌸" =>
+        "Ein achtsames Hallo {first_name} 🌿,\n\ndeine Klasse findet bald statt. ✨ Nachfolgend findest du alles, was du für deine Praxis brauchst.\n\n<strong>Klassendetails 🧘‍♀️</strong>\nDatum: {date}\nUhrzeit: {time}\nArt der Klasse: {course_type}\nLevel: {course_level}\n\n<strong>Ort 📍</strong>\n{location}\n{location_notes}\n\nWenn du Fragen hast oder nicht kommen kannst, melde dich gerne unter {contact_email}. Ich helfe dir gerne weiter. 🌿\n\nIch freue mich darauf, dich zu sehen und diese Praxis mit dir zu teilen. ✨\n\nMit Dankbarkeit,\nHelena 🌸",
     'New booking: {course_title} ({booked_count}/{capacity})' => 'Neue Buchung: {course_title} ({booked_count}/{capacity})',
     "{customer_name} ({customer_email}) booked:\n\n{course_title}\n{date} at {time}\n\nParticipants now: {booked_count} of {capacity}\nParticipant list: {admin_link}" =>
         "{customer_name} ({customer_email}) hat gebucht:\n\n{course_title}\n{date} um {time}\n\nTeilnehmer jetzt: {booked_count} von {capacity}\nTeilnehmerliste: {admin_link}",
