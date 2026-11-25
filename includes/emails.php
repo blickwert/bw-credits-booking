@@ -11,6 +11,12 @@ if (!defined('ABSPATH')) exit;
  *  - N: the hourly cron sends them N hours before the start; events inside
  *    that window (late booking, link entered late) still send right away.
  * The access_sent_at flag prevents duplicate sends in all directions.
+ *
+ * In-person sessions (BW_Metaboxes format "in_person") have no meeting link: they
+ * get their own booking confirmation (booking_in_person, with the location) and,
+ * with N > 0, a reminder with location and notes N hours before the start
+ * (access_in_person, same access_sent_at flag). With 0 the booking confirmation
+ * is all they need.
  */
 
 class BW_Emails {
@@ -25,10 +31,12 @@ class BW_Emails {
     public static function types(): array {
         return [
             'booking'       => [__('Booking confirmation', 'bw-credits-booking'), __('Sent to the customer right after a successful booking.', 'bw-credits-booking')],
+            'booking_in_person' => [__('Booking confirmation (in person)', 'bw-credits-booking'), __('Instead of the booking confirmation above for sessions held in person — with the location instead of the meeting link.', 'bw-credits-booking')],
             'cancellation'  => [__('Cancellation confirmation', 'bw-credits-booking'), __('Sent to the customer after a cancellation.', 'bw-credits-booking')],
             'session_cancelled' => [__('Session cancelled', 'bw-credits-booking'), __('Sent to the customers of an upcoming session that was moved to the trash or deleted — the credit is refunded automatically.', 'bw-credits-booking')],
             'reminder'      => [__('Reminder', 'bw-credits-booking'), __('Before the session starts — timing set in Settings.', 'bw-credits-booking')],
             'access'        => [__('Access details', 'bw-credits-booking'), __('Meeting link and access details for online sessions — timing set in Settings → Online Access.', 'bw-credits-booking')],
+            'access_in_person' => [__('Location details (in person)', 'bw-credits-booking'), __('Location and notes for sessions held in person, at the same time as the access details for online sessions. Not sent when that time is 0 — the booking confirmation already contains everything.', 'bw-credits-booking')],
             'admin_booking' => [__('Admin: new booking', 'bw-credits-booking'), __('Sent to the address set below for every new booking, with the current number of participants.', 'bw-credits-booking')],
             'admin_participants' => [__('Admin: participant list', 'bw-credits-booking'), __('Sent to the address set below shortly before the session starts (after booking has closed) with the active participants — timing set in Settings.', 'bw-credits-booking')],
             'admin_cancellation' => [__('Admin: cancellation', 'bw-credits-booking'), __('Sent to the address set below whenever a participant cancels, with the current number of participants.', 'bw-credits-booking')],
@@ -49,6 +57,7 @@ class BW_Emails {
 
         add_action(self::CRON_HOOK, [__CLASS__, 'run_reminders']);
         add_action(self::CRON_HOOK, [__CLASS__, 'run_access_details']);
+        add_action(self::CRON_HOOK, [__CLASS__, 'run_location_details']);
         add_filter('cron_schedules', [__CLASS__, 'cron_schedules']);
         add_action(self::CRON_PARTICIPANTS, [__CLASS__, 'run_participant_lists']);
         add_action('init', [__CLASS__, 'schedule_cron']);
@@ -197,6 +206,20 @@ class BW_Emails {
                            . "I look forward to seeing you on the mat soon. 🤍\n\n"
                            . "With warmth,\nHelena 🌸",
             ],
+            'booking_in_person' => [
+                'subject' => 'See You on the Mat Soon! 🧘‍♀️',
+                'body'    => "Greetings {first_name} 🌿,\n\n"
+                           . "Your class has been successfully booked! ✨\n\n"
+                           . "I’m looking forward to welcoming you in person and sharing this practice with you. 🤍\n\n"
+                           . "<strong>Class Details 🧘‍♀️</strong>\n"
+                           . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                           . "<strong>Location 📍</strong>\n"
+                           . "{location}\n{location_notes}\n\n"
+                           . "You can view, manage or cancel your booking anytime in your account: {account_link}\n{cancel_note}\n\n"
+                           . "If you have any questions, please feel free to contact me at {contact_email}. I’ll be happy to assist you. 🌱\n\n"
+                           . "I look forward to seeing you on the mat soon. 🤍\n\n"
+                           . "With warmth,\nHelena 🌸",
+            ],
             'cancellation' => [
                 'subject' => 'Cancellation: {course_title}',
                 'body'    => "Hi {customer_name},\n\n"
@@ -238,6 +261,18 @@ class BW_Emails {
                            . "<li>Keep your camera turned on during the class. 📹</li></ul>\n"
                            . "If you experience any difficulties joining or have any questions, please reach out at {contact_email} and I’ll be happy to assist you. 🌿\n\n"
                            . "I’m looking forward to our upcoming session and sharing this practice with you. ✨\n\n"
+                           . "With gratitude,\nHelena 🌸",
+            ],
+            'access_in_person' => [
+                'subject' => 'Your Class Is Coming Up – Location & Details 📍',
+                'body'    => "A mindful hello {first_name} 🌿,\n\n"
+                           . "Your class is coming up soon. ✨ Below you will find everything you need for your practice.\n\n"
+                           . "<strong>Class Details 🧘‍♀️</strong>\n"
+                           . "Date: {date}\nTime: {time}\nClass Type: {course_type}\nLevel: {course_level}\n\n"
+                           . "<strong>Location 📍</strong>\n"
+                           . "{location}\n{location_notes}\n\n"
+                           . "If you have any questions or can’t make it, please reach out at {contact_email} and I’ll be happy to help. 🌿\n\n"
+                           . "I’m looking forward to seeing you and sharing this practice with you. ✨\n\n"
                            . "With gratitude,\nHelena 🌸",
             ],
             'admin_booking' => [
@@ -294,6 +329,9 @@ class BW_Emails {
             '{course_level}'      => self::slot_terms($slot_id, (string) apply_filters('bw_email_course_level_taxonomy', 'course_level')),
             '{meeting_link}'      => BW_Metaboxes::get_meeting_link($slot_id),
             '{access_details}'    => BW_Metaboxes::get_access_info($slot_id),
+            // In-person sessions: place and notes ('' for online sessions).
+            '{location}'          => BW_Metaboxes::get_location($slot_id),
+            '{location_notes}'    => BW_Metaboxes::get_location_notes($slot_id),
             '{course_link}'       => $slot_id > 0 ? (string) get_permalink($slot_id) : '',
             '{account_link}'      => BW_Credits_Bookings_MVP::my_account_url(),
             '{contact_email}'     => self::contact_email(),
@@ -338,6 +376,7 @@ class BW_Emails {
         return [
             __('Zoom link:', 'bw-credits-booking'),
             __('The access details follow by email before the class.', 'bw-credits-booking'),
+            __('Location:', 'bw-credits-booking'),
         ];
     }
 
@@ -354,8 +393,19 @@ class BW_Emails {
         $open  = $key === 'access' || BW_Metaboxes::get_access_details_hours() <= 0 || self::access_due($slot_id);
         $share = $open && $link !== '';
 
-        $lines = [BW_Time_Zone::time_with_zone($start, $user_id)];
-        if ($share) {
+        $lines    = [BW_Time_Zone::time_with_zone($start, $user_id)];
+        $location = BW_Metaboxes::get_location($slot_id);
+        if (BW_Metaboxes::is_in_person($slot_id)) {
+            $notes = BW_Metaboxes::get_location_notes($slot_id);
+            if ($location !== '') {
+                $lines[] = '';
+                $lines[] = self::default_translation('Location:', $locale) . ' ' . $location;
+            }
+            if ($notes !== '') {
+                $lines[] = '';
+                $lines[] = $notes;
+            }
+        } elseif ($share) {
             $lines[] = '';
             $lines[] = self::default_translation('Zoom link:', $locale) . ' ' . $link;
             if ($info !== '') $lines[] = $info;
@@ -371,7 +421,7 @@ class BW_Emails {
             'start'         => $start,
             'end'           => $end,
             'description'   => implode("\n", $lines),
-            'location'      => $share ? $link : '',
+            'location'      => $location !== '' ? $location : ($share ? $link : ''),
             'url'           => $share ? $link : (string) get_permalink($slot_id),
             'alarm_minutes' => 60,
         ]);
@@ -420,6 +470,10 @@ class BW_Emails {
      * ========================================================= */
 
     public static function send(string $key, int $user_id, int $slot_id, string $to = ''): bool {
+        // An in-person session gets the in-person version of the booking and access mails.
+        if (in_array($key, ['booking', 'access'], true) && BW_Metaboxes::is_in_person($slot_id)) {
+            $key .= '_in_person';
+        }
         if (!self::is_enabled($key)) return false;
 
         if ($to === '') {
@@ -460,7 +514,7 @@ class BW_Emails {
         if ($wpml_switch) do_action('wpml_switch_language', $lang);
 
         $placeholders = self::placeholders($user_id, $slot_id, strpos($key, 'admin_') !== 0);
-        $ics          = in_array($key, ['booking', 'access'], true) ? self::calendar_attachment($user_id, $slot_id, $key, $locale) : null;
+        $ics          = in_array($key, ['booking', 'access', 'booking_in_person', 'access_in_person'], true) ? self::calendar_attachment($user_id, $slot_id, $key, $locale) : null;
 
         if ($wpml_switch) do_action('wpml_switch_language', $wpml_before);
 
@@ -605,6 +659,13 @@ class BW_Emails {
         $admin_to = self::admin_recipient();
         if (is_email($admin_to)) {
             self::send('admin_booking', (int) $user_id, (int) $slot_id, $admin_to);
+        }
+
+        // In person: booked inside the reminder window (or with "0 hours") → the booking
+        // confirmation just sent already has the location, no second mail from the cron.
+        if (BW_Metaboxes::is_in_person((int) $slot_id)) {
+            if (self::access_due((int) $slot_id)) self::mark_access_sent((int) $booking_id);
+            return;
         }
 
         // Link already available and it's time → this customer gets the access
@@ -886,27 +947,78 @@ class BW_Emails {
             $link_where = "AND lm.meta_value <> ''";
         }
 
+        // In-person sessions are left out here (they have no link) — run_location_details() handles them
         $rows = (array) $wpdb->get_results($wpdb->prepare(
             "SELECT b.id, b.user_id, b.slot_id
              FROM {$table} b
              INNER JOIN {$wpdb->postmeta} pm
                  ON pm.post_id = b.slot_id AND pm.meta_key = %s
              {$link_join}
+             LEFT JOIN {$wpdb->postmeta} fm
+                 ON fm.post_id = b.slot_id AND fm.meta_key = %s
              WHERE b.is_active = 1
                AND b.status = 'booked'
                AND b.access_sent_at IS NULL
                AND CAST(pm.meta_value AS DATETIME) > %s
                AND CAST(pm.meta_value AS DATETIME) <= %s
+               AND (fm.meta_value IS NULL OR fm.meta_value <> %s)
                {$link_where}
              LIMIT 200",
             BW_Credits_Bookings_MVP::META_START_DT,
+            BW_Metaboxes::META_FORMAT,
             $now->format('Y-m-d H:i:s'),
-            $until->format('Y-m-d H:i:s')
+            $until->format('Y-m-d H:i:s'),
+            BW_Metaboxes::FORMAT_IN_PERSON
         ), ARRAY_A);
 
         foreach ($rows as $row) {
             if (BW_Metaboxes::get_meeting_link((int) $row['slot_id']) === '') continue;
             if (self::send('access', (int) $row['user_id'], (int) $row['slot_id'])) {
+                self::mark_access_sent((int) $row['id']);
+            }
+        }
+    }
+
+    /**
+     * In-person sessions: location and notes N hours before the start (only with N > 0 — with 0 the
+     * booking confirmation already contains them). Same window and access_sent_at flag as the online
+     * access details; sessions without any location are skipped.
+     */
+    public static function run_location_details() {
+        if (!self::is_enabled('access_in_person')) return;
+
+        $hours = BW_Metaboxes::get_access_details_hours();
+        if ($hours <= 0) return;
+
+        global $wpdb;
+        $table = $wpdb->prefix . BW_Credits_Bookings_MVP::BOOKINGS_TABLE;
+
+        $now   = new DateTime('now', wp_timezone());
+        $until = (clone $now)->modify('+' . $hours . ' hours');
+
+        $rows = (array) $wpdb->get_results($wpdb->prepare(
+            "SELECT b.id, b.user_id, b.slot_id
+             FROM {$table} b
+             INNER JOIN {$wpdb->postmeta} pm
+                 ON pm.post_id = b.slot_id AND pm.meta_key = %s
+             INNER JOIN {$wpdb->postmeta} fm
+                 ON fm.post_id = b.slot_id AND fm.meta_key = %s AND fm.meta_value = %s
+             WHERE b.is_active = 1
+               AND b.status = 'booked'
+               AND b.access_sent_at IS NULL
+               AND CAST(pm.meta_value AS DATETIME) > %s
+               AND CAST(pm.meta_value AS DATETIME) <= %s
+             LIMIT 200",
+            BW_Credits_Bookings_MVP::META_START_DT,
+            BW_Metaboxes::META_FORMAT,
+            BW_Metaboxes::FORMAT_IN_PERSON,
+            $now->format('Y-m-d H:i:s'),
+            $until->format('Y-m-d H:i:s')
+        ), ARRAY_A);
+
+        foreach ($rows as $row) {
+            if (BW_Metaboxes::get_location((int) $row['slot_id']) === '') continue;
+            if (self::send('access_in_person', (int) $row['user_id'], (int) $row['slot_id'])) {
                 self::mark_access_sent((int) $row['id']);
             }
         }
@@ -1101,7 +1213,7 @@ class BW_Emails {
                 <code>{customer_name}</code> <code>{first_name}</code> <code>{course_title}</code> <code>{date}</code>
                 <code>{time}</code> <code>{course_type}</code> <code>{course_level}</code> <code>{credits_remaining}</code>
                 <code>{contact_email}</code> <code>{access_timing}</code> <code>{timezone}</code> <code>{cancel_note}</code>
-                <code>{meeting_link}</code> <code>{access_details}</code>
+                <code>{meeting_link}</code> <code>{access_details}</code> <code>{location}</code> <code>{location_notes}</code>
                 <code>{course_link}</code> <code>{account_link}</code>
             </p>
 

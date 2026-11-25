@@ -134,6 +134,7 @@ add_filter("manage_edit-{$bw_slot_pt}_columns", function ($columns) {
         'bw_course_level'   => __('Level', 'bw-credits-booking'),
         'bw_course_type'    => __('Type', 'bw-credits-booking'),
         'bw_course_lang'    => __('Language', 'bw-credits-booking'),
+        'bw_format'         => __('Format', 'bw-credits-booking'),
     ];
     foreach ($columns as $key => $label) {
         if (!isset($new[$key]) && $key !== 'cb' && $key !== 'title') {
@@ -148,6 +149,10 @@ add_action("manage_{$bw_slot_pt}_posts_custom_column", function ($column, $post_
         $v  = get_post_meta($post_id, 'start_datetime', true);
         $ts = $v ? strtotime($v) : 0;
         echo $ts ? esc_html(date('Y-m-d H:i', $ts)) : '—';
+        return;
+    }
+    if ($column === 'bw_format') {
+        echo esc_html(BW_Metaboxes::is_in_person((int) $post_id) ? __('In person', 'bw-credits-booking') : __('Online', 'bw-credits-booking'));
         return;
     }
     $tax_map = [

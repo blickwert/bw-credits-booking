@@ -218,6 +218,12 @@ class BW_Text {
             'course_list.filter.lang' => [
                 'Language', 'Label of the filter for course_lang', 'course_list',
             ],
+            'course_list.format.online' => [
+                'Online', 'Format of a session held by video call (session list, [bw_credits_course_info field="format"])', 'course_list',
+            ],
+            'course_list.format.in_person' => [
+                'In person', 'Format of a session held in person, followed by its location', 'course_list',
+            ],
 
             /* --- Access Details --- */
             'access.title' => [
@@ -225,6 +231,9 @@ class BW_Text {
             ],
             'access.link' => [
                 'Join online session', 'Label of the meeting link', 'access',
+            ],
+            'access.location_title' => [
+                'Location', 'Heading above the location and notes of an in-person session', 'access',
             ],
 
             /* --- Account Overview --- */

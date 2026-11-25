@@ -5,6 +5,13 @@ New entries from v0.17.0 onward are written in English — see [0.17.0](#0170--2
 
 ---
 
+## [0.63.0] – 2026-11-25
+
+### Added
+- Sessions can be held **online (video call)** or **in person**: a new "Format" choice on the session (default online, so existing sessions are unchanged), with a location and notes for participants for in-person sessions and defaults for both under Settings → In-person sessions.
+- In-person sessions get their own booking confirmation with the location and notes instead of the Zoom text, and — when access details are sent N hours before the start — a "Location details (in person)" email at that time. Both are editable under Emails (German default texts included). No meeting link is ever sent for them.
+- The session list shows "Online" or "In person · location"; the calendar file carries the location; `[bw_credits_course_access]` shows location and notes to booked participants; `[bw_credits_course_info]` has the new fields `format` and `location`; the admin session list has a "Format" column.
+
 ## [0.62.2] – 2026-11-09
 
 ### Changed

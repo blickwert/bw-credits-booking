@@ -2,7 +2,12 @@
 if (!defined('ABSPATH')) exit;
 
 /**
- * Meta boxes on the course session: capacity, participant list, online access.
+ * Meta boxes on the course session: capacity, participant list, format & access.
+ *
+ * Format: every session is either online (video call, meeting link) or in person
+ * (location + notes). Online is the default, so existing sessions stay online.
+ * For an in-person session the meeting link and access details resolve to '' —
+ * every online path (access mails, calendar link, access box) leaves it alone.
  *
  * The fields are stored by the plugin itself (no ACF needed). If the
  * same meta keys still exist in an ACF field group, they should be
@@ -13,6 +18,15 @@ class BW_Metaboxes {
 
     const META_MEETING_LINK = '_bw_meeting_link';
     const META_ACCESS_INFO  = '_bw_access_info';
+    const META_FORMAT          = '_bw_format';          // 'online' (default) | 'in_person'
+    const META_LOCATION        = '_bw_location';        // in person: place/address, shown publicly
+    const META_LOCATION_NOTES  = '_bw_location_notes';  // in person: directions etc., booked participants only
+
+    const FORMAT_ONLINE    = 'online';
+    const FORMAT_IN_PERSON = 'in_person';
+
+    const OPT_DEFAULT_LOCATION       = 'bw_default_location';
+    const OPT_DEFAULT_LOCATION_NOTES = 'bw_default_location_notes';
 
     const OPT_USE_DEFAULT_ACCESS   = 'bw_use_default_access';
     const OPT_DEFAULT_MEETING_LINK = 'bw_default_meeting_link';
@@ -101,16 +115,54 @@ class BW_Metaboxes {
         return max(0, (int) get_option(self::OPT_ACCESS_HOURS, 0));
     }
 
-    /** The session's own meeting link, else the default from Settings. */
+    /** The session's own meeting link, else the default from Settings; '' for an in-person session. */
     public static function get_meeting_link(int $slot_id): string {
+        if (self::is_in_person($slot_id)) return '';
         $own = (string) get_post_meta($slot_id, self::META_MEETING_LINK, true);
         return $own !== '' ? $own : self::get_default_meeting_link();
     }
 
-    /** The session's own access details, else the default from Settings. */
+    /** The session's own access details, else the default from Settings; '' for an in-person session. */
     public static function get_access_info(int $slot_id): string {
+        if (self::is_in_person($slot_id)) return '';
         $own = (string) get_post_meta($slot_id, self::META_ACCESS_INFO, true);
         return $own !== '' ? $own : self::get_default_access_info();
+    }
+
+    /* ---------------------------------------------------------
+     * Format: online (video call) or in person
+     * --------------------------------------------------------- */
+
+    /** 'online' or 'in_person'; anything else (not set, old sessions) counts as online. */
+    public static function get_format(int $slot_id): string {
+        return $slot_id > 0 && (string) get_post_meta($slot_id, self::META_FORMAT, true) === self::FORMAT_IN_PERSON
+            ? self::FORMAT_IN_PERSON
+            : self::FORMAT_ONLINE;
+    }
+
+    public static function is_in_person(int $slot_id): bool {
+        return self::get_format($slot_id) === self::FORMAT_IN_PERSON;
+    }
+
+    /** In person: the session's own location, else the default from Settings; '' for an online session. */
+    public static function get_location(int $slot_id): string {
+        if (!self::is_in_person($slot_id)) return '';
+        $own = trim((string) get_post_meta($slot_id, self::META_LOCATION, true));
+        return $own !== '' ? $own : trim((string) get_option(self::OPT_DEFAULT_LOCATION, ''));
+    }
+
+    /** In person: the session's own notes, else the default from Settings; '' for an online session. */
+    public static function get_location_notes(int $slot_id): string {
+        if (!self::is_in_person($slot_id)) return '';
+        $own = trim((string) get_post_meta($slot_id, self::META_LOCATION_NOTES, true));
+        return $own !== '' ? $own : trim((string) get_option(self::OPT_DEFAULT_LOCATION_NOTES, ''));
+    }
+
+    /** Short public label for lists and templates: "Online" or "In person · Location". */
+    public static function format_label(int $slot_id): string {
+        if (!self::is_in_person($slot_id)) return bw_text('course_list.format.online');
+        $location = self::get_location($slot_id);
+        return bw_text('course_list.format.in_person') . ($location !== '' ? ' · ' . $location : '');
     }
 
     public static function register_settings() {
@@ -141,6 +193,42 @@ class BW_Metaboxes {
         add_settings_field(self::OPT_DEFAULT_MEETING_LINK, __('Default meeting link', 'bw-credits-booking'), [__CLASS__, 'field_default_meeting_link'], BW_Settings::MENU_SLUG, 'bw_online_access');
         add_settings_field(self::OPT_DEFAULT_ACCESS_INFO, __('Default access details / notes', 'bw-credits-booking'), [__CLASS__, 'field_default_access_info'], BW_Settings::MENU_SLUG, 'bw_online_access');
         add_settings_field(self::OPT_ACCESS_HOURS, __('Send access details (hours before)', 'bw-credits-booking'), [__CLASS__, 'field_access_hours'], BW_Settings::MENU_SLUG, 'bw_online_access');
+
+        register_setting($group, self::OPT_DEFAULT_LOCATION, [
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_text_field',
+        ]);
+        register_setting($group, self::OPT_DEFAULT_LOCATION_NOTES, [
+            'type'              => 'string',
+            'sanitize_callback' => 'sanitize_textarea_field',
+        ]);
+
+        add_settings_section('bw_in_person', __('In-person sessions', 'bw-credits-booking'), function () {
+            echo '<p>' . esc_html__('Defaults for sessions held in person. A location or notes entered on a session itself take precedence.', 'bw-credits-booking') . '</p>';
+        }, BW_Settings::MENU_SLUG);
+
+        add_settings_field(self::OPT_DEFAULT_LOCATION, __('Default location', 'bw-credits-booking'), [__CLASS__, 'field_default_location'], BW_Settings::MENU_SLUG, 'bw_in_person');
+        add_settings_field(self::OPT_DEFAULT_LOCATION_NOTES, __('Default notes for participants', 'bw-credits-booking'), [__CLASS__, 'field_default_location_notes'], BW_Settings::MENU_SLUG, 'bw_in_person');
+    }
+
+    public static function field_default_location() {
+        printf(
+            '<input type="text" name="%s" value="%s" class="regular-text" placeholder="%s">',
+            esc_attr(self::OPT_DEFAULT_LOCATION),
+            esc_attr((string) get_option(self::OPT_DEFAULT_LOCATION, '')),
+            esc_attr__('Studio name, street, town', 'bw-credits-booking')
+        );
+        echo '<p class="description">' . esc_html__('Shown in the session list and sent with the booking confirmation.', 'bw-credits-booking') . '</p>';
+    }
+
+    public static function field_default_location_notes() {
+        printf(
+            '<textarea name="%s" rows="4" class="large-text" placeholder="%s">%s</textarea>',
+            esc_attr(self::OPT_DEFAULT_LOCATION_NOTES),
+            esc_attr__('How to get there, doorbell, what to bring …', 'bw-credits-booking'),
+            esc_textarea((string) get_option(self::OPT_DEFAULT_LOCATION_NOTES, ''))
+        );
+        echo '<p class="description">' . esc_html__('Only for booked participants: in their emails and on the session page.', 'bw-credits-booking') . '</p>';
     }
 
     public static function field_use_default_access() {
@@ -190,7 +278,7 @@ class BW_Metaboxes {
         $pt = self::post_type();
 
         add_meta_box('bw_slot_capacity', __('Capacity', 'bw-credits-booking'), [__CLASS__, 'render_capacity'], $pt, 'side', 'high');
-        add_meta_box('bw_slot_access', __('Online Access', 'bw-credits-booking'), [__CLASS__, 'render_access'], $pt, 'normal', 'high');
+        add_meta_box('bw_slot_access', __('Format & Access', 'bw-credits-booking'), [__CLASS__, 'render_access'], $pt, 'normal', 'high');
         add_meta_box('bw_slot_participants', __('Participants', 'bw-credits-booking'), [__CLASS__, 'render_participants'], $pt, 'normal', 'high');
     }
 
@@ -244,7 +332,48 @@ class BW_Metaboxes {
         $default_link = self::get_default_meeting_link();
         $default_info = self::get_default_access_info();
         $hours        = self::get_access_details_hours();
+        $format       = self::get_format($post->ID);
+        $location     = (string) get_post_meta($post->ID, self::META_LOCATION, true);
+        $notes        = (string) get_post_meta($post->ID, self::META_LOCATION_NOTES, true);
+        $default_loc  = trim((string) get_option(self::OPT_DEFAULT_LOCATION, ''));
+        $default_note = trim((string) get_option(self::OPT_DEFAULT_LOCATION_NOTES, ''));
         ?>
+        <p class="bw-format">
+            <strong><?php esc_html_e('Format', 'bw-credits-booking'); ?></strong><br>
+            <label style="margin-right:1.5em"><input type="radio" name="bw_format" value="<?php echo esc_attr(self::FORMAT_ONLINE); ?>"<?php checked($format, self::FORMAT_ONLINE); ?>> <?php esc_html_e('Online (video call)', 'bw-credits-booking'); ?></label>
+            <label><input type="radio" name="bw_format" value="<?php echo esc_attr(self::FORMAT_IN_PERSON); ?>"<?php checked($format, self::FORMAT_IN_PERSON); ?>> <?php esc_html_e('In person', 'bw-credits-booking'); ?></label>
+        </p>
+
+        <div class="bw-format-in-person"<?php echo $format === self::FORMAT_IN_PERSON ? '' : ' style="display:none"'; ?>>
+            <p>
+                <label for="bw_location"><strong><?php esc_html_e('Location', 'bw-credits-booking'); ?></strong></label><br>
+                <input type="text" id="bw_location" name="bw_location" value="<?php echo esc_attr($location); ?>" class="widefat"
+                       placeholder="<?php echo esc_attr($default_loc !== '' ? $default_loc : __('Studio name, street, town', 'bw-credits-booking')); ?>">
+                <span class="description"><?php esc_html_e('Shown in the session list and sent with the booking confirmation.', 'bw-credits-booking'); ?></span>
+            </p>
+            <p>
+                <label for="bw_location_notes"><strong><?php esc_html_e('Notes for participants', 'bw-credits-booking'); ?></strong></label><br>
+                <textarea id="bw_location_notes" name="bw_location_notes" rows="4" class="widefat"
+                          placeholder="<?php echo esc_attr($default_note !== '' ? $default_note : __('How to get there, doorbell, what to bring …', 'bw-credits-booking')); ?>"><?php echo esc_textarea($notes); ?></textarea>
+                <span class="description"><?php esc_html_e('Only for booked participants: in their emails and on the session page.', 'bw-credits-booking'); ?></span>
+            </p>
+            <?php if ($default_loc !== '' || $default_note !== '') : ?>
+                <p class="description"><?php esc_html_e('Leave empty to use the default from Settings (shown in grey).', 'bw-credits-booking'); ?></p>
+            <?php endif; ?>
+            <p class="description">
+                <?php if ($hours > 0) : ?>
+                    <?php echo esc_html(sprintf(
+                        /* translators: %d: hours before the session start, from Settings */
+                        __('The booking confirmation contains the location. %d hours before the session starts, participants receive a reminder with the location and notes.', 'bw-credits-booking'),
+                        $hours
+                    )); ?>
+                <?php else : ?>
+                    <?php esc_html_e('The booking confirmation contains the location and notes. No meeting link is sent.', 'bw-credits-booking'); ?>
+                <?php endif; ?>
+            </p>
+        </div>
+
+        <div class="bw-format-online"<?php echo $format === self::FORMAT_ONLINE ? '' : ' style="display:none"'; ?>>
         <p>
             <label for="bw_meeting_link"><strong><?php esc_html_e('Meeting link', 'bw-credits-booking'); ?></strong></label><br>
             <input type="url" id="bw_meeting_link" name="bw_meeting_link"
@@ -287,6 +416,20 @@ class BW_Metaboxes {
                 <span class="description"><?php esc_html_e('Only necessary if the link has changed since.', 'bw-credits-booking'); ?></span>
             </p>
         <?php endif; ?>
+        </div>
+        <script>
+        (function () {
+            var box = document.getElementById('bw_slot_access');
+            if (!box) return;
+            box.querySelectorAll('input[name="bw_format"]').forEach(function (radio) {
+                radio.addEventListener('change', function () {
+                    var inPerson = radio.value === '<?php echo esc_js(self::FORMAT_IN_PERSON); ?>' && radio.checked;
+                    box.querySelector('.bw-format-in-person').style.display = inPerson ? '' : 'none';
+                    box.querySelector('.bw-format-online').style.display = inPerson ? 'none' : '';
+                });
+            });
+        })();
+        </script>
         <?php
     }
 
@@ -417,8 +560,28 @@ class BW_Metaboxes {
             }
         }
 
-        $link_before = (string) get_post_meta($post_id, self::META_MEETING_LINK, true);
-        $link_after  = $link_before;
+        $link_before      = (string) get_post_meta($post_id, self::META_MEETING_LINK, true);
+        $link_after       = $link_before;
+        $was_in_person    = self::is_in_person($post_id);
+
+        if (isset($_POST['bw_format'])) {
+            $format = sanitize_key(wp_unslash($_POST['bw_format'])) === self::FORMAT_IN_PERSON ? self::FORMAT_IN_PERSON : self::FORMAT_ONLINE;
+            if ($format === self::FORMAT_IN_PERSON) {
+                update_post_meta($post_id, self::META_FORMAT, self::FORMAT_IN_PERSON);
+            } else {
+                delete_post_meta($post_id, self::META_FORMAT);
+            }
+        }
+
+        foreach (['bw_location' => [self::META_LOCATION, 'sanitize_text_field'], 'bw_location_notes' => [self::META_LOCATION_NOTES, 'sanitize_textarea_field']] as $field => [$meta, $sanitize]) {
+            if (!isset($_POST[$field])) continue;
+            $value = call_user_func($sanitize, wp_unslash($_POST[$field]));
+            if ($value === '') {
+                delete_post_meta($post_id, $meta);
+            } else {
+                update_post_meta($post_id, $meta, $value);
+            }
+        }
 
         if (isset($_POST['bw_meeting_link'])) {
             $link_after = esc_url_raw(trim((string) wp_unslash($_POST['bw_meeting_link'])));
@@ -440,7 +603,9 @@ class BW_Metaboxes {
 
         // Fire only now — the access-details email also needs the notes field.
         // Only on the empty → set transition, otherwise every save would resend it.
-        if ($link_before === '' && $link_after !== '') {
+        // Switched from in person to online with a link already in place: the link counts as new too.
+        if (($link_before === '' && $link_after !== '' && !self::is_in_person($post_id))
+            || ($was_in_person && !self::is_in_person($post_id) && self::get_meeting_link($post_id) !== '')) {
             do_action('bw_meeting_link_added', $post_id);
         }
     }

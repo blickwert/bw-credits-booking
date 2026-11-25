@@ -16,7 +16,7 @@
  * @var bool   $show_action
  * @var bool   $show_avail
  *
- * @version 0.25.0
+ * @version 0.63.0
  */
 if (!defined('ABSPATH')) exit;
 ?>
@@ -33,6 +33,8 @@ if (!defined('ABSPATH')) exit;
                 $name = bw_cs_first_term($slot->ID, $taxonomy);
                 if ($name !== '') $terms[] = $name;
             }
+            // Online or in person (with the location)
+            $terms[] = BW_Metaboxes::format_label($slot->ID);
 
             do_action('bw_before_slot_item', $slot);
         ?>
